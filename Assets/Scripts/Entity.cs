@@ -4,14 +4,14 @@ public class Entity : MonoBehaviour
 {
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
-    //protected StateMachine stateMachine; -> Helps define the states (actions) entities have
+    protected StateMachine stateMachine; //-> Helps define the states (actions) entities have
 
     protected virtual void Awake()
     {
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
 
-        //stateMachine = new StateMachine();
+        stateMachine = new StateMachine();
     }
 
     protected virtual void Start()
@@ -22,12 +22,12 @@ public class Entity : MonoBehaviour
     protected virtual void Update()
     {
         //HandleCollisionDetection(); -> necesarry to add additional collision detectors? to discuss
-        //stateMachine.UpdateActiveState();
+        stateMachine.UpdateActiveState();
     }
 
     public void CurrentStateAnimationTrigger()
     {
-        //stateMachine.currentState.AnimationTrigger();
+        stateMachine.currentState.AnimationTrigger();
     }
     
     public void SetVelocity(float xVelocity, float yVelocity)
