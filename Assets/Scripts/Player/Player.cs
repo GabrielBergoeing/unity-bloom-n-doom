@@ -1,21 +1,25 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class Player : Entity
 {
-    public PlayerInputSet input { get; private set; }
+    public PlayerInput input { get; private set; }
 
-    // Here we define variables to store states, like
+    // States
     public Player_IdleState idleState { get; private set; }
     public Player_MoveState moveState { get; private set; }
 
     [Header("Movement variables")]
-    [SerializeField] public Vector2 moveInput { get; private set; }
+    private bool canControl = false; // control flag
+    public Vector2 moveInput { get; private set; }
     public float moveSpeed = 8;
 
     protected override void Awake()
     {
         base.Awake();
-        input = new PlayerInputSet();
+        input = GetComponent<PlayerInput>();
         // sfx = GetComponent<Player_SFX>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
@@ -31,24 +35,29 @@ public class Player : Entity
     protected override void Update()
     {
         base.Update();
-        Debug.Log(moveInput);
     }
 
-    private void OnEnable()
+    public void OnEnable() // Enable player control after spawn
     {
-        input.Enable();
-
-        // Define the Player type control scheme
-        input.Player.Movement.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        input.Player.Movement.canceled += ctx => moveInput = Vector2.zero;
+        if (canControl) return;
+        FlipPlayerControlFlag();
     }
 
-    private void OnDisable()
+    public void OnDisable() // Disable player control
     {
-        input.Disable();
+        if (!canControl) return;
+        FlipPlayerControlFlag();
+    }
+
+    public void OnMovement(InputValue input)
+    {
+        if (!canControl) return;
+        moveInput = input.Get<Vector2>();
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;
+
+    public bool FlipPlayerControlFlag() => canControl = !canControl;
 
     // Teleport player's transform to given position, useful for start of match or outofbounds
     public void TeleportPlayer(Vector3 position) => transform.position = position;
