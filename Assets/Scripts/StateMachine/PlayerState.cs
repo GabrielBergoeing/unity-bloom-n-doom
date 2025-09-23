@@ -18,6 +18,9 @@ public abstract class PlayerState: EntityState
         base.UpdateAnimationParameters();
         anim.SetFloat("xVelocity", player.moveInput.x);
         anim.SetFloat("yVelocity", player.moveInput.y);
+
+        anim.SetFloat("xFacingDir", player.xFacingDir);
+        anim.SetFloat("yFacingDir", player.yFacingDir);
     }
 
     /*

@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 
 public class Player : Entity
 {
+    // Components
     public PlayerInput input { get; private set; }
 
     // States
@@ -15,6 +16,10 @@ public class Player : Entity
     private bool canControl = false; // control flag
     public Vector2 moveInput { get; private set; }
     public float moveSpeed = 8;
+
+    // Handles values to display anim facing dir
+    public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
+    public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
 
     protected override void Awake()
     {
@@ -37,6 +42,25 @@ public class Player : Entity
         base.Update();
     }
 
+    private void DetermineFacingDir()
+    {
+        if (moveInput == Vector2.zero)
+            return; // No change if no input
+
+        if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
+        {
+            // Horizontal movement dominates
+            yFacingDir = 0;
+            xFacingDir = moveInput.x > 0 ? 1 : -1;
+        }
+        else
+        {
+            // Vertical movement dominates
+            xFacingDir = 0;
+            yFacingDir = moveInput.y > 0 ? 1 : -1;
+        }
+    }
+
     public void OnEnable() // Enable player control after spawn
     {
         if (canControl) return;
@@ -53,6 +77,8 @@ public class Player : Entity
     {
         if (!canControl) return;
         moveInput = input.Get<Vector2>();
+
+        DetermineFacingDir();
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;
