@@ -10,7 +10,11 @@ public class Player : Entity
 
     // States
     public Player_IdleState idleState { get; private set; }
+    public Player_IrrigateState irrigateState { get; private set; }
     public Player_MoveState moveState { get; private set; }
+    public Player_PickState pickState { get; private set; }
+    public Player_PlantState plantState { get; private set; }
+    public Player_SabotageState sabotageState { get; private set; }
 
     [Header("Movement variables")]
     private bool canControl = false; // control flag
@@ -28,7 +32,11 @@ public class Player : Entity
         // sfx = GetComponent<Player_SFX>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
+        irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");
         moveState = new Player_MoveState(this, stateMachine, "move");
+        pickState = new Player_PickState(this, stateMachine, "pick");
+        plantState = new Player_PlantState(this, stateMachine, "plant");
+        sabotageState = new Player_SabotageState(this, stateMachine, "sabotage");
     }
 
     protected override void Start()
