@@ -1,9 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class TileInteraction : MonoBehaviour
 {
     public Camera cam;
-    public Grid farmManager;
+    public FarmManager farmManager;
+    public Player player;
 
     void Update()
     {
@@ -12,7 +13,7 @@ public class TileInteraction : MonoBehaviour
             Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPos = farmManager.farmTilemap.WorldToCell(mouseWorld);
 
-            // Aquí decides qué acción hacer, por ejemplo:
+            // AquÃ­ decides quÃ© acciÃ³n hacer, por ejemplo:
             farmManager.PrepareTile(cellPos);
         }
 
@@ -23,5 +24,11 @@ public class TileInteraction : MonoBehaviour
 
             farmManager.PlantSeed(cellPos);
         }
+    }
+
+    public void SetCamera(Camera newCam)
+    {
+        cam = newCam;
+        Debug.Log("Camera asigned to TileInteraction: " + cam.name);
     }
 }

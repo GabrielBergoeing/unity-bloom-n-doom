@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Grid : MonoBehaviour
+public class FarmManager : MonoBehaviour
 {
     public Tilemap farmTilemap;
     public Tile preparedTile;
