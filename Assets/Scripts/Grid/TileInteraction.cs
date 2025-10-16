@@ -6,24 +6,24 @@ public class TileInteraction : MonoBehaviour
     public FarmManager farmManager;
     public Player player;
 
+    public GameObject tileOutlinePrefab;
+    private GameObject currentOutline;
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // clic izquierdo
-        {
-            Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int cellPos = farmManager.farmTilemap.WorldToCell(mouseWorld);
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = 0;
+        Vector3Int cellPos = farmManager.farmTilemap.WorldToCell(mouseWorld);
+        Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(cellPos);
 
-            // Aquí decides qué acción hacer, por ejemplo:
+        if (currentOutline == null)
+            currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
+        else
+            currentOutline.transform.position = cellCenter;
+
+        if (Input.GetMouseButtonDown(0))
             farmManager.PrepareTile(cellPos);
-        }
-
-        if (Input.GetMouseButtonDown(1)) // clic derecho
-        {
-            Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int cellPos = farmManager.farmTilemap.WorldToCell(mouseWorld);
-
+        if (Input.GetMouseButtonDown(1))
             farmManager.PlantSeed(cellPos);
-        }
     }
 
     public void SetCamera(Camera newCam)

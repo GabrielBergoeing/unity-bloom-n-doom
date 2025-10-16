@@ -7,6 +7,8 @@ public class FarmManager : MonoBehaviour
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
+    public Tile highlightTile;
+    private Vector3Int lastHighlightedTile = Vector3Int.zero;
 
     private Dictionary<Vector3Int, TileState> tileStates = new Dictionary<Vector3Int, TileState>();
 
@@ -37,6 +39,31 @@ public class FarmManager : MonoBehaviour
         {
             farmTilemap.SetTile(cellPos, seedTile);
             tileStates[cellPos] = TileState.PlantedSeed;
+        }
+    }
+
+    public void HighlightTile(Vector3Int cellPos)
+    {
+        if (tileStates.ContainsKey(lastHighlightedTile))
+        {
+            switch (tileStates[lastHighlightedTile])
+            {
+                case TileState.NotPrepared:
+                    farmTilemap.SetTile(lastHighlightedTile, null);
+                    break;
+                case TileState.Prepared:
+                    farmTilemap.SetTile(lastHighlightedTile, preparedTile);
+                    break;
+                case TileState.PlantedSeed:
+                    farmTilemap.SetTile(lastHighlightedTile, seedTile);
+                    break;
+            }
+        }
+
+        if (tileStates.ContainsKey(cellPos))
+        {
+            farmTilemap.SetTile(cellPos, highlightTile);
+            lastHighlightedTile = cellPos;
         }
     }
 }
