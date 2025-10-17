@@ -5,7 +5,7 @@ public class TileInteraction : MonoBehaviour
 {
     [Header("References")]
     public Camera cam;
-    public FarmManager farmManager;
+    private FarmManager farmManager;
     public Player player;
 
     [Header("Visuals")]
@@ -23,6 +23,8 @@ public class TileInteraction : MonoBehaviour
 
     void Start()
     {
+        farmManager = FarmManager.instance;
+
         if (cam == null)
             cam = Camera.main;
 

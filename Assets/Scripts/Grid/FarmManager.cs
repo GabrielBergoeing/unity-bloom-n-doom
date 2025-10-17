@@ -4,6 +4,9 @@ using UnityEngine.Tilemaps;
 
 public class FarmManager : MonoBehaviour
 {
+    //Singleton Call for all TileInteractions to access
+    public static FarmManager instance;
+
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
@@ -13,7 +16,12 @@ public class FarmManager : MonoBehaviour
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    void Start()
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    private void Start()
     {
         BoundsInt bounds = farmTilemap.cellBounds;
         foreach (Vector3Int pos in bounds.allPositionsWithin)

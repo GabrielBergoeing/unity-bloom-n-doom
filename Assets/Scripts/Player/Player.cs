@@ -55,12 +55,12 @@ public class Player : Entity
             }
             else
             {
-                Debug.LogWarning("No se encontró TileInteraction en la escena.");
+                Debug.LogWarning("No se encontrï¿½ TileInteraction en la escena.");
             }
         }
         else
         {
-            Debug.LogWarning("El jugador no tiene una cámara hija asignada.");
+            Debug.LogWarning("El jugador no tiene una cï¿½mara hija asignada.");
         }
     }
 
