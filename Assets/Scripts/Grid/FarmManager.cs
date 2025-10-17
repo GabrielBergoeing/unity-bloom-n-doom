@@ -7,7 +7,6 @@ public class FarmManager : MonoBehaviour
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
-    public Tile highlightTile;
     private Vector3Int lastHighlightedTile = Vector3Int.zero;
 
     private Dictionary<Vector3Int, TileState> tileStates = new Dictionary<Vector3Int, TileState>();
@@ -59,11 +58,10 @@ public class FarmManager : MonoBehaviour
                     break;
             }
         }
+    }
 
-        if (tileStates.ContainsKey(cellPos))
-        {
-            farmTilemap.SetTile(cellPos, highlightTile);
-            lastHighlightedTile = cellPos;
-        }
+    public bool IsPrepared(Vector3Int cellPos)
+    {
+        return tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.Prepared;
     }
 }
