@@ -43,25 +43,6 @@ public class Player : Entity
     {
         base.Start();
         stateMachine.Initialize(idleState);
-
-        Camera playerCam = GetComponentInChildren<Camera>();
-        if (playerCam != null)
-        {
-            TileInteraction tileInteraction = FindFirstObjectByType<TileInteraction>();
-
-            if (tileInteraction != null)
-            {
-                tileInteraction.SetCamera(playerCam);
-            }
-            else
-            {
-                Debug.LogWarning("No se encontr� TileInteraction en la escena.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("El jugador no tiene una c�mara hija asignada.");
-        }
     }
 
     protected override void Update()

@@ -15,7 +15,6 @@ public class Player_IdleState : PlayerState
     public override void Update()
     {
         base.Update();
-        Debug.Log("Idling");
 
         //if (player.moveInput.x == player.facingDir && player.wallDetected)
         //return;

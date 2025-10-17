@@ -5,8 +5,8 @@ public class TileInteraction : MonoBehaviour
 {
     [Header("References")]
     public Camera cam;
-    private FarmManager farmManager;
     public Player player;
+    private FarmManager farmManager;
 
     [Header("Visuals")]
     public GameObject tileOutlinePrefab;
@@ -16,42 +16,28 @@ public class TileInteraction : MonoBehaviour
     private InputAction interactAction;
     private Vector3Int currentCell;
 
-    void Awake()
+    private void Awake()
     {
-        playerInput = GetComponent<PlayerInput>();
+        playerInput = GetComponentInParent<PlayerInput>();
+        farmManager = FarmManager.instance;
     }
 
-    void Start()
+    private void Start()
     {
-        farmManager = FarmManager.instance;
+        if (cam == null) cam = Camera.main;
 
-        if (cam == null)
-            cam = Camera.main;
-
-        if (playerInput == null)
-        {
-            Debug.LogError("PlayerInput no asignado en TileInteraction.");
-            return;
-        }
-
-        var map = playerInput.currentActionMap;
-        if (map == null)
-        {
-            Debug.LogError("No hay Action Map activo en PlayerInput.");
-            return;
-        }
-
-        interactAction = map.FindAction("Interact", false);
+        interactAction = playerInput.actions["Interact"];
         if (interactAction == null)
         {
-            Debug.LogError("No se encontró la acción 'Interact' en el mapa actual.");
+            Debug.LogError("No Interact action found for this player.");
             return;
         }
 
         interactAction.performed += OnInteract;
 
-        Debug.Log("Acción 'Interact' conectada correctamente. Control scheme: " + playerInput.currentControlScheme);
+        Debug.Log($"Player {playerInput.playerIndex} bound to Interact. Control Scheme: {playerInput.currentControlScheme}");
     }
+
 
 
     void OnDestroy()
