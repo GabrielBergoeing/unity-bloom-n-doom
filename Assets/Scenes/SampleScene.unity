@@ -3101,6 +3101,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 519420031}
   farmManager: {fileID: 958869526}
+  player: {fileID: 0}
+  tileOutlinePrefab: {fileID: 7982480584452911588, guid: 5910bbe1f049ce5499b1bcad57138cb5, type: 3}
 --- !u!4 &1355017864
 Transform:
   m_ObjectHideFlags: 0
