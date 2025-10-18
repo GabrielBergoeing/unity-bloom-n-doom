@@ -1,16 +1,45 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static GameManager instance;
+
+    private void Awake()
     {
-        
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator ChangeSceneCo(string sceneName)
     {
-        
+        UI_FadeScreen fadeScreen = FindFadeScreenUI();
+        fadeScreen.FadeOut();
+        yield return fadeScreen.fadeEffectCo;
+
+        SceneManager.LoadScene(sceneName);
+
+        fadeScreen = FindFadeScreenUI();
+        fadeScreen.FadeIn();
+    }
+
+    private UI_FadeScreen FindFadeScreenUI()
+    {
+        if(UI.instance != null)
+        {
+            return UI.instance.fadeScreen;
+        }
+        return FindFirstObjectByType<UI_FadeScreen>();
+    }
+
+    public void ChangeScene(string sceneName)
+    {
+        StartCoroutine(ChangeSceneCo(sceneName));
     }
 }
