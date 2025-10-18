@@ -4,72 +4,84 @@ using UnityEngine.Tilemaps;
 
 public class FarmManager : MonoBehaviour
 {
-    //Singleton Call for all TileInteractions to access
     public static FarmManager instance;
 
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
-    private Vector3Int lastHighlightedTile = Vector3Int.zero;
-
-    private Dictionary<Vector3Int, TileState> tileStates = new Dictionary<Vector3Int, TileState>();
+    public GameObject plantPrefab;
+    [SerializeField] private Transform plantsRoot;
+    private readonly Dictionary<Vector3Int, TileState> tileStates = new();
+    private readonly HashSet<Vector3Int> occupiedCells = new();
+    private readonly Dictionary<int, Transform> playerPlantRoots = new();
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    private void Awake()
-    {
-        instance = this;
-    }
+    void Awake() => instance = this;
 
-    private void Start()
+    void Start()
     {
         BoundsInt bounds = farmTilemap.cellBounds;
-        foreach (Vector3Int pos in bounds.allPositionsWithin)
-        {
+        foreach (var pos in bounds.allPositionsWithin)
             if (farmTilemap.HasTile(pos))
                 tileStates[pos] = TileState.NotPrepared;
-        }
+
+        if (plantsRoot == null)
+            plantsRoot = new GameObject("Plants").transform;
     }
 
     public void PrepareTile(Vector3Int cellPos)
     {
-        if (tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.NotPrepared)
+        if (tileStates.TryGetValue(cellPos, out var state) && state == TileState.NotPrepared)
         {
             farmTilemap.SetTile(cellPos, preparedTile);
             tileStates[cellPos] = TileState.Prepared;
         }
     }
 
-    public void PlantSeed(Vector3Int cellPos)
+    public void PlantSeed(Vector3Int cellPos, int planterPlayerIndex)
     {
-        if (tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.Prepared)
+        if (!tileStates.ContainsKey(cellPos)) return;
+        if (IsOccupied(cellPos)) return;
+
+        if (tileStates[cellPos] == TileState.Prepared)
         {
             farmTilemap.SetTile(cellPos, seedTile);
             tileStates[cellPos] = TileState.PlantedSeed;
-        }
-    }
 
-    public void HighlightTile(Vector3Int cellPos)
-    {
-        if (tileStates.ContainsKey(lastHighlightedTile))
-        {
-            switch (tileStates[lastHighlightedTile])
+            Vector3 worldPos = farmTilemap.GetCellCenterWorld(cellPos);
+            if (plantPrefab != null)
             {
-                case TileState.NotPrepared:
-                    farmTilemap.SetTile(lastHighlightedTile, null);
-                    break;
-                case TileState.Prepared:
-                    farmTilemap.SetTile(lastHighlightedTile, preparedTile);
-                    break;
-                case TileState.PlantedSeed:
-                    farmTilemap.SetTile(lastHighlightedTile, seedTile);
-                    break;
+                GameObject plant = Instantiate(plantPrefab, worldPos, Quaternion.identity);
+
+                Transform root = GetOrCreatePlayerRoot(planterPlayerIndex);
+                plant.transform.SetParent(root, true);
+
+                occupiedCells.Add(cellPos);
             }
         }
     }
 
-    public bool IsPrepared(Vector3Int cellPos)
+    private Transform GetOrCreatePlayerRoot(int playerIndex)
     {
-        return tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.Prepared;
+        if (!playerPlantRoots.TryGetValue(playerIndex, out var root) || root == null)
+        {
+            var go = new GameObject($"Player{playerIndex}_Plants");
+            go.transform.SetParent(plantsRoot, false);
+            root = go.transform;
+            playerPlantRoots[playerIndex] = root;
+        }
+        return root;
+    }
+
+    public bool IsPrepared(Vector3Int cellPos) =>
+        tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.Prepared;
+
+    public bool IsOccupied(Vector3Int cellPos) => occupiedCells.Contains(cellPos);
+
+    public void RemovePlant(Vector3Int cellPos)
+    {
+        if (occupiedCells.Contains(cellPos))
+            occupiedCells.Remove(cellPos);
     }
 }
