@@ -4,17 +4,23 @@ using UnityEngine.InputSystem;
 //This script allows the player to pick up and drop items, is intended only for sabotage itmes such as the flamethrower
 public class Pickup : MonoBehaviour
 {
-    private bool canPickup = false;
+    public bool canPickup = false;
 
-    private bool isPickedUp = false;
-    private Transform playerHand;
+    public bool isPickedUp = false;
     private PlayerInput playerInput;
     private Player currentPlayer;
+    private HotbarSystem hotbarSystem;
+    private Player savedPlayer;
+    private HotbarSystem savedHotbarSystem;
+    private PlayerInput savedPlayerInput;
+
 
     void Start()
     {
 
     }
+    
+
 
     void Update()
     {
@@ -37,8 +43,11 @@ public class Pickup : MonoBehaviour
         {
             currentPlayer = other.GetComponent<Player>();
             playerInput = currentPlayer.GetComponent<PlayerInput>();
-            playerHand = currentPlayer.transform.Find("OnHand");
+            hotbarSystem = currentPlayer.GetComponent<HotbarSystem>();
             canPickup = true;
+            savedPlayer = currentPlayer;
+            savedHotbarSystem = hotbarSystem;
+            savedPlayerInput = playerInput;
         }
     }
 
@@ -48,33 +57,40 @@ public class Pickup : MonoBehaviour
         {
             currentPlayer = null;
             playerInput = null;
+            hotbarSystem = null;
             canPickup = false;
-            playerHand = null;
         }
     }
-
     private void PickupItem()
     {
-        if (playerHand != null)
+        if (hotbarSystem != null)
         {
-            isPickedUp = true;
-            transform.SetParent(playerHand);
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
-
-            if (GetComponent<Collider2D>() != null)
+            if (hotbarSystem.AddItem(gameObject))
             {
-                GetComponent<Collider2D>().enabled = false;
+                currentPlayer = savedPlayer;
+                hotbarSystem = savedHotbarSystem;
+                playerInput = savedPlayerInput;
+                isPickedUp = true;
+                if (GetComponent<Collider2D>() != null)
+                {
+                    GetComponent<Collider2D>().enabled = false;
+                }
             }
         }
     }
+
     private void DropItem()
     {
-        isPickedUp = false;
-        transform.SetParent(null);
-        if (GetComponent<Collider2D>() != null)
+        if (hotbarSystem != null)
         {
-            GetComponent<Collider2D>().enabled = true;
+            isPickedUp = false;
+            transform.SetParent(null);
+            hotbarSystem.RemoveItem(gameObject);
+            gameObject.SetActive(true);
+            if (GetComponent<Collider2D>() != null)
+            {
+                GetComponent<Collider2D>().enabled = true;
+            }
         }
     }
 

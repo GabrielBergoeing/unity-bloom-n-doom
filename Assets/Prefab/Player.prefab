@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5709191765789113511}
   - component: {fileID: 1618419494059639732}
   - component: {fileID: 4213318453253227017}
+  - component: {fileID: 8825632466125325945}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -38,6 +39,7 @@ Transform:
   - {fileID: 3782104588507635320}
   - {fileID: 8403292906433363429}
   - {fileID: 5748083793856068319}
+  - {fileID: 2827014568797628424}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8833315760474147988
@@ -65,6 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae79373ed263a2409823bf7a5dfebd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holdingDistance: 0.8
 --- !u!50 &5709191765789113511
 Rigidbody2D:
   serializedVersion: 5
@@ -174,6 +177,19 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.24
+--- !u!114 &8825632466125325945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 255ad9fefb06aff498aee057089f4b0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numberOfSlots: 4
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0
@@ -525,3 +541,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f64f18753eda548acb0372ad8ecb38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &7422076443695109550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2827014568797628424}
+  m_Layer: 0
+  m_Name: Inventory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2827014568797628424
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7422076443695109550}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.2492647, y: 1.6714908, z: -0.07365762}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9094087689114442365}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
