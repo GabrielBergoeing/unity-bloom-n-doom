@@ -16,6 +16,8 @@ public class TileInteraction : MonoBehaviour
     private InputAction interactAction;
     private Vector3Int currentCell;
 
+    public Vector3Int CurrentCell => currentCell;
+
     private void Awake()
     {
         playerInput = GetComponentInParent<PlayerInput>();

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Player_ActionState : PlayerState
 {
+    public bool isPerformingAction = true;
+
     public Player_ActionState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
     {
     }
@@ -9,6 +11,7 @@ public class Player_ActionState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        isPerformingAction = true;
         player.SetVelocity(0, 0);
     }
 
@@ -16,5 +19,11 @@ public class Player_ActionState : PlayerState
     {
         base.Update();
         //Set player velocity to 0!
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        isPerformingAction = false;
     }
 }
