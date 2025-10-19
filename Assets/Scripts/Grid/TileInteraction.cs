@@ -38,8 +38,6 @@ public class TileInteraction : MonoBehaviour
         Debug.Log($"Player {playerInput.playerIndex} bound to Interact. Control Scheme: {playerInput.currentControlScheme}");
     }
 
-
-
     void OnDestroy()
     {
         if (interactAction != null)
@@ -64,7 +62,7 @@ public class TileInteraction : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             farmManager.PrepareTile(currentCell);
         if (Input.GetMouseButtonDown(1))
-            farmManager.PlantSeed(currentCell);
+            farmManager.PlantSeed(currentCell, playerInput.playerIndex);
     }
 
     private void OnInteract(InputAction.CallbackContext context)
@@ -72,7 +70,7 @@ public class TileInteraction : MonoBehaviour
         if (!context.performed) return;
 
         if (farmManager.IsPrepared(currentCell))
-            farmManager.PlantSeed(currentCell);
+            farmManager.PlantSeed(currentCell, playerInput.playerIndex);
         else
             farmManager.PrepareTile(currentCell);
     }
