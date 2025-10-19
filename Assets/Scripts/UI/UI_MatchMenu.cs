@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class UI_MatchMenu : MonoBehaviour
 {
@@ -18,37 +20,23 @@ public class UI_MatchMenu : MonoBehaviour
 
     private readonly Dictionary<int, GameObject> activePlayers = new();
 
+    private bool ready = false;
+
     private void Awake()
     {
-        Debug.Log("[MatchMenu] Awake called.");
-        // Safety: Ensure all panels start hidden
-        for (int i = 0; i < playerPanels.Length; i++)
+        foreach (var panel in playerPanels)
         {
-            if (playerPanels[i] != null)
-            {
-                panelDebug(i, "Setting inactive in Awake");
-                playerPanels[i].SetActive(false);
-            }
-            else
-            {
-                Debug.LogWarning($"[MatchMenu] Player panel {i} is not assigned in Inspector!");
-            }
+            if (panel != null) panel.SetActive(false);
         }
 
         if (startMatchButton != null)
         {
             startMatchButton.interactable = false;
-            Debug.Log("[MatchMenu] Start button set to inactive in Awake.");
-        }
-        else
-        {
-            Debug.LogWarning("[MatchMenu] Start button reference missing in Inspector!");
         }
     }
 
     private void OnEnable()
     {
-        Debug.Log("[MatchMenu] OnEnable called, starting WaitForInputManager coroutine.");
         StartCoroutine(WaitForInputManager());
     }
 
@@ -56,10 +44,8 @@ public class UI_MatchMenu : MonoBehaviour
     {
         yield return new WaitUntil(() => PlayerInputManager.instance != null);
 
-        Debug.Log("[MatchMenu] InputManager found, subscribing to join/leave events.");
         PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
         PlayerInputManager.instance.onPlayerLeft += HandlePlayerLeft;
-
         UpdateStartButton();
     }
 
@@ -68,13 +54,11 @@ public class UI_MatchMenu : MonoBehaviour
         if (PlayerInputManager.instance == null) return;
         PlayerInputManager.instance.onPlayerJoined -= HandlePlayerJoined;
         PlayerInputManager.instance.onPlayerLeft -= HandlePlayerLeft;
-        Debug.Log("[MatchMenu] Unsubscribed from InputManager events.");
     }
 
     public void RegisterPlayer(UI_PlayerSlot slot)
     {
         var player = slot.playerInput;
-        Debug.Log($"[MatchMenu] RegisterPlayer called for Player {player.playerIndex}");
 
         if (player.playerIndex >= playerPanels.Length)
         {
@@ -82,84 +66,51 @@ public class UI_MatchMenu : MonoBehaviour
             return;
         }
 
-        var panel = playerPanels[player.playerIndex];
-        panel.SetActive(true);
-        var text = panel.GetComponentInChildren<Text>();
-        if (text != null)
-            text.text = $"Player {player.playerIndex + 1} Ready!";
-
-        activePlayers[player.playerIndex] = panel;
-        UpdateStartButton();
+        AssignPanel(player);
     }
-
 
     private void HandlePlayerJoined(PlayerInput player)
     {
-        Debug.Log($"[MatchMenu] Player {player.playerIndex} joined ({player.devices[0].displayName})");
-
-        // Assign Input Action Asset
         if (inputActions != null)
-        {
             player.actions = inputActions;
-            Debug.Log($"[MatchMenu] Assigned InputActionAsset '{inputActions.name}' to Player {player.playerIndex}");
-        }
 
-        // Switch to desired action map
-        if (!string.IsNullOrEmpty(actionMapToUse) && player.actions != null)
-        {
-            var map = player.actions.FindActionMap(actionMapToUse, true);
-            if (map != null)
-            {
-                player.SwitchCurrentActionMap(actionMapToUse);
-                Debug.Log($"[MatchMenu] Switched Player {player.playerIndex} to action map '{actionMapToUse}'");
-            }
-            else
-            {
-                Debug.LogWarning($"[MatchMenu] Action map '{actionMapToUse}' not found for Player {player.playerIndex}");
-            }
-        }
+        if (!string.IsNullOrEmpty(actionMapToUse))
+            player.SwitchCurrentActionMap(actionMapToUse);
 
-        // Assign corner panel
-        if (player.playerIndex >= playerPanels.Length)
-        {
-            Debug.LogWarning($"[MatchMenu] Player {player.playerIndex} exceeds panel slots.");
-            return;
-        }
+        AssignPanel(player);
+    }
+
+    private void AssignPanel(PlayerInput player)
+    {
+        if (player.playerIndex >= playerPanels.Length) return;
 
         var panel = playerPanels[player.playerIndex];
-        if (panel == null)
-        {
-            Debug.LogError($"[MatchMenu] Missing panel reference for Player {player.playerIndex}!");
-            return;
-        }
+        if (panel == null) return;
 
-        // Activate panel visually
         panel.SetActive(true);
-        panelDebug(player.playerIndex, "Activated on join");
 
-        // Update text
-        var text = panel.GetComponentInChildren<Text>();
-        if (text != null)
+        // Change txt
+        var tmp = panel.GetComponentInChildren<TextMeshProUGUI>();
+        if (tmp != null)
+            tmp.text = $"Player {player.playerIndex + 1} Ready!";
+        else
         {
-            text.text = $"Player {player.playerIndex + 1} Ready!";
-            Debug.Log($"[MatchMenu] Updated text for Player {player.playerIndex} panel.");
+            var tmp3d = panel.GetComponentInChildren<TextMeshPro>();
+            if (tmp3d != null)
+                tmp3d.text = $"Player {player.playerIndex + 1} Ready!";
         }
 
         activePlayers[player.playerIndex] = panel;
-        Debug.Log($"[MatchMenu] Active players count: {activePlayers.Count}");
         UpdateStartButton();
     }
 
     private void HandlePlayerLeft(PlayerInput player)
     {
-        Debug.Log($"[MatchMenu] Player {player.playerIndex} left.");
-
         if (activePlayers.TryGetValue(player.playerIndex, out var panel))
         {
-            panel.SetActive(false);
-            panelDebug(player.playerIndex, "Deactivated on leave");
+            if (panel != null)
+                panel.SetActive(false);
             activePlayers.Remove(player.playerIndex);
-            Debug.Log($"[MatchMenu] Removed Player {player.playerIndex} from activePlayers. Count now: {activePlayers.Count}");
         }
 
         UpdateStartButton();
@@ -167,19 +118,18 @@ public class UI_MatchMenu : MonoBehaviour
 
     private void UpdateStartButton()
     {
-        if (startMatchButton == null)
-        {
-            Debug.LogWarning("[MatchMenu] StartMatchButton not assigned!");
-            return;
-        }
+        if (startMatchButton == null) return;
 
-        bool interactable = activePlayers.Count >= 2;
-        startMatchButton.interactable = interactable;
-        Debug.Log($"[MatchMenu] UpdateStartButton called. Active players: {activePlayers.Count}. Start button interactable: {interactable}");
+        ready = activePlayers.Count >= 2;
+        startMatchButton.interactable = ready;
+
+        if (ready)
+            EventSystem.current.SetSelectedGameObject(startMatchButton.gameObject);
     }
 
-    private void panelDebug(int index, string message)
+    public void StartMatch()
     {
-        Debug.Log($"[MatchMenu] Panel {index}: {message}");
+        if (ready)
+            GameManager.instance.ChangeScene("SampleScene");
     }
 }
