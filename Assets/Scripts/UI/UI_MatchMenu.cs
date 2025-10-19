@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -17,6 +18,9 @@ public class UI_MatchMenu : MonoBehaviour
     [Header("Input Settings")]
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private string actionMapToUse = "UI";
+
+    [Header("Scene Transition")]
+    [SerializeField] private string nextScene;
 
     private readonly Dictionary<int, GameObject> activePlayers = new();
 
@@ -129,7 +133,14 @@ public class UI_MatchMenu : MonoBehaviour
 
     public void StartMatch()
     {
-        if (ready)
-            GameManager.instance.ChangeScene("SampleScene");
+        if (!ready) return;
+
+        PlayerInput[] players = activePlayers.Keys
+            .OrderBy(i => i)
+            .Select(i => PlayerInput.all.First(p => p.playerIndex == i))
+            .ToArray();
+
+        GameManager.instance.RegisterPlayers(players);
+        GameManager.instance.StartMatchScene(nextScene);
     }
 }
