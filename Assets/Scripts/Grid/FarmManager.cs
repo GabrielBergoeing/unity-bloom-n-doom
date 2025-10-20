@@ -127,6 +127,32 @@ public class FarmManager : MonoBehaviour
         }
     }
 
+    public bool TryRemovePlant(Vector3Int cellPos, int requesterPlayerIndex)
+    {
+        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
+        {
+            // Regla: solo el dueño puede eliminar su planta
+            if (plant.ownerPlayerIndex != requesterPlayerIndex)
+            {
+                Debug.Log("⛔ No puedes eliminar plantas de otro jugador.");
+                return false;
+            }
 
+            // Destruir el GameObject
+            Destroy(plant.gameObject);
 
+            // Limpiar estado de celda
+            plantsByCell.Remove(cellPos);
+            occupiedCells.Remove(cellPos);
+
+            // Opcional: dejar el tile en 'Prepared' para replantar
+            farmTilemap.SetTile(cellPos, preparedTile);
+            tileStates[cellPos] = TileState.Prepared;
+
+            return true;
+        }
+
+        Debug.Log("No hay ninguna planta en esta celda.");
+        return false;
+    }
 }
