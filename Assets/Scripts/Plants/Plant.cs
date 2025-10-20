@@ -115,4 +115,6 @@ public class Plant : MonoBehaviour
             _ => 0
         };
     }
+
+    public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
 }
