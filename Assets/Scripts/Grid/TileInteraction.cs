@@ -87,11 +87,11 @@ public class TileInteraction : MonoBehaviour
         
         if (farmManager.TryInteractPlant(currentCell)) return;
 
-        if (farmManager.IsPrepared(currentCell))
-        {
-            farmManager.PlantSeed(currentCell, playerInput.playerIndex);
-            return;
-        }
+        //if (farmManager.IsPrepared(currentCell))
+        //{
+        //    farmManager.PlantSeed(currentCell, playerInput.playerIndex);
+        //    return;
+        //}
 
         farmManager.PrepareTile(currentCell);
     }

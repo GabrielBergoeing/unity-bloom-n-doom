@@ -52,20 +52,17 @@ public class HotbarSystem : MonoBehaviour
         Pickup pickup = item.GetComponent<Pickup>();
         if (pickup != null && pickup.stackable)
         {
-            // First try to find an existing stack of the same item type
             for (int i = 0; i < slots.Length; i++)
             {
                 if (slots[i] != null && slots[i].GetComponent<Pickup>().itemId == pickup.itemId && stackCounts[i] < pickup.maxStackCount)
                 {
                     stackCounts[i]++;
-                    // If we're stacking, we can destroy the new item instance
                     Destroy(item);
                     return true;
                 }
             }
         }
 
-        // If we couldn't stack, find an empty slot
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] == null)

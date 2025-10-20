@@ -1,5 +1,7 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.InputSystem;
 
 //This script allows the player to pick up and drop items, is intended only for sabotage itmes such as the flamethrower
@@ -24,9 +26,6 @@ public class Pickup : MonoBehaviour
     {
 
     }
-    
-
-
     void Update()
     {
         if (playerInput != null && playerInput.actions["Pickup"].triggered)
@@ -88,10 +87,26 @@ public class Pickup : MonoBehaviour
         }
     }
 
-    private void DropItem()
+    public void DropItem(bool consume = false)
     {
         if (hotbarSystem != null)
         {
+            if (consume)
+            {
+                // If consuming, just decrease the stack count without dropping
+                if (hotbarSystem.stackCounts[hotbarSystem.currentSlot] == 1)
+                {
+                    isPickedUp = false;
+                    hotbarSystem.RemoveItem(gameObject);
+                    Destroy(gameObject); // Optionally destroy the item
+                }
+                else
+                {
+                    hotbarSystem.RemoveItem(gameObject);
+                }
+                return;
+            }
+            
             if (hotbarSystem.stackCounts[hotbarSystem.currentSlot] == 1)
             {
                 isPickedUp = false;
