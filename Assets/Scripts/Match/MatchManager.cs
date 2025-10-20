@@ -1,20 +1,35 @@
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MatchManager : MonoBehaviour
 {
     public static MatchManager instance;
+    private ScoreTally scoreTally;
+    private bool hasPrintResults = false;
+
+    [Header("Match Time (in seconds)")]
     [SerializeField] private float matchTime = 900; //15 min
     private bool isPlayingMatch = false; //Indicates when to start counting down timer
     public float timer { get; private set; }
+
+    [Header("Player Spawn Locations")]
+    [SerializeField] private Vector3[] playerSpawns = new Vector3[4];
     private List<PlayerInput> players = new();
 
-    private void Awake()
+    private void OnValidate() //Checks whenever values are changed on inspector
+    {
+        if (playerSpawns.Length > 4)
+            Array.Resize(ref playerSpawns, 4);
+    }
+
+   private void Awake()
     {
         instance = this;
         timer = matchTime;
+
+        scoreTally = GetComponent<ScoreTally>();
     }
 
     private void Update()
@@ -22,7 +37,7 @@ public class MatchManager : MonoBehaviour
         if (isPlayingMatch)
             timer -= Time.deltaTime;
 
-        if (timer <= 0)
+        if (timer <= 0 && !hasPrintResults)
             EndMatch();
     }
     public void InitializePlayers(List<PlayerInput> _players)
@@ -50,7 +65,9 @@ public class MatchManager : MonoBehaviour
 
     private Vector3 GetSpawnPosition(int index)
     {
-        return new Vector3(index * 2f, 0f, 0f);
+        if (playerSpawns[index] == null)
+            return new Vector3(index * 2f, 0f, 0f);
+        return playerSpawns[index];
     }
 
     private void DisablePlayersInputs()
@@ -60,7 +77,7 @@ public class MatchManager : MonoBehaviour
             if (p != null)
             {
                 // p.SwitchCurrentActionMap("UI");
-                p.DeactivateInput(); // cleanly disables all action maps for that player
+                p.DeactivateInput();
                 Debug.Log($"[MatchManager] Disabled input for Player {p.playerIndex}");
             }
         }
@@ -70,6 +87,7 @@ public class MatchManager : MonoBehaviour
     private void EndMatch()
     {
         DisablePlayersInputs();
-        Debug.Log("Match has ended!");
+        scoreTally.DeterminePlacements(players);
+        hasPrintResults = true;
     }
 }
