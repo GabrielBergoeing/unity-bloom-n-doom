@@ -16,6 +16,7 @@ public class TileInteraction : MonoBehaviour
     private InputAction interactAction;
     private Vector3Int currentCell;
     private InputAction removeAction;
+    private InputAction irrigateAction;
 
     public Vector3Int CurrentCell => currentCell;
 
@@ -40,6 +41,11 @@ public class TileInteraction : MonoBehaviour
         {
             removeAction.performed += OnRemove;
         }
+        irrigateAction = playerInput.actions["Irrigate"];
+        if (irrigateAction != null)
+        {
+            irrigateAction.performed += OnIrrigate;
+        }
         else
         {
             Debug.LogWarning("No 'Remove' action found. Usaré fallback con teclado X.");
@@ -57,6 +63,9 @@ public class TileInteraction : MonoBehaviour
 
         if (removeAction != null)
             removeAction.performed -= OnRemove;
+
+        if (irrigateAction != null)
+            irrigateAction.performed -= OnIrrigate;
 
     }
 
@@ -84,7 +93,7 @@ public class TileInteraction : MonoBehaviour
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        
+
         if (farmManager.TryInteractPlant(currentCell)) return;
 
         if (farmManager.IsPrepared(currentCell))
@@ -94,6 +103,12 @@ public class TileInteraction : MonoBehaviour
         }
 
         farmManager.PrepareTile(currentCell);
+    }
+    
+    private void OnIrrigate(InputAction.CallbackContext contx)
+    {
+        if (!contx.performed) return;
+        farmManager.TryIrrigatePlant(currentCell);
     }
 
     private void OnRemove(InputAction.CallbackContext ctx)

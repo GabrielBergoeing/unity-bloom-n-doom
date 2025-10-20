@@ -180,6 +180,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Irrigate"",
+                    ""type"": ""Button"",
+                    ""id"": ""ea16036e-c268-4d25-b3eb-7236f82553d7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -446,6 +455,28 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Remove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d915d939-a52d-4395-b73d-9c213661155d"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Irrigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2969710-f793-4a8c-b090-a61d56472f63"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Irrigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -663,6 +694,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_Player_Slot4 = m_Player.FindAction("Slot4", throwIfNotFound: true);
         m_Player_Sabotage = m_Player.FindAction("Sabotage", throwIfNotFound: true);
         m_Player_Remove = m_Player.FindAction("Remove", throwIfNotFound: true);
+        m_Player_Irrigate = m_Player.FindAction("Irrigate", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -760,6 +792,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Slot4;
     private readonly InputAction m_Player_Sabotage;
     private readonly InputAction m_Player_Remove;
+    private readonly InputAction m_Player_Irrigate;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -811,6 +844,10 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Remove".
         /// </summary>
         public InputAction @Remove => m_Wrapper.m_Player_Remove;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Irrigate".
+        /// </summary>
+        public InputAction @Irrigate => m_Wrapper.m_Player_Irrigate;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -867,6 +904,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Remove.started += instance.OnRemove;
             @Remove.performed += instance.OnRemove;
             @Remove.canceled += instance.OnRemove;
+            @Irrigate.started += instance.OnIrrigate;
+            @Irrigate.performed += instance.OnIrrigate;
+            @Irrigate.canceled += instance.OnIrrigate;
         }
 
         /// <summary>
@@ -908,6 +948,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Remove.started -= instance.OnRemove;
             @Remove.performed -= instance.OnRemove;
             @Remove.canceled -= instance.OnRemove;
+            @Irrigate.started -= instance.OnIrrigate;
+            @Irrigate.performed -= instance.OnIrrigate;
+            @Irrigate.canceled -= instance.OnIrrigate;
         }
 
         /// <summary>
@@ -1173,6 +1216,13 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRemove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Irrigate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnIrrigate(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

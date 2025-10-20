@@ -82,6 +82,16 @@ public class FarmManager : MonoBehaviour
         return false;
     }
 
+    public bool TryIrrigatePlant(Vector3Int cellPos)
+    {
+        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
+        {
+            plant.WaterPlant();
+            return true;
+        }
+        return false;
+    }
+
     private Transform GetOrCreatePlayerRoot(int playerIndex)
     {
         if (!playerPlantRoots.TryGetValue(playerIndex, out var root) || root == null)
