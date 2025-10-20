@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Flamethrower : MonoBehaviour
 {
@@ -16,15 +17,27 @@ public class Flamethrower : MonoBehaviour
     [SerializeField] private float spreadAngle = 30f;
 
     private float nextFireTime;
+    [SerializeField] private float maxAmmoSeconds = 10f;
+    private float currentAmmo = 0f;
 
     private void Start()
     {
         pickup = GetComponent<Pickup>();
+        currentAmmo = maxAmmoSeconds;
     }
     private void Update()
     {
         if (!pickup.isPickedUp) return;
-        if (Input.GetMouseButton(0) && nextFireTime <= 0f)
+
+        bool firing = pickup.playerInput.actions["Sabotage"].ReadValue<float>() > 0f;
+
+        if (firing && currentAmmo > 0f)
+        {
+
+            currentAmmo -= Time.deltaTime;
+            if (currentAmmo < 0f) currentAmmo = 0f;
+
+            if (nextFireTime <= 0f)
             {
                 Shoot();
                 nextFireTime = fireRate;
@@ -33,6 +46,17 @@ public class Flamethrower : MonoBehaviour
             {
                 nextFireTime -= Time.deltaTime;
             }
+        }
+        else
+        {
+            nextFireTime -= Time.deltaTime;
+        }
+
+        if (currentAmmo <= 0f)
+        {
+            pickup.DropItem(false, true);
+            currentAmmo = maxAmmoSeconds;
+        }
     }
 
     private void Shoot()
@@ -47,4 +71,5 @@ public class Flamethrower : MonoBehaviour
             Instantiate(firePrefab, fireSpawnPoint.position, rotation);
         }
     }
+
 }
