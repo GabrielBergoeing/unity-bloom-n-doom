@@ -3,7 +3,7 @@
 [RequireComponent(typeof(Pickup))]
 public class Scissors : MonoBehaviour
 {
-    [Header("Scissors Settings")]
+    [Header("Scissors Durations (on frames)")]
     [SerializeField] private float cutDuration = 0f;
     [SerializeField] private float cooldown = 0f;
     private bool isOnCooldown = false;

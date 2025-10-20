@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Player_MoveState : PlayerState
+public class Player_MoveState : Player_NeutralState
 {
     public Player_MoveState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
     {

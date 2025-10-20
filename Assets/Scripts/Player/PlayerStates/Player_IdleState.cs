@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Player_IdleState : PlayerState
+public class Player_IdleState : Player_NeutralState
 {
     public Player_IdleState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
     {
@@ -21,8 +21,5 @@ public class Player_IdleState : PlayerState
 
         if (player.IsPlayerMoving())
             stateMachine.ChangeState(player.moveState);
-
-        if (player.input.actions["Sabotage"].triggered)
-            stateMachine.ChangeState(player.sabotageState);
     }
 }

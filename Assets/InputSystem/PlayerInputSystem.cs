@@ -180,6 +180,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Prepare"",
+                    ""type"": ""Button"",
+                    ""id"": ""2b52dbaa-faac-41be-8b2d-8de4f9249f28"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -446,6 +455,28 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Remove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""09fc901f-00f4-40ae-8725-745ba5840c0e"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Prepare"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9988af44-0d2f-4ccf-816a-139da5b55f59"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""Prepare"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -663,6 +694,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_Player_Slot4 = m_Player.FindAction("Slot4", throwIfNotFound: true);
         m_Player_Sabotage = m_Player.FindAction("Sabotage", throwIfNotFound: true);
         m_Player_Remove = m_Player.FindAction("Remove", throwIfNotFound: true);
+        m_Player_Prepare = m_Player.FindAction("Prepare", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -760,6 +792,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Slot4;
     private readonly InputAction m_Player_Sabotage;
     private readonly InputAction m_Player_Remove;
+    private readonly InputAction m_Player_Prepare;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -811,6 +844,10 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Remove".
         /// </summary>
         public InputAction @Remove => m_Wrapper.m_Player_Remove;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Prepare".
+        /// </summary>
+        public InputAction @Prepare => m_Wrapper.m_Player_Prepare;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -867,6 +904,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Remove.started += instance.OnRemove;
             @Remove.performed += instance.OnRemove;
             @Remove.canceled += instance.OnRemove;
+            @Prepare.started += instance.OnPrepare;
+            @Prepare.performed += instance.OnPrepare;
+            @Prepare.canceled += instance.OnPrepare;
         }
 
         /// <summary>
@@ -908,6 +948,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Remove.started -= instance.OnRemove;
             @Remove.performed -= instance.OnRemove;
             @Remove.canceled -= instance.OnRemove;
+            @Prepare.started -= instance.OnPrepare;
+            @Prepare.performed -= instance.OnPrepare;
+            @Prepare.canceled -= instance.OnPrepare;
         }
 
         /// <summary>
@@ -1173,6 +1216,13 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRemove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Prepare" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPrepare(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -9,15 +9,24 @@ public class Seed : MonoBehaviour
     [SerializeField] private TileInteraction tileInteraction;
     [SerializeField] private PlayerInput playerInput;
     private bool hasExecutedPickup = false;
+    
+    [Header("Plant Durations (on frames)")]
+    [SerializeField] private float plantDuration = 0f;
+    [SerializeField] private float cooldown = 0f;
+    private bool isOnCooldown = false;
+
+    public float PlantDuration => plantDuration;
+    public float Cooldown => cooldown;
+    public bool IsOnCooldown => isOnCooldown;
 
     //[SerializeField] private int growthTime = 5;
 
-    void Start()
+    private void Start()
     {
         pickup = GetComponent<Pickup>();
     }
 
-    void OnPickup()
+    private void OnPickup()
     {
         farmManager = FarmManager.instance;
         playerInput = GetComponentInParent<PlayerInput>();
@@ -32,10 +41,8 @@ public class Seed : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
-
-
         if (pickup.isPickedUp == true && !hasExecutedPickup)
         {
             OnPickup();
@@ -66,4 +73,25 @@ public class Seed : MonoBehaviour
         }
     }
 
+    public void Use(Vector3Int targetCell)
+    {
+        if (isOnCooldown)
+        {
+            Debug.Log("Planting cooldown");
+            return;
+        }
+
+        if (FarmManager.instance.IsPrepared(targetCell))
+        {
+            farmManager.PlantSeed(targetCell, playerInput.playerIndex);
+        }
+        else
+        {
+            Debug.Log("No se puede plantar en este espacio");
+        }
+
+        isOnCooldown = true;
+    }
+
+    public void ResetCooldown() => isOnCooldown = false;
 }
