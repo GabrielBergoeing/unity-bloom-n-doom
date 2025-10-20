@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,9 +8,13 @@ public class Pickup : MonoBehaviour
     public bool canPickup = false;
 
     public bool isPickedUp = false;
-    private PlayerInput playerInput;
-    private Player currentPlayer;
-    private HotbarSystem hotbarSystem;
+    public bool stackable = false; //Indicates if the item can be stacked in the hotbar
+    public int maxStackCount = 5; // The maximum stack count of the item
+
+    public int itemId; // Unique identifier for the item type
+    public PlayerInput playerInput;
+    public Player currentPlayer;
+    public HotbarSystem hotbarSystem;
     private Player savedPlayer;
     private HotbarSystem savedHotbarSystem;
     private PlayerInput savedPlayerInput;
@@ -26,13 +31,16 @@ public class Pickup : MonoBehaviour
     {
         if (playerInput != null && playerInput.actions["Pickup"].triggered)
         {
+            if (canPickup)
+            {
+                PickupItem();
+            }
+        }
+        if (playerInput != null && playerInput.actions["Drop"].triggered)
+        {
             if (isPickedUp)
             {
                 DropItem();
-            }
-            else if (canPickup)
-            {
-                PickupItem();
             }
         }
     }
@@ -67,6 +75,7 @@ public class Pickup : MonoBehaviour
         {
             if (hotbarSystem.AddItem(gameObject))
             {
+                canPickup = false;
                 currentPlayer = savedPlayer;
                 hotbarSystem = savedHotbarSystem;
                 playerInput = savedPlayerInput;
@@ -83,10 +92,17 @@ public class Pickup : MonoBehaviour
     {
         if (hotbarSystem != null)
         {
-            isPickedUp = false;
-            transform.SetParent(null);
-            hotbarSystem.RemoveItem(gameObject);
-            gameObject.SetActive(true);
+            if (hotbarSystem.stackCounts[hotbarSystem.currentSlot] == 1)
+            {
+                isPickedUp = false;
+                transform.SetParent(null);
+                hotbarSystem.RemoveItem(gameObject);
+                gameObject.SetActive(true);
+            }
+            else
+            {
+                hotbarSystem.RemoveItem(gameObject);
+            }
             if (GetComponent<Collider2D>() != null)
             {
                 GetComponent<Collider2D>().enabled = true;

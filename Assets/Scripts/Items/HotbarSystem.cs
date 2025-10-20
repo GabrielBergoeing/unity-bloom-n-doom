@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class HotbarSystem : MonoBehaviour
 {
     public GameObject[] slots;
+    public int[] stackCounts;
     public int currentSlot = 0;
     public int numberOfSlots = 4;
     private Transform playerHand;
@@ -14,6 +15,7 @@ public class HotbarSystem : MonoBehaviour
     void Start()
     {
     slots = new GameObject[numberOfSlots];
+    stackCounts = new int[numberOfSlots];
     playerInput = GetComponent<PlayerInput>();
     playerHand = transform.Find("OnHand");
 
@@ -47,11 +49,29 @@ public class HotbarSystem : MonoBehaviour
 
     public bool AddItem(GameObject item)
     {
+        Pickup pickup = item.GetComponent<Pickup>();
+        if (pickup != null && pickup.stackable)
+        {
+            // First try to find an existing stack of the same item type
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] != null && slots[i].GetComponent<Pickup>().itemId == pickup.itemId && stackCounts[i] < pickup.maxStackCount)
+                {
+                    stackCounts[i]++;
+                    // If we're stacking, we can destroy the new item instance
+                    Destroy(item);
+                    return true;
+                }
+            }
+        }
+
+        // If we couldn't stack, find an empty slot
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] == null)
             {
                 slots[i] = item;
+                stackCounts[i] = 1;
 
                 if (i != currentSlot)
                 {
@@ -75,7 +95,16 @@ public class HotbarSystem : MonoBehaviour
         {
             if (slots[i] == item)
             {
-                slots[i] = null;
+                if (stackCounts[i] > 1){
+                    GameObject droppedItem = Instantiate(item, transform.position, transform.rotation);
+                    droppedItem.GetComponent<Pickup>().stackable = true;
+                }
+                stackCounts[i]--;
+                if (stackCounts[i] <= 0)
+                {
+                    slots[i] = null;
+                    stackCounts[i] = 0;
+                }
                 break;
             }
         }
