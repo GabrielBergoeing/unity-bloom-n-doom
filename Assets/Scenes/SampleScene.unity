@@ -9998,8 +9998,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c8726076c6139046872f8ff9180f651, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cutDuration: 0
-  cooldown: 0
+  cutDuration: 0.5
+  cooldown: 10
 --- !u!114 &1614406361
 MonoBehaviour:
   m_ObjectHideFlags: 0

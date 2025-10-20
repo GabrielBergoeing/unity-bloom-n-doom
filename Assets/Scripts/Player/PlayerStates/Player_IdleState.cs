@@ -22,7 +22,7 @@ public class Player_IdleState : PlayerState
         if (player.IsPlayerMoving())
             stateMachine.ChangeState(player.moveState);
 
-        if (input.Player.Sabotage.WasPerformedThisFrame())
+        if (player.input.actions["Sabotage"].triggered)
             stateMachine.ChangeState(player.sabotageState);
     }
 }
