@@ -15,6 +15,7 @@ public class TileInteraction : MonoBehaviour
     private PlayerInput playerInput;
     private InputAction interactAction;
     private Vector3Int currentCell;
+    private InputAction removeAction;
 
     public Vector3Int CurrentCell => currentCell;
 
@@ -34,6 +35,15 @@ public class TileInteraction : MonoBehaviour
             Debug.LogError("No Interact action found for this player.");
             return;
         }
+        removeAction = playerInput.actions["Remove"];
+        if (removeAction != null)
+        {
+            removeAction.performed += OnRemove;
+        }
+        else
+        {
+            Debug.LogWarning("No 'Remove' action found. Usaré fallback con teclado X.");
+        }
 
         interactAction.performed += OnInteract;
 
@@ -44,6 +54,10 @@ public class TileInteraction : MonoBehaviour
     {
         if (interactAction != null)
             interactAction.performed -= OnInteract;
+
+        if (removeAction != null)
+            removeAction.performed -= OnRemove;
+
     }
 
     void Update()
@@ -70,12 +84,25 @@ public class TileInteraction : MonoBehaviour
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
+        
+        if (farmManager.TryInteractPlant(currentCell)) return;
 
         if (farmManager.IsPrepared(currentCell))
+        {
             farmManager.PlantSeed(currentCell, playerInput.playerIndex);
-        else
-            farmManager.PrepareTile(currentCell);
+            return;
+        }
+
+        farmManager.PrepareTile(currentCell);
     }
+
+    private void OnRemove(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) return;
+
+        bool removed = farmManager.TryRemovePlant(currentCell, playerInput.playerIndex);
+    }
+
 
     public void SetCamera(Camera newCam)
     {

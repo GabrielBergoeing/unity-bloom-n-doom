@@ -14,6 +14,7 @@ public class FarmManager : MonoBehaviour
     private readonly Dictionary<Vector3Int, TileState> tileStates = new();
     private readonly HashSet<Vector3Int> occupiedCells = new();
     private readonly Dictionary<int, Transform> playerPlantRoots = new();
+    private readonly Dictionary<Vector3Int, Plant> plantsByCell = new();
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
@@ -52,14 +53,33 @@ public class FarmManager : MonoBehaviour
             Vector3 worldPos = farmTilemap.GetCellCenterWorld(cellPos);
             if (plantPrefab != null)
             {
-                GameObject plant = Instantiate(plantPrefab, worldPos, Quaternion.identity);
+                var go = Instantiate(plantPrefab, worldPos, Quaternion.identity);
 
+                // parent por jugador
                 Transform root = GetOrCreatePlayerRoot(planterPlayerIndex);
-                plant.transform.SetParent(root, true);
+                go.transform.SetParent(root, true);
 
                 occupiedCells.Add(cellPos);
+
+                var plant = go.GetComponent<Plant>();
+                if (plant != null)
+                {
+                    plant.Init(planterPlayerIndex, cellPos);
+                    plantsByCell[cellPos] = plant;
+                }
             }
         }
+    }
+
+
+    public bool TryInteractPlant(Vector3Int cellPos)
+    {
+        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
+        {
+            plant.Interact(); // suma “riegos”
+            return true;
+        }
+        return false;
     }
 
     private Transform GetOrCreatePlayerRoot(int playerIndex)

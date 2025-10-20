@@ -100,4 +100,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60275e2a6dd3b414a81f99e64fb32247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ownerPlayerIndex: -1
+  cellPos: {x: 0, y: 0, z: 0}
+  interactionsToMature: 2
+  currentInteractions: 0
+  stage: 0
   spriteRenderer: {fileID: 0}
+  seedSprite: {fileID: -6914758422323185217, guid: 3f4e1d1e3304bff4aadfd1a2ad6e168b, type: 3}
+  growingSprite: {fileID: 221577858541580175, guid: 96c41efff10e8f441a53079fc494485b, type: 3}
+  matureSprite: {fileID: 21300000, guid: 0b737f2bdbd6d204c8c173afbc416821, type: 3}
+  blockerCollider: {fileID: 0}
