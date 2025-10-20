@@ -21,5 +21,8 @@ public class Player_IdleState : PlayerState
 
         if (player.IsPlayerMoving())
             stateMachine.ChangeState(player.moveState);
+
+        if (player.input.actions["Sabotage"].triggered)
+            stateMachine.ChangeState(player.sabotageState);
     }
 }

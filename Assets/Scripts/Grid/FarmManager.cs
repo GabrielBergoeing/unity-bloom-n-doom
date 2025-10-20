@@ -81,7 +81,32 @@ public class FarmManager : MonoBehaviour
 
     public void RemovePlant(Vector3Int cellPos)
     {
-        if (occupiedCells.Contains(cellPos))
-            occupiedCells.Remove(cellPos);
+        if (!occupiedCells.Contains(cellPos))
+            return;
+
+        foreach (Transform root in plantsRoot)
+        {
+            foreach (Transform plant in root)
+            {
+                Vector3Int plantCell = farmTilemap.WorldToCell(plant.position);
+                if (plantCell == cellPos)
+                {
+                    Destroy(plant.gameObject);
+                    occupiedCells.Remove(cellPos);
+
+                    if (tileStates.ContainsKey(cellPos))
+                    {
+                        tileStates[cellPos] = TileState.Prepared;
+                        farmTilemap.SetTile(cellPos, preparedTile);
+                    }
+
+                    Debug.Log($"Planta en {cellPos} cortada y eliminada correctamente.");
+                    return;
+                }
+            }
+        }
     }
+
+
+
 }

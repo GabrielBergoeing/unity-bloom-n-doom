@@ -162,6 +162,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sabotage"",
+                    ""type"": ""Button"",
+                    ""id"": ""5ef5202d-9897-4498-be5f-326841fcec3b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -384,6 +393,28 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Slot4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""58267e05-046d-4ce7-814c-6148bd4e19a9"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sabotage"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""47720c42-e792-4f43-a1b8-2536ad878d86"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sabotage"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -599,6 +630,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_Player_Slot2 = m_Player.FindAction("Slot2", throwIfNotFound: true);
         m_Player_Slot3 = m_Player.FindAction("Slot3", throwIfNotFound: true);
         m_Player_Slot4 = m_Player.FindAction("Slot4", throwIfNotFound: true);
+        m_Player_Sabotage = m_Player.FindAction("Sabotage", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -694,6 +726,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Slot2;
     private readonly InputAction m_Player_Slot3;
     private readonly InputAction m_Player_Slot4;
+    private readonly InputAction m_Player_Sabotage;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -737,6 +770,10 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Slot4".
         /// </summary>
         public InputAction @Slot4 => m_Wrapper.m_Player_Slot4;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Sabotage".
+        /// </summary>
+        public InputAction @Sabotage => m_Wrapper.m_Player_Sabotage;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -787,6 +824,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Slot4.started += instance.OnSlot4;
             @Slot4.performed += instance.OnSlot4;
             @Slot4.canceled += instance.OnSlot4;
+            @Sabotage.started += instance.OnSabotage;
+            @Sabotage.performed += instance.OnSabotage;
+            @Sabotage.canceled += instance.OnSabotage;
         }
 
         /// <summary>
@@ -822,6 +862,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Slot4.started -= instance.OnSlot4;
             @Slot4.performed -= instance.OnSlot4;
             @Slot4.canceled -= instance.OnSlot4;
+            @Sabotage.started -= instance.OnSabotage;
+            @Sabotage.performed -= instance.OnSabotage;
+            @Sabotage.canceled -= instance.OnSabotage;
         }
 
         /// <summary>
@@ -1073,6 +1116,13 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSlot4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Sabotage" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSabotage(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
