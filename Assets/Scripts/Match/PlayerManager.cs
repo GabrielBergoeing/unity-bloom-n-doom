@@ -34,7 +34,7 @@ public class PlayerManager : MonoBehaviour
         }
 
         // Hand off to MatchManager if it exists
-        var matchManager = FindFirstObjectByType<MatchManager>();
+        MatchManager matchManager = MatchManager.instance;
         if (matchManager != null)
             matchManager.InitializePlayers(activePlayers);
     }

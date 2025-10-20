@@ -1793,7 +1793,7 @@ MonoBehaviour:
   startMatchButton: {fileID: 1694766630}
   inputActions: {fileID: -944628639613478452, guid: 430ab004f0be04c4eab885c854ecbec8, type: 3}
   actionMapToUse: UI
-  nextScene: TestMatch
+  nextScene: SampleScene
 --- !u!114 &1956980090
 MonoBehaviour:
   m_ObjectHideFlags: 0
