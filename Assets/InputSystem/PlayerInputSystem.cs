@@ -171,6 +171,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Remove"",
+                    ""type"": ""Button"",
+                    ""id"": ""1cbd14f7-47db-4c7b-8208-1c71502f088f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -415,6 +424,28 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Sabotage"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cd898c68-d15a-4ba2-98f7-af3c4a947916"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Remove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4befb0f8-5cad-4e7b-902f-8c6412fa503b"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Remove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -631,6 +662,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_Player_Slot3 = m_Player.FindAction("Slot3", throwIfNotFound: true);
         m_Player_Slot4 = m_Player.FindAction("Slot4", throwIfNotFound: true);
         m_Player_Sabotage = m_Player.FindAction("Sabotage", throwIfNotFound: true);
+        m_Player_Remove = m_Player.FindAction("Remove", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -727,6 +759,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Slot3;
     private readonly InputAction m_Player_Slot4;
     private readonly InputAction m_Player_Sabotage;
+    private readonly InputAction m_Player_Remove;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -774,6 +807,10 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Sabotage".
         /// </summary>
         public InputAction @Sabotage => m_Wrapper.m_Player_Sabotage;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Remove".
+        /// </summary>
+        public InputAction @Remove => m_Wrapper.m_Player_Remove;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -827,6 +864,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Sabotage.started += instance.OnSabotage;
             @Sabotage.performed += instance.OnSabotage;
             @Sabotage.canceled += instance.OnSabotage;
+            @Remove.started += instance.OnRemove;
+            @Remove.performed += instance.OnRemove;
+            @Remove.canceled += instance.OnRemove;
         }
 
         /// <summary>
@@ -865,6 +905,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Sabotage.started -= instance.OnSabotage;
             @Sabotage.performed -= instance.OnSabotage;
             @Sabotage.canceled -= instance.OnSabotage;
+            @Remove.started -= instance.OnRemove;
+            @Remove.performed -= instance.OnRemove;
+            @Remove.canceled -= instance.OnRemove;
         }
 
         /// <summary>
@@ -1123,6 +1166,13 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSabotage(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Remove" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRemove(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
