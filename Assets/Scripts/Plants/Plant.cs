@@ -20,14 +20,16 @@ public class Plant : MonoBehaviour
     public Sprite seedSprite;
     public Sprite growingSprite;
     public Sprite matureSprite;
-    [Range(0, 5)][SerializeField] private int score = 1;
+
+    [Header("Health and Withering time (in seconds)")]
     [Range(0, 20)][SerializeField] private float maxHealth = 10;
     [Range(0f, 60f)][SerializeField] private float witheringTime = 30f;
-
     private float health;
     private float timer;
 
-    
+    [Header("Scoring")]
+    [Range(0, 5)][SerializeField] private int score = 3;
+
     public void Init(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
     {
         ownerPlayerIndex = ownerIndex;
@@ -44,22 +46,6 @@ public class Plant : MonoBehaviour
             SetStage(GrowthStage.Seed);
     }
 
-    public void Interact()
-    {
-        if (stage == GrowthStage.Mature) return;
-
-        currentInteractions++;
-
-        if (currentInteractions >= interactionsToMature)
-        {
-            SetStage(GrowthStage.Mature);
-        }
-        else if (stage == GrowthStage.Seed)
-        {
-            SetStage(GrowthStage.Growing);
-        }
-    }
-
     private void SetStage(GrowthStage newStage)
     {
         stage = newStage;
@@ -69,21 +55,21 @@ public class Plant : MonoBehaviour
         {
             var s = stage switch
             {
-                GrowthStage.Seed    => seedSprite    ? seedSprite    : spriteRenderer.sprite,
+                GrowthStage.Seed => seedSprite ? seedSprite : spriteRenderer.sprite,
                 GrowthStage.Growing => growingSprite ? growingSprite : spriteRenderer.sprite,
-                GrowthStage.Mature  => matureSprite  ? matureSprite  : spriteRenderer.sprite,
+                GrowthStage.Mature => matureSprite ? matureSprite : spriteRenderer.sprite,
                 _ => spriteRenderer.sprite
             };
             spriteRenderer.sprite = s;
         }
 
-    
         health = maxHealth;
         timer = witheringTime;
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
     }
+
     private void Update()
     {
         timer -= Time.deltaTime;
@@ -91,9 +77,22 @@ public class Plant : MonoBehaviour
         if (timer <= 0 || health <= 0)
             Die();
     }
+
     private void Die()
     {
         Destroy(gameObject);
+    }
+
+    public void Interact()
+    {
+        if (stage == GrowthStage.Mature) return;
+
+        currentInteractions++;
+
+        if (currentInteractions >= interactionsToMature)
+            SetStage(GrowthStage.Mature);
+        else if (stage == GrowthStage.Seed)
+            SetStage(GrowthStage.Growing);
     }
 
     public void WaterPlant()
@@ -105,4 +104,17 @@ public class Plant : MonoBehaviour
     {
         health -= damage;
     }
+
+    public int GetScoring()
+    {
+        return stage switch
+        {
+            GrowthStage.Seed => 0,
+            GrowthStage.Growing => Mathf.CeilToInt(score * 0.5f),
+            GrowthStage.Mature => score,
+            _ => 0
+        };
+    }
+
+    public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
 }
