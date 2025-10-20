@@ -12,7 +12,7 @@ public class Player_ScreenCamera : MonoBehaviour
     {
         PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
     }
-    void Start()
+    private void Start()
     {
         index = GetComponentInParent<PlayerInput>().playerIndex;
         totalPlayers = PlayerInput.all.Count;
