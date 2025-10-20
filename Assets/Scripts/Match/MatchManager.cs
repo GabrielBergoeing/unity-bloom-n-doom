@@ -60,7 +60,7 @@ public class MatchManager : MonoBehaviour
             if (p != null)
             {
                 // p.SwitchCurrentActionMap("UI");
-                p.DeactivateInput(); // cleanly disables all action maps for that player
+                p.DeactivateInput();
                 Debug.Log($"[MatchManager] Disabled input for Player {p.playerIndex}");
             }
         }
