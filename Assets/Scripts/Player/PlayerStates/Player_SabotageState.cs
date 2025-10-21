@@ -9,31 +9,18 @@ public class Player_SabotageState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
-        Debug.Log("Entering Sabotage State");
+        Scissors tool = GetItemFromOnHand<Scissors>(); //GetScissorsFromOnHand();
 
-        Scissors tool = GetScissorsFromOnHand();
         if (tool != null && !tool.IsOnCooldown)
-        {
             player.StartCoroutine(PerformAction(tool));
-        }
         else
         {
             Debug.Log("No scissors equipped or still on cooldown");
             stateMachine.ChangeState(player.idleState);
         }
     }
-
-    private Scissors GetScissorsFromOnHand()
-    {
-        Transform onHand = player.transform.Find("OnHand");
-        if (onHand != null && onHand.childCount > 0)
-            return onHand.GetChild(0).GetComponent<Scissors>();
-        return null;
-    }
-
     private IEnumerator PerformAction(Scissors tool)
     {
-        isPerformingAction = true;
         player.FlipPlayerControlFlag();
 
         Debug.Log("Cortando planta...");
@@ -47,17 +34,9 @@ public class Player_SabotageState : Player_ActionState
         yield return new WaitForSeconds(tool.CutDuration);
 
         player.FlipPlayerControlFlag();
+        isPerformingAction = false;
 
         yield return new WaitForSeconds(tool.Cooldown);
         tool.ResetCooldown();
-
-        isPerformingAction = false;
-
-        stateMachine.ChangeState(player.idleState);
-    }
-
-    public override void Update()
-    {
-        base.Update();
     }
 }

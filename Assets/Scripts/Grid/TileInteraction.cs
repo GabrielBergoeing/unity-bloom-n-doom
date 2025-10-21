@@ -29,12 +29,15 @@ public class TileInteraction : MonoBehaviour
     {
         if (cam == null) cam = Camera.main;
 
+        /*
         interactAction = playerInput.actions["Interact"];
         if (interactAction == null)
         {
             Debug.LogError("No Interact action found for this player.");
             return;
         }
+
+        */
         removeAction = playerInput.actions["Remove"];
         if (removeAction != null)
         {
@@ -45,15 +48,15 @@ public class TileInteraction : MonoBehaviour
             Debug.LogWarning("No 'Remove' action found. Usaré fallback con teclado X.");
         }
 
-        interactAction.performed += OnInteract;
+        //interactAction.performed += OnInteract;
 
         Debug.Log($"Player {playerInput.playerIndex} bound to Interact. Control Scheme: {playerInput.currentControlScheme}");
     }
 
     void OnDestroy()
     {
-        if (interactAction != null)
-            interactAction.performed -= OnInteract;
+        //if (interactAction != null)
+        //    interactAction.performed -= OnInteract;
 
         if (removeAction != null)
             removeAction.performed -= OnRemove;
@@ -74,27 +77,24 @@ public class TileInteraction : MonoBehaviour
             else
                 currentOutline.transform.position = cellCenter;
         }
-
-        if (Input.GetMouseButtonDown(0))
-            farmManager.PrepareTile(currentCell);
-        if (Input.GetMouseButtonDown(1))
-            farmManager.PlantSeed(currentCell, playerInput.playerIndex);
     }
 
+    /*
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        
+
         if (farmManager.TryInteractPlant(currentCell)) return;
 
-        if (farmManager.IsPrepared(currentCell))
-        {
-            farmManager.PlantSeed(currentCell, playerInput.playerIndex);
-            return;
-        }
+        //if (farmManager.IsPrepared(currentCell))
+        //{
+        //    farmManager.PlantSeed(currentCell, playerInput.playerIndex);
+        //    return;
+        //}
 
         farmManager.PrepareTile(currentCell);
     }
+    */
 
     private void OnRemove(InputAction.CallbackContext ctx)
     {

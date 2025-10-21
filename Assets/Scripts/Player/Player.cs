@@ -15,6 +15,7 @@ public class Player : Entity
     public Player_PickState pickState { get; private set; }
     public Player_PlantState plantState { get; private set; }
     public Player_SabotageState sabotageState { get; private set; }
+    public Player_PrepareGroundState prepareGroundState { get; private set; }
 
     [Header("Movement variables")]
     private bool canControl = false; // control flag
@@ -37,6 +38,7 @@ public class Player : Entity
         pickState = new Player_PickState(this, stateMachine, "pick");
         plantState = new Player_PlantState(this, stateMachine, "plant");
         sabotageState = new Player_SabotageState(this, stateMachine, "sabotage");
+        prepareGroundState = new Player_PrepareGroundState(this, stateMachine, "plant");
     }
 
     protected override void Start()
