@@ -16,8 +16,11 @@ public class TileInteraction : MonoBehaviour
     private InputAction interactAction;
     private Vector3Int currentCell;
     private InputAction removeAction;
+    private InputAction irrigateAction;
 
     public Vector3Int CurrentCell => currentCell;
+
+    public ParticleSystem irrigateVFX;
 
     private void Awake()
     {
@@ -43,6 +46,11 @@ public class TileInteraction : MonoBehaviour
         {
             removeAction.performed += OnRemove;
         }
+        irrigateAction = playerInput.actions["Irrigate"];
+        if (irrigateAction != null)
+        {
+            irrigateAction.performed += OnIrrigate;
+        }
         else
         {
             Debug.LogWarning("No 'Remove' action found. Usaré fallback con teclado X.");
@@ -60,6 +68,9 @@ public class TileInteraction : MonoBehaviour
 
         if (removeAction != null)
             removeAction.performed -= OnRemove;
+
+        if (irrigateAction != null)
+            irrigateAction.performed -= OnIrrigate;
 
     }
 
@@ -79,7 +90,6 @@ public class TileInteraction : MonoBehaviour
         }
     }
 
-    /*
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
@@ -94,7 +104,24 @@ public class TileInteraction : MonoBehaviour
 
         farmManager.PrepareTile(currentCell);
     }
-    */
+    
+    private void OnIrrigate(InputAction.CallbackContext contx)
+    {
+        if (!contx.performed) return;
+        // Debug.Log($"player pos: {player.transform.position}\ntile pos: {farmManager.farmTilemap.GetCellCenterLocal(currentCell)}");
+        
+        Vector3 playerPos = player.transform.position;
+        Vector3 tilePos = farmManager.farmTilemap.GetCellCenterLocal(currentCell);
+        Vector3 direction = tilePos - playerPos;
+
+        float angleRad = Mathf.Atan2(direction.y, direction.x);
+        float angleDeg = angleRad * Mathf.Rad2Deg;
+
+        irrigateVFX.transform.rotation = Quaternion.Euler(0, 0, angleDeg);
+        irrigateVFX.Play();
+
+        farmManager.TryIrrigatePlant(currentCell);
+    }
 
     private void OnRemove(InputAction.CallbackContext ctx)
     {
