@@ -26,11 +26,15 @@ public class Player : Entity
     public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
     public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
 
+    private Rigidbody2D rb2d;
+
     protected override void Awake()
     {
         base.Awake();
         input = GetComponent<PlayerInput>();
         // sfx = GetComponent<Player_SFX>();
+
+        rb2d = GetComponent<Rigidbody2D>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
         irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");
@@ -97,4 +101,30 @@ public class Player : Entity
 
     // Teleport player's transform to given position, useful for start of match or outofbounds
     public void TeleportPlayer(Vector3 position) => transform.position = position;
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject == this.gameObject) return;
+        if (collision.gameObject.GetComponent<Player>() != null)
+        {
+            if (rb2d != null)
+            {
+                rb2d.linearVelocity = Vector2.zero;
+                rb2d.angularVelocity = 0f;
+            }
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject == this.gameObject) return;
+        if (collision.gameObject.GetComponent<Player>() != null)
+        {
+            if (rb2d != null)
+            {
+                rb2d.linearVelocity = Vector2.zero;
+                rb2d.angularVelocity = 0f;
+            }
+        }
+    }
 }
