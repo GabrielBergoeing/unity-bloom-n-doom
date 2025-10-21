@@ -63,7 +63,7 @@ public class Seed : MonoBehaviour
                 if (farmManager.IsPrepared(targetCell) && !farmManager.IsOccupied(targetCell))
                 {
                     farmManager.PlantSeed(targetCell, playerInput.playerIndex);
-                    pickup.DropItem(true); // Drop the seed after planting
+                    pickup.DropItem(true);
                 }
                 else
                 {

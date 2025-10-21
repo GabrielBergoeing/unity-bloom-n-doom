@@ -4,16 +4,15 @@ using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.InputSystem;
 
-//This script allows the player to pick up and drop items, is intended only for sabotage itmes such as the flamethrower
 public class Pickup : MonoBehaviour
 {
     public bool canPickup = false;
 
     public bool isPickedUp = false;
-    public bool stackable = false; //Indicates if the item can be stacked in the hotbar
-    public int maxStackCount = 5; // The maximum stack count of the item
+    public bool stackable = false; 
+    public int maxStackCount = 5; 
 
-    public int itemId; // Unique identifier for the item type
+    public int itemId; 
     public PlayerInput playerInput;
     public Player currentPlayer;
     public HotbarSystem hotbarSystem;
@@ -21,12 +20,10 @@ public class Pickup : MonoBehaviour
     private HotbarSystem savedHotbarSystem;
     private PlayerInput savedPlayerInput;
 
-    // Timestamp until which this item cannot be picked up (Time.time)
     public float unpickupableUntil = 0f;
     public float throwCooldown = 10f;
 
-    // New: visual fade when thrown
-    [SerializeField] private float thrownFadeDuration = 10f; // seconds
+    [SerializeField] private float thrownFadeDuration = 10f; 
     private float thrownFadeTimer = 0f;
     private bool isThrownVisual = false;
     private SpriteRenderer[] spriteRenderers;
@@ -34,7 +31,7 @@ public class Pickup : MonoBehaviour
 
     void Start()
     {
-        // Initialize sprite renderers and save original colors
+
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
         if (spriteRenderers != null && spriteRenderers.Length > 0)
         {
@@ -62,7 +59,7 @@ public class Pickup : MonoBehaviour
             }
         }
 
-        // Handle thrown visual fade
+
         if (isThrownVisual)
         {
             thrownFadeTimer += Time.deltaTime;
@@ -79,7 +76,6 @@ public class Pickup : MonoBehaviour
             }
             if (t >= 1f)
             {
-                // finished fading
                 isThrownVisual = false;
             }
         }
@@ -87,7 +83,7 @@ public class Pickup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // If currently unpickable, ignore player triggers
+
         if (Time.time < unpickupableUntil) return;
 
         if (other.CompareTag("Player"))
@@ -123,7 +119,6 @@ public class Pickup : MonoBehaviour
                 hotbarSystem = savedHotbarSystem;
                 playerInput = savedPlayerInput;
                 isPickedUp = true;
-                // Restore visuals if we were mid-fade
                 RestoreOriginalColors();
 
                 if (GetComponent<Collider2D>() != null)
@@ -175,7 +170,6 @@ public class Pickup : MonoBehaviour
                 hotbarSystem = null;
                 canPickup = false;
 
-                // Start thrown visual: set all sprites to black and begin fade
                 thrownFadeTimer = 0f;
                 isThrownVisual = true;
                 if (spriteRenderers != null)
@@ -196,8 +190,6 @@ public class Pickup : MonoBehaviour
             }
         }
     }
-
-    // New helper to restore saved colors immediately (e.g., when picked up)
     private void RestoreOriginalColors()
     {
         isThrownVisual = false;
