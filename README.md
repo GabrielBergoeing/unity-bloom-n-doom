@@ -1,10 +1,13 @@
 # unity-bloom-n-doom
 Official repository of the unity version of Bloom &amp; Doom
 
+## Requirements
+**Unity Version:** 6000.0.40f1
+
 ## Assignment 4
 
 - [x] Player can move on all directions
-- [ ] Player can plant plants
+- [x] Player can plant plants
 - [ ] Player can collect distinct objects
 - [ ] Player can water the plants
 - [ ] Player can let watered plants grow
