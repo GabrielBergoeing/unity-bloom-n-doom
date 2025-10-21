@@ -110,6 +110,12 @@ public class Pickup : MonoBehaviour
     }
     private void PickupItem()
     {
+        if (gameObject.CompareTag("water"))
+        {
+            savedPlayer.waterSupply += Mathf.Min(100 - savedPlayer.waterSupply, 10);
+            Debug.Log($"waterSupply: {savedPlayer.waterSupply}");
+            return;
+        }
         if (hotbarSystem != null)
         {
             if (hotbarSystem.AddItem(gameObject))
