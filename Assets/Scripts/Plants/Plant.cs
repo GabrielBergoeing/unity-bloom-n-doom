@@ -98,6 +98,15 @@ public class Plant : MonoBehaviour
     public void WaterPlant()
     {
         timer = witheringTime;
+
+        if (stage == GrowthStage.Mature) return;
+
+        currentInteractions++;
+
+        if (currentInteractions >= interactionsToMature)
+            SetStage(GrowthStage.Mature);
+        else if (stage == GrowthStage.Seed)
+            SetStage(GrowthStage.Growing);
     }
 
     public void TakeDamage(float damage)
