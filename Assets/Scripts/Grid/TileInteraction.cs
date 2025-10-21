@@ -20,6 +20,8 @@ public class TileInteraction : MonoBehaviour
 
     public Vector3Int CurrentCell => currentCell;
 
+    public ParticleSystem irrigateVFX;
+
     private void Awake()
     {
         playerInput = GetComponentInParent<PlayerInput>();
@@ -108,6 +110,18 @@ public class TileInteraction : MonoBehaviour
     private void OnIrrigate(InputAction.CallbackContext contx)
     {
         if (!contx.performed) return;
+        // Debug.Log($"player pos: {player.transform.position}\ntile pos: {farmManager.farmTilemap.GetCellCenterLocal(currentCell)}");
+        
+        Vector3 playerPos = player.transform.position;
+        Vector3 tilePos = farmManager.farmTilemap.GetCellCenterLocal(currentCell);
+        Vector3 direction = tilePos - playerPos;
+
+        float angleRad = Mathf.Atan2(direction.y, direction.x);
+        float angleDeg = angleRad * Mathf.Rad2Deg;
+
+        irrigateVFX.transform.rotation = Quaternion.Euler(0, 0, angleDeg);
+        irrigateVFX.Play();
+
         farmManager.TryIrrigatePlant(currentCell);
     }
 
