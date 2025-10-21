@@ -504,7 +504,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard"",
+                    ""groups"": "";Controller"",
                     ""action"": ""Irrigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
