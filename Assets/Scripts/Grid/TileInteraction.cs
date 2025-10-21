@@ -107,7 +107,7 @@ public class TileInteraction : MonoBehaviour
     
     private void OnIrrigate(InputAction.CallbackContext contx)
     {
-        if (!contx.performed) return;
+        if (!contx.performed || player.waterSupply < 10) return;
         // Debug.Log($"player pos: {player.transform.position}\ntile pos: {farmManager.farmTilemap.GetCellCenterLocal(currentCell)}");
         
         Vector3 playerPos = player.transform.position;
@@ -119,6 +119,9 @@ public class TileInteraction : MonoBehaviour
 
         irrigateVFX.transform.rotation = Quaternion.Euler(0, 0, angleDeg);
         irrigateVFX.Play();
+
+        player.waterSupply -= 10;
+        Debug.Log($"waterSupply: {player.waterSupply}");
 
         farmManager.TryIrrigatePlant(currentCell);
     }

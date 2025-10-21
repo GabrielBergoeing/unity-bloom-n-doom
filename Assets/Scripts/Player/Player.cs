@@ -21,6 +21,7 @@ public class Player : Entity
     private bool canControl = false; // control flag
     public Vector2 moveInput { get; private set; }
     public float moveSpeed = 8;
+    public int waterSupply = 100;
 
     // Handles values to display anim facing dir
     public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
