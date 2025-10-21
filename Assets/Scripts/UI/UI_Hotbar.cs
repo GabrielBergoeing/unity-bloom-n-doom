@@ -34,7 +34,20 @@ public class UI_Hotbar : MonoBehaviour
         {
             if (hotbarSystem.slots[i] != null)
             {
-                SpriteRenderer itemSprite = hotbarSystem.slots[i].GetComponent<SpriteRenderer>();
+                GameObject slotItem = hotbarSystem.slots[i];
+                SpriteRenderer itemSprite = slotItem.GetComponent<SpriteRenderer>();
+                if (itemSprite == null)
+                {
+                    SpriteRenderer[] childSprites = slotItem.GetComponentsInChildren<SpriteRenderer>(true);
+                    foreach (var cs in childSprites)
+                    {
+                        if (cs.gameObject == slotItem) continue;
+                        if (cs.gameObject.name == "StackCount") continue;
+                        itemSprite = cs;
+                        break;
+                    }
+                }
+
                 if (itemSprite != null)
                 {
                     if (slotImages[i] == null)
@@ -46,7 +59,7 @@ public class UI_Hotbar : MonoBehaviour
                     }
                     slotImages[i].sprite = itemSprite.sprite;
                     slotImages[i].enabled = true;
-                    Pickup pickup = hotbarSystem.slots[i].GetComponent<Pickup>();
+                    Pickup pickup = slotItem.GetComponent<Pickup>();
                     if (pickup != null && pickup.stackable && hotbarSystem.stackCounts[i] > 1)
                     {
                         stackCountTexts[i].text = hotbarSystem.stackCounts[i].ToString();
