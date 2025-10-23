@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 8509811695705940979}
   - component: {fileID: 4850354406917675611}
   - component: {fileID: 3627837808076152064}
+  - component: {fileID: -2961172597806756779}
   m_Layer: 0
   m_Name: Flamethrower
   m_TagString: Untagged
@@ -155,6 +156,18 @@ MonoBehaviour:
   projectilesPerShot: 5
   spreadAngle: 30
   maxAmmoSeconds: 10
+--- !u!114 &-2961172597806756779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7554891935492345296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e6a87f12b60c54ca7facbd30bbf5ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9190479657412195208
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1808536495298222489}
   - component: {fileID: 8369506290277097944}
   - component: {fileID: 8153283862355464085}
+  - component: {fileID: 6745475632992197077}
   m_Layer: 0
   m_Name: WaterGun
   m_TagString: Untagged
@@ -124,6 +125,18 @@ MonoBehaviour:
   projectilesPerShot: 5
   spreadAngle: 30
   maxAmmoSeconds: 10
+--- !u!114 &6745475632992197077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003958750646805177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e6a87f12b60c54ca7facbd30bbf5ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4073534471547018431
 GameObject:
   m_ObjectHideFlags: 0

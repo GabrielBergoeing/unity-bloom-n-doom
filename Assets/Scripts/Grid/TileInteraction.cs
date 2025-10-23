@@ -17,6 +17,9 @@ public class TileInteraction : MonoBehaviour
     private Vector3Int currentCell;
     private InputAction removeAction;
     private InputAction irrigateAction;
+    private InputAction aimAction;
+
+    private Vector3Int lastOffset = Vector3Int.zero;
 
     public Vector3Int CurrentCell => currentCell;
 
@@ -51,11 +54,13 @@ public class TileInteraction : MonoBehaviour
         {
             irrigateAction.performed += OnIrrigate;
         }
-        else
+        
+        aimAction = playerInput.actions["Aim"];
+        if (aimAction == null)
         {
-            Debug.LogWarning("No 'Remove' action found. Usaré fallback con teclado X.");
+            Debug.LogWarning("No 'Aim' action found. Will use front-of-player fallback.");
         }
-
+        
         //interactAction.performed += OnInteract;
 
         Debug.Log($"Player {playerInput.playerIndex} bound to Interact. Control Scheme: {playerInput.currentControlScheme}");
@@ -75,30 +80,68 @@ public class TileInteraction : MonoBehaviour
     }
 
     void Update()
-{
-    Vector3 playerWorldPos = player.transform.position;
-    Vector3Int playerCell = farmManager.farmTilemap.WorldToCell(playerWorldPos);
-    Vector3Int frontCell = GetCellInFrontOfPlayer(playerCell);
-    currentCell = frontCell;
-    Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(currentCell);
-    if (tileOutlinePrefab != null)
     {
-        if (currentOutline == null)
-            currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
-        else
-            currentOutline.transform.position = cellCenter;
+        Vector3 playerWorldPos = player.transform.position;
+        Vector3Int playerCell = farmManager.farmTilemap.WorldToCell(playerWorldPos);
+        
+        Vector3Int targetCell = GetTargetCell(playerCell);
+        currentCell = targetCell;
+        
+        Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(currentCell);
+        if (tileOutlinePrefab != null)
+        {
+            if (currentOutline == null)
+                currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
+            else
+                currentOutline.transform.position = cellCenter;
+        }
     }
-}
 
-private Vector3Int GetCellInFrontOfPlayer(Vector3Int playerCell)
-{
-    Vector3Int offset = new Vector3Int(player.xFacingDir, player.yFacingDir, 0);
-    
-    if (offset == Vector3Int.zero)
-        offset = Vector3Int.up;
-    
-    return playerCell + offset;
-}
+    private Vector3Int GetTargetCell(Vector3Int playerCell)
+    {
+        
+        if (aimAction != null)
+        {
+            Vector2 aimInput = aimAction.ReadValue<Vector2>();
+
+            if (aimInput.magnitude > 0.3f)
+            {
+                Vector3Int aimOffset = GetDirectionFromInput(aimInput);
+                lastOffset = aimOffset;
+                return playerCell + aimOffset;
+            }
+        }
+        
+
+        
+        return playerCell + lastOffset;
+    }
+
+    private Vector3Int GetDirectionFromInput(Vector2 input)
+    {
+        Vector3Int direction = Vector3Int.zero;
+        
+        if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+        {
+            direction.x = input.x > 0 ? 1 : -1;
+        }
+        else
+        {
+            direction.y = input.y > 0 ? 1 : -1;
+        }
+        
+        return direction;
+    }
+
+    private Vector3Int GetCellInFrontOfPlayer(Vector3Int playerCell)
+    {
+        Vector3Int offset = new Vector3Int(player.xFacingDir, player.yFacingDir, 0);
+        
+        if (offset == Vector3Int.zero)
+            offset = Vector3Int.up;
+        
+        return playerCell + offset;
+    }
 
     private void OnInteract(InputAction.CallbackContext context)
     {
