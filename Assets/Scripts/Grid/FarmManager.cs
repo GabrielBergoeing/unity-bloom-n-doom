@@ -9,7 +9,7 @@ public class FarmManager : MonoBehaviour
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
-    public GameObject plantPrefab;
+    public List<GameObject> plantPrefabs = new List<GameObject>();
     [SerializeField] private Transform plantsRoot;
     private readonly Dictionary<Vector3Int, TileState> tileStates = new();
     private readonly HashSet<Vector3Int> occupiedCells = new();
@@ -40,7 +40,7 @@ public class FarmManager : MonoBehaviour
         }
     }
 
-    public void PlantSeed(Vector3Int cellPos, int planterPlayerIndex)
+    public void PlantSeed(Vector3Int cellPos, int planterPlayerIndex, int seedType = 0)
     {
         if (!tileStates.ContainsKey(cellPos)) return;
         if (IsOccupied(cellPos)) return;
@@ -51,9 +51,9 @@ public class FarmManager : MonoBehaviour
             tileStates[cellPos] = TileState.PlantedSeed;
 
             Vector3 worldPos = farmTilemap.GetCellCenterWorld(cellPos);
-            if (plantPrefab != null)
+            if (plantPrefabs != null && seedType < plantPrefabs.Count)
             {
-                var go = Instantiate(plantPrefab, worldPos, Quaternion.identity);
+                var go = Instantiate(plantPrefabs[seedType], worldPos, Quaternion.identity);
 
                 // parent por jugador
                 Transform root = GetOrCreatePlayerRoot(planterPlayerIndex);

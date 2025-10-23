@@ -62,7 +62,7 @@ public class Seed : MonoBehaviour
                 Vector3Int targetCell = tileInteraction.CurrentCell;
                 if (farmManager.IsPrepared(targetCell) && !farmManager.IsOccupied(targetCell))
                 {
-                    farmManager.PlantSeed(targetCell, playerInput.playerIndex);
+                    farmManager.PlantSeed(targetCell, playerInput.playerIndex, pickup.itemId);
                     pickup.DropItem(true);
                 }
                 else
@@ -83,7 +83,7 @@ public class Seed : MonoBehaviour
 
         if (FarmManager.instance.IsPrepared(targetCell))
         {
-            farmManager.PlantSeed(targetCell, playerInput.playerIndex);
+            farmManager.PlantSeed(targetCell, playerInput.playerIndex); //add seed type
         }
         else
         {
