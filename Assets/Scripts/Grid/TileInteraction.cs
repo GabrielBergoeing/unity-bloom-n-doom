@@ -75,20 +75,30 @@ public class TileInteraction : MonoBehaviour
     }
 
     void Update()
+{
+    Vector3 playerWorldPos = player.transform.position;
+    Vector3Int playerCell = farmManager.farmTilemap.WorldToCell(playerWorldPos);
+    Vector3Int frontCell = GetCellInFrontOfPlayer(playerCell);
+    currentCell = frontCell;
+    Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(currentCell);
+    if (tileOutlinePrefab != null)
     {
-        Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorld.z = 0;
-        currentCell = farmManager.farmTilemap.WorldToCell(mouseWorld);
-        Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(currentCell);
-
-        if (tileOutlinePrefab != null)
-        {
-            if (currentOutline == null)
-                currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
-            else
-                currentOutline.transform.position = cellCenter;
-        }
+        if (currentOutline == null)
+            currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
+        else
+            currentOutline.transform.position = cellCenter;
     }
+}
+
+private Vector3Int GetCellInFrontOfPlayer(Vector3Int playerCell)
+{
+    Vector3Int offset = new Vector3Int(player.xFacingDir, player.yFacingDir, 0);
+    
+    if (offset == Vector3Int.zero)
+        offset = Vector3Int.up;
+    
+    return playerCell + offset;
+}
 
     private void OnInteract(InputAction.CallbackContext context)
     {

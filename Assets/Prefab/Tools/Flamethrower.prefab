@@ -83,7 +83,7 @@ MonoBehaviour:
   isPickedUp: 0
   stackable: 0
   maxStackCount: 5
-  itemId: 0
+  itemId: 5
   playerInput: {fileID: 0}
   currentPlayer: {fileID: 0}
   hotbarSystem: {fileID: 0}

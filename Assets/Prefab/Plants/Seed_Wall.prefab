@@ -186,7 +186,7 @@ MonoBehaviour:
   isPickedUp: 0
   stackable: 1
   maxStackCount: 2
-  itemId: 4
+  itemId: 1
   playerInput: {fileID: 0}
   currentPlayer: {fileID: 0}
   hotbarSystem: {fileID: 0}
@@ -245,3 +245,5 @@ MonoBehaviour:
   farmManager: {fileID: 0}
   tileInteraction: {fileID: 0}
   playerInput: {fileID: 0}
+  plantDuration: 0
+  cooldown: 0
