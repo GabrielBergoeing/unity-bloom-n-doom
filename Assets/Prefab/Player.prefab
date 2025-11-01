@@ -93,7 +93,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 165571438480114262}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -606,7 +606,6 @@ MonoBehaviour:
   cam: {fileID: 5647054337035865722}
   player: {fileID: 8833315760474147988}
   tileOutlinePrefab: {fileID: 7982480584452911588, guid: 5910bbe1f049ce5499b1bcad57138cb5, type: 3}
-  irrigateVFX: {fileID: 1881376351851862353}
 --- !u!1 &2547652275804658088
 GameObject:
   m_ObjectHideFlags: 0
@@ -1048,7 +1047,7 @@ GameObject:
   - component: {fileID: 1881376351851862353}
   - component: {fileID: 4186149554501947739}
   m_Layer: 0
-  m_Name: 2DIrrigate
+  m_Name: Irrigate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6018,8 +6017,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7317282601384987124}
+  - component: {fileID: 8632870973627159060}
   m_Layer: 0
-  m_Name: IrrigationPlaceholder
+  m_Name: VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6041,6 +6041,18 @@ Transform:
   - {fileID: 5959250536419237712}
   m_Father: {fileID: 9094087689114442365}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8632870973627159060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5761157211287666631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b9a13cf14c0c645bf2090896298f61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6211022691458351417
 GameObject:
   m_ObjectHideFlags: 0

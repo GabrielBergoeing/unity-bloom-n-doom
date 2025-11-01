@@ -20,8 +20,11 @@ public class Player_NeutralState : PlayerState
 
         if (player.input.actions["Prepare"].triggered)
             stateMachine.ChangeState(player.prepareGroundState);
-        
+
         if (player.input.actions["Pickup"].triggered)
             stateMachine.ChangeState(player.pickState);
+                
+        if (player.input.actions["Irrigate"].triggered)
+            stateMachine.ChangeState(player.irrigateState);
     }
 }

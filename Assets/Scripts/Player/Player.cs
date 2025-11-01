@@ -7,6 +7,7 @@ public class Player : Entity
 {
     // Components
     public PlayerInput input { get; private set; }
+    public Player_VFX vfx { get; private set; }
 
     // States
     public Player_IdleState idleState { get; private set; }
@@ -27,15 +28,12 @@ public class Player : Entity
     public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
     public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
 
-    private Rigidbody2D rb2d;
-
     protected override void Awake()
     {
         base.Awake();
         input = GetComponent<PlayerInput>();
+        vfx = GetComponentInChildren<Player_VFX>();
         // sfx = GetComponent<Player_SFX>();
-
-        rb2d = GetComponent<Rigidbody2D>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
         irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");
@@ -108,23 +106,22 @@ public class Player : Entity
         if (collision.gameObject == this.gameObject) return;
         if (collision.gameObject.GetComponent<Player>() != null)
         {
-            if (rb2d != null)
+            if (rb != null)
             {
-                rb2d.linearVelocity = Vector2.zero;
-                rb2d.angularVelocity = 0f;
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
             }
         }
     }
-
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject == this.gameObject) return;
         if (collision.gameObject.GetComponent<Player>() != null)
         {
-            if (rb2d != null)
+            if (rb != null)
             {
-                rb2d.linearVelocity = Vector2.zero;
-                rb2d.angularVelocity = 0f;
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
             }
         }
     }

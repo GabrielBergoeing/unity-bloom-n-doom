@@ -11,9 +11,4 @@ public class Player_PickState : Player_ActionState
         base.Enter();
         stateMachine.ChangeState(player.idleState);
     }
-
-    public override void Update()
-    {
-        base.Update();
-    }
 }

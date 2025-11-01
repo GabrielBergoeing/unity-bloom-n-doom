@@ -9,34 +9,15 @@ public class Player_SabotageState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
-        Scissors tool = GetItemFromOnHand<Scissors>(); //GetScissorsFromOnHand();
-
-        if (tool != null && !tool.IsOnCooldown)
-            player.StartCoroutine(PerformAction(tool));
-        else
+        Scissors tool = GetItemFromOnHand<Scissors>();
+        if (tool == null || tool.IsOnCooldown)
         {
-            Debug.Log("No scissors equipped or still on cooldown");
             stateMachine.ChangeState(player.idleState);
+            return;
         }
-    }
-    private IEnumerator PerformAction(Scissors tool)
-    {
-        player.FlipPlayerControlFlag();
 
-        Debug.Log("Cortando planta...");
-
-        TileInteraction tileInteraction = player.GetComponentInChildren<TileInteraction>();
-        Vector3Int targetCell = tileInteraction != null ? tileInteraction.CurrentCell :
-            FarmManager.instance.farmTilemap.WorldToCell(player.transform.position);
-
-        tool.Use(targetCell);
-
-        yield return new WaitForSeconds(tool.CutDuration);
-
-        player.FlipPlayerControlFlag();
-        isPerformingAction = false;
-
-        yield return new WaitForSeconds(tool.Cooldown);
-        tool.ResetCooldown();
+        player.StartCoroutine(
+            ExecuteAction(tool.CutDuration, tool.Cooldown, cell => tool.Use(cell))
+        );
     }
 }

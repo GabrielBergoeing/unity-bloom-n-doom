@@ -20,7 +20,7 @@ public abstract class EntityState
     {
         anim.SetBool(animBoolName, true);
         triggerCalled = false;
-        //Debug.Log("Enters " + animBoolName + " state");
+        Debug.Log("Enters " + animBoolName + " state");
     }
 
     public virtual void Update()

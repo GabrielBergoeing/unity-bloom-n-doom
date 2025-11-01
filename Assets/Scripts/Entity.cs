@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
+    private bool kinematicFlag = false;
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
     protected StateMachine stateMachine; //-> Helps define the states (actions) entities have
@@ -29,9 +30,17 @@ public class Entity : MonoBehaviour
     {
         stateMachine.currentState.AnimationTrigger();
     }
-    
-    public void SetVelocity(float xVelocity, float yVelocity)
+
+    //Classical arcade-like movement, has no acceleration or force
+    public void SetVelocity(float xVelocity, float yVelocity) => rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+
+    //Makes sure no sliding shenanigans happen during actions
+    public void FlipKinematicFlag()
     {
-        rb.linearVelocity = new Vector2(xVelocity, yVelocity); //Classical arcade-like movement, has no acceleration or force
+        if (!kinematicFlag)
+            rb.bodyType = RigidbodyType2D.Static;
+        else
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        kinematicFlag = !kinematicFlag;
     }
 }

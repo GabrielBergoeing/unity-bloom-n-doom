@@ -9,36 +9,16 @@ public class Player_PlantState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
-
         Seed seed = GetItemFromOnHand<Seed>();
-        if (seed != null)
-            player.StartCoroutine(PerformAction(seed));
-        else
+        if (seed == null)
         {
-            Debug.Log("No seed found on hand or still on cooldown");
             stateMachine.ChangeState(player.idleState);
+            return;
         }
-    }
 
-    private IEnumerator PerformAction(Seed seed)
-    {
-        player.FlipPlayerControlFlag();
-
-        Debug.Log("Planting seed...");
-
-        TileInteraction tileInteraction = player.GetComponentInChildren<TileInteraction>();
-        Vector3Int targetCell = tileInteraction != null ? tileInteraction.CurrentCell :
-            FarmManager.instance.farmTilemap.WorldToCell(player.transform.position);
-
-        seed.Use(targetCell);
-
-        yield return new WaitForSeconds(seed.PlantDuration);
-
-        player.FlipPlayerControlFlag();
-        isPerformingAction = false;
-
-        yield return new WaitForSeconds(seed.Cooldown);
-        seed.ResetCooldown();
+        player.StartCoroutine(
+            ExecuteAction(seed.PlantDuration, seed.Cooldown, cell => seed.Use(cell))
+        );
     }
 }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Player_ActionState : PlayerState
 {
@@ -13,7 +14,7 @@ public class Player_ActionState : PlayerState
         base.Enter();
 
         isPerformingAction = true;
-        player.SetVelocity(0, 0);
+        player.FlipKinematicFlag();
     }
 
     public override void Update()
@@ -27,10 +28,11 @@ public class Player_ActionState : PlayerState
     public override void Exit()
     {
         base.Exit();
-        isPerformingAction = false;
+        player.FlipKinematicFlag();
     }
 
-    protected virtual T GetItemFromOnHand<T>() where T : Component //Allows to search for any type of component held on player's hand
+    //Allows to search for any type of component held on player's hand
+    protected virtual T GetItemFromOnHand<T>() where T : Component
     {
         Transform onHand = player.transform.Find("OnHand");
 
@@ -47,6 +49,35 @@ public class Player_ActionState : PlayerState
     protected bool IsOnHandEmpty()
     {
         Transform onHand = player.transform.Find("OnHand");
-        return (onHand != null || onHand.childCount > 0);
+        return onHand == null || onHand.childCount == 0;
+    }
+
+    // General framework of every action state
+    protected IEnumerator ExecuteAction(
+        float duration,
+        float cooldown,
+        System.Action<Vector3Int> applyAction //Stores function with parameters
+    ){
+        player.FlipPlayerControlFlag();
+
+        TileInteraction tile = player.GetComponentInChildren<TileInteraction>();
+        Vector3Int cell = tile != null
+            ? tile.CurrentCell
+            : FarmManager.instance.farmTilemap.WorldToCell(player.transform.position);
+
+        // The actual action performed (cut/plant/prepare/etc)
+        applyAction(cell);
+
+        // Animation time
+        yield return new WaitForSeconds(duration);
+
+        player.FlipPlayerControlFlag();
+        isPerformingAction = false;
+
+        // Cooldown (sabotage tools, etc)
+        if (cooldown > 0)
+        {
+            yield return new WaitForSeconds(cooldown);
+        }
     }
 }
