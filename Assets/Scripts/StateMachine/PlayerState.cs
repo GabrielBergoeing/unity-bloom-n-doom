@@ -6,6 +6,7 @@ public abstract class PlayerState: EntityState
 {
     protected Player player;
     protected PlayerInput input;
+    protected Player_SFX sfx;
     protected TileInteraction tile;
 
     public PlayerState(Player player, StateMachine stateMachine, string animBoolName) : base(stateMachine, animBoolName)
@@ -15,6 +16,7 @@ public abstract class PlayerState: EntityState
         anim = player.anim;
         rb = player.rb;
         input = player.input;
+        sfx = player.sfx;
         tile = player.tile;
     }
 

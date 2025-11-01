@@ -14,7 +14,7 @@ public class Player_RemoveState : Player_ActionState
         }
 
         player.StartCoroutine(
-            ExecuteAction(2f, 3f, cell => tile.RemoveInCell())
+            ExecuteAction(player.removeFrame, player.removeCooldown, cell => tile.RemoveInCell())
         );
     }
 }

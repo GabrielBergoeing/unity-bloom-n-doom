@@ -7,7 +7,7 @@ public class Player_MoveState : Player_NeutralState
     public override void Update()
     {
         base.Update();
-        //player.sfx.PlayOnMovement();
+        player.sfx.PlayOnMovement();
 
         if (!player.IsPlayerMoving()) //|| player.wallDetected)
             stateMachine.ChangeState(player.idleState);

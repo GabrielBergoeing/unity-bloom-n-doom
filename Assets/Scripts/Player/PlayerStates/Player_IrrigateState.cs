@@ -17,7 +17,7 @@ public class Player_IrrigateState : Player_ActionState
         }
 
         // 1 second irrigation time, no cooldown
-        player.StartCoroutine(ExecuteAction(1f, 0f, cell =>
+        player.StartCoroutine(ExecuteAction(player.irrigateFrame, player.irrigateCooldown, cell =>
         {
             player.waterSupply -= player.irrigateCost;
 
