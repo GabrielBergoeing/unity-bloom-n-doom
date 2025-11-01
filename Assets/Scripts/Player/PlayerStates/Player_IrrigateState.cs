@@ -24,15 +24,14 @@ public class Player_IrrigateState : Player_ActionState
             // Rotate and play VFX
             if (player.vfx != null)
             {
-                Vector3 pos = FarmManager.instance.farmTilemap.GetCellCenterWorld(cell);
-                Vector3 dir = pos - player.transform.position;
+                Vector3 dir = cell - player.transform.position;
                 float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
                 player.vfx.transform.rotation = Quaternion.Euler(0, 0, angle);
                 player.vfx.TriggerVFX("Irrigate");
             }
 
-            FarmManager.instance.TryIrrigatePlant(cell);
+            tile.IrrigateInCell();
         }));
     }
 }

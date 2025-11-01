@@ -14,8 +14,6 @@ public class TileInteraction : MonoBehaviour
 
     private PlayerInput playerInput;
     private Vector3Int currentCell;
-    private InputAction removeAction;
-
     public Vector3Int CurrentCell => currentCell;
 
     private void Awake()
@@ -27,18 +25,6 @@ public class TileInteraction : MonoBehaviour
     private void Start()
     {
         if (cam == null) cam = Camera.main;
-
-        removeAction = playerInput.actions["Remove"];
-        if (removeAction != null)
-        {
-            removeAction.performed += OnRemove;
-        }
-    }
-
-    void OnDestroy()
-    {
-        if (removeAction != null)
-            removeAction.performed -= OnRemove;
     }
 
     void Update()
@@ -66,12 +52,29 @@ public class TileInteraction : MonoBehaviour
         
         return playerCell + offset;
     }
-
-    private void OnRemove(InputAction.CallbackContext ctx)
-    {
-        if (!ctx.performed) return;
-
-        bool removed = farmManager.TryRemovePlant(currentCell, playerInput.playerIndex);
-    }
     public void SetCamera(Camera newCam) => cam = newCam;
+
+    // Interface functions so that player does not directly ask FarmManager
+    public bool CellIsPrepared() => farmManager.IsPrepared(currentCell);
+    public bool CellIsOccupied() => farmManager.IsOccupied(currentCell);
+    public bool IsCellOwner(int playerIndex) => playerIndex == farmManager.GetPlantOwner(currentCell);
+
+    public bool CanPrepare() =>
+        !CellIsPrepared() && !CellIsOccupied();
+
+    public bool CanPlant() =>
+        CellIsPrepared() && !CellIsOccupied();
+
+    public bool CanIrrigate() =>
+        CellIsOccupied();
+
+    public bool CanRemove() =>
+        CellIsOccupied() && IsCellOwner(playerInput.playerIndex);
+
+    public bool CanSabotage() =>
+        CellIsOccupied() && !IsCellOwner(playerInput.playerIndex);
+
+    public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
+
+    public void RemoveInCell() => farmManager.TryRemovePlant(currentCell, playerInput.playerIndex);
 }

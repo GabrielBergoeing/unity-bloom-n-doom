@@ -1,6 +1,3 @@
-using UnityEngine;
-using System.Collections;
-
 public class Player_PlantState : Player_ActionState
 {
     public Player_PlantState(Player player, StateMachine stateMachine, string animBoolName)

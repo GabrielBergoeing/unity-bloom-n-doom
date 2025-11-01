@@ -40,7 +40,7 @@ public class Player_ActionState : PlayerState
         player.FlipPlayerControlFlag();
 
         // The actual action performed (cut/plant/prepare/etc)
-        applyAction(player.tile.CurrentCell);
+        applyAction(tile.CurrentCell);
 
         // Animation time
         yield return new WaitForSeconds(duration);

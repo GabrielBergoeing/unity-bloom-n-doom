@@ -6,163 +6,160 @@ public class FarmManager : MonoBehaviour
 {
     public static FarmManager instance;
 
+    [Header("References")]
     public Tilemap farmTilemap;
     public Tile preparedTile;
     public Tile seedTile;
-    public List<GameObject> plantPrefabs = new List<GameObject>();
     [SerializeField] private Transform plantsRoot;
+
+    [Header("Plant Prefabs (index = seedType)")]
+    public List<GameObject> plantPrefabs = new();
+
+    // --- Tile State Tracking ---
     private readonly Dictionary<Vector3Int, TileState> tileStates = new();
-    private readonly HashSet<Vector3Int> occupiedCells = new();
-    private readonly Dictionary<int, Transform> playerPlantRoots = new();
     private readonly Dictionary<Vector3Int, Plant> plantsByCell = new();
+    private readonly HashSet<Vector3Int> occupiedCells = new();
+
+    // --- Player Organisation ---
+    private readonly Dictionary<int, Transform> playerPlantRoots = new();
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    void Awake() => instance = this;
+    private void Awake() => instance = this;
 
-    void Start()
+    private void Start()
     {
-        BoundsInt bounds = farmTilemap.cellBounds;
-        foreach (var pos in bounds.allPositionsWithin)
+        InitializeTileStates();
+        EnsurePlantsRootExists();
+    }
+
+    #region Init Helpers
+    private void InitializeTileStates()
+    {
+        foreach (var pos in farmTilemap.cellBounds.allPositionsWithin)
+        {
             if (farmTilemap.HasTile(pos))
                 tileStates[pos] = TileState.NotPrepared;
+        }
+    }
 
+    private void EnsurePlantsRootExists()
+    {
         if (plantsRoot == null)
             plantsRoot = new GameObject("Plants").transform;
     }
+    #endregion
 
-    public void PrepareTile(Vector3Int cellPos)
+    #region Tile State Queries
+    public bool IsPrepared(Vector3Int cell) =>
+        tileStates.TryGetValue(cell, out var state) && state == TileState.Prepared;
+
+    public bool IsOccupied(Vector3Int cell) =>
+        occupiedCells.Contains(cell);
+
+    public bool HasPlant(Vector3Int cell) =>
+        plantsByCell.ContainsKey(cell);
+
+    public int? GetPlantOwner(Vector3Int cell)
     {
-        if (tileStates.TryGetValue(cellPos, out var state) && state == TileState.NotPrepared)
-        {
-            farmTilemap.SetTile(cellPos, preparedTile);
-            tileStates[cellPos] = TileState.Prepared;
-        }
+        if (plantsByCell.TryGetValue(cell, out var plant))
+            return plant.ownerPlayerIndex;
+
+        return null;
+    }
+    #endregion
+
+    #region Actions: Prepare / Plant / Water
+
+    public void PrepareTile(Vector3Int cell)
+    {
+        if (!tileStates.TryGetValue(cell, out var state) || state != TileState.NotPrepared)
+            return;
+
+        farmTilemap.SetTile(cell, preparedTile);
+        tileStates[cell] = TileState.Prepared;
     }
 
-    public void PlantSeed(Vector3Int cellPos, int planterPlayerIndex, int seedType = 0)
+    public void PlantSeed(Vector3Int cell, int playerIndex, int seedType = 0)
     {
-        if (!tileStates.ContainsKey(cellPos)) return;
-        if (IsOccupied(cellPos)) return;
+        if (!tileStates.ContainsKey(cell) || !IsPrepared(cell) || IsOccupied(cell))
+            return;
 
-        if (tileStates[cellPos] == TileState.Prepared)
-        {
-            farmTilemap.SetTile(cellPos, seedTile);
-            tileStates[cellPos] = TileState.PlantedSeed;
+        farmTilemap.SetTile(cell, seedTile);
+        tileStates[cell] = TileState.PlantedSeed;
 
-            Vector3 worldPos = farmTilemap.GetCellCenterWorld(cellPos);
-            if (plantPrefabs != null && seedType < plantPrefabs.Count)
-            {
-                var go = Instantiate(plantPrefabs[seedType], worldPos, Quaternion.identity);
-
-                // parent por jugador
-                Transform root = GetOrCreatePlayerRoot(planterPlayerIndex);
-                go.transform.SetParent(root, true);
-
-                occupiedCells.Add(cellPos);
-
-                var plant = go.GetComponent<Plant>();
-                if (plant != null)
-                {
-                    plant.Init(planterPlayerIndex, cellPos);
-                    plantsByCell[cellPos] = plant;
-                }
-            }
-        }
+        CreatePlantInstance(cell, playerIndex, seedType);
     }
 
-
-    public bool TryInteractPlant(Vector3Int cellPos)
+    public bool TryIrrigatePlant(Vector3Int cell)
     {
-        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
-        {
-            plant.Interact(); // suma “riegos”
-            return true;
-        }
-        return false;
-    }
-
-    public bool TryIrrigatePlant(Vector3Int cellPos)
-    {
-        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
+        if (plantsByCell.TryGetValue(cell, out var plant))
         {
             plant.WaterPlant();
             return true;
         }
         return false;
     }
+    #endregion
 
-    private Transform GetOrCreatePlayerRoot(int playerIndex)
+    #region Internal Spawn & Remove
+    private void CreatePlantInstance(Vector3Int cell, int playerIndex, int seedType)
+    {
+        Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
+
+        GameObject prefab = (seedType < plantPrefabs.Count) ? plantPrefabs[seedType] : null;
+        if (prefab == null) return;
+
+        GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
+        plantObj.transform.SetParent(GetPlayerPlantRoot(playerIndex));
+
+        Plant plant = plantObj.GetComponent<Plant>();
+        plant?.Init(playerIndex, cell);
+
+        plantsByCell[cell] = plant;
+        occupiedCells.Add(cell);
+    }
+
+    public void RemovePlant(Vector3Int cell)
+    {
+        if (!plantsByCell.TryGetValue(cell, out var plant))
+            return;
+
+        Destroy(plant.gameObject);
+        plantsByCell.Remove(cell);
+        occupiedCells.Remove(cell);
+
+        farmTilemap.SetTile(cell, preparedTile);
+        tileStates[cell] = TileState.Prepared;
+    }
+
+    public bool TryRemovePlant(Vector3Int cell, int requesterPlayerIndex)
+    {
+        if (!plantsByCell.TryGetValue(cell, out var plant))
+            return false;
+
+        if (plant.ownerPlayerIndex != requesterPlayerIndex)
+        {
+            Debug.Log("Can't remove someone else's plant.");
+            return false;
+        }
+
+        RemovePlant(cell);
+        return true;
+    }
+    #endregion
+
+    #region Player Plant Root
+    private Transform GetPlayerPlantRoot(int playerIndex)
     {
         if (!playerPlantRoots.TryGetValue(playerIndex, out var root) || root == null)
         {
-            var go = new GameObject($"Player{playerIndex}_Plants");
+            GameObject go = new($"Player{playerIndex}_Plants");
             go.transform.SetParent(plantsRoot, false);
             root = go.transform;
             playerPlantRoots[playerIndex] = root;
         }
         return root;
     }
-
-    public bool IsPrepared(Vector3Int cellPos) =>
-        tileStates.ContainsKey(cellPos) && tileStates[cellPos] == TileState.Prepared;
-
-    public bool IsOccupied(Vector3Int cellPos) => occupiedCells.Contains(cellPos);
-
-    public void RemovePlant(Vector3Int cellPos)
-    {
-        if (!occupiedCells.Contains(cellPos))
-            return;
-
-        foreach (Transform root in plantsRoot)
-        {
-            foreach (Transform plant in root)
-            {
-                Vector3Int plantCell = farmTilemap.WorldToCell(plant.position);
-                if (plantCell == cellPos)
-                {
-                    Destroy(plant.gameObject);
-                    occupiedCells.Remove(cellPos);
-
-                    if (tileStates.ContainsKey(cellPos))
-                    {
-                        tileStates[cellPos] = TileState.Prepared;
-                        farmTilemap.SetTile(cellPos, preparedTile);
-                    }
-
-                    Debug.Log($"Planta en {cellPos} cortada y eliminada correctamente.");
-                    return;
-                }
-            }
-        }
-    }
-
-    public bool TryRemovePlant(Vector3Int cellPos, int requesterPlayerIndex)
-    {
-        if (plantsByCell.TryGetValue(cellPos, out var plant) && plant != null)
-        {
-            // Regla: solo el dueño puede eliminar su planta
-            if (plant.ownerPlayerIndex != requesterPlayerIndex)
-            {
-                Debug.Log("⛔ No puedes eliminar plantas de otro jugador.");
-                return false;
-            }
-
-            // Destruir el GameObject
-            Destroy(plant.gameObject);
-
-            // Limpiar estado de celda
-            plantsByCell.Remove(cellPos);
-            occupiedCells.Remove(cellPos);
-
-            // Opcional: dejar el tile en 'Prepared' para replantar
-            farmTilemap.SetTile(cellPos, preparedTile);
-            tileStates[cellPos] = TileState.Prepared;
-
-            return true;
-        }
-
-        Debug.Log("No hay ninguna planta en esta celda.");
-        return false;
-    }
+    #endregion
 }

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class Player_NeutralState : PlayerState
 {
     private bool hasIneteraction = false;
@@ -18,44 +16,49 @@ public class Player_NeutralState : PlayerState
         //if (player.moveInput.x == player.facingDir && player.wallDetected)
         //return;
 
-        if (player.input.actions["Sabotage"].triggered)
-            stateMachine.ChangeState(player.sabotageState);
+        if (input.actions["Sabotage"].triggered)
+        {
+            var state = DetermineDisruptionState();
 
-        if (player.input.actions["Pickup"].triggered)
+            if (state != null)
+                stateMachine.ChangeState(state);
+        }
+
+        if (input.actions["Pickup"].triggered)
             stateMachine.ChangeState(player.pickState);
 
-        if (player.input.actions["Interact"].triggered)
+        if (input.actions["Interact"].triggered && !hasIneteraction)
         {
-            var state = Resolve();
+            hasIneteraction = true;
+            var state = DetermineInteractionState();
 
             if (state != null)
                 stateMachine.ChangeState(state);
         }
     }
 
-    private PlayerState Resolve()
+    private PlayerState DetermineInteractionState()
     {
-        Vector3Int cell = player.tile.CurrentCell;
-
-        if (IsOnHandEmpty() &&
-            !FarmManager.instance.IsPrepared(cell) &&
-            !FarmManager.instance.IsOccupied(cell))
-        {
+        if (IsOnHandEmpty() && tile.CanPrepare())
             return player.prepareGroundState;
-        }
 
-        if (GetItemFromOnHand<Seed>() != null &&
-            FarmManager.instance.IsPrepared(cell) &&
-            !FarmManager.instance.IsOccupied(cell))
-        {
+        else if (GetItemFromOnHand<Seed>() != null && tile.CanPlant())
             return player.plantState;
-        }
 
-        if (FarmManager.instance.IsOccupied(cell))
-        {
+        else if (tile.CanIrrigate())
             return player.irrigateState;
-        }
 
-        return null;
+        return this;
+    }
+
+    private PlayerState DetermineDisruptionState()
+    {
+        if (IsOnHandEmpty() && tile.CanRemove())
+            return player.removeState;
+
+        else if (GetItemFromOnHand<Scissors>() && tile.CanSabotage())
+            return player.sabotageState;
+
+        return this;
     }
 }

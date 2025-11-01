@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Tilemaps;
 
 public abstract class PlayerState: EntityState
 {
     protected Player player;
-    protected PlayerInputSet input;
+    protected PlayerInput input;
+    protected TileInteraction tile;
 
     public PlayerState(Player player, StateMachine stateMachine, string animBoolName) : base(stateMachine, animBoolName)
     {
@@ -11,6 +14,8 @@ public abstract class PlayerState: EntityState
 
         anim = player.anim;
         rb = player.rb;
+        input = player.input;
+        tile = player.tile;
     }
 
     public override void UpdateAnimationParameters()

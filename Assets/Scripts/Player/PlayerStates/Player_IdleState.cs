@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class Player_IdleState : Player_NeutralState
 {
     public Player_IdleState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
