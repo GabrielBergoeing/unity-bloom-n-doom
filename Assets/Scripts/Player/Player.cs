@@ -8,6 +8,7 @@ public class Player : Entity
     // Components
     public PlayerInput input { get; private set; }
     public Player_VFX vfx { get; private set; }
+    public TileInteraction tile { get; private set; }
 
     // States
     public Player_IdleState idleState { get; private set; }
@@ -22,7 +23,10 @@ public class Player : Entity
     private bool canControl = false; // control flag
     public Vector2 moveInput { get; private set; }
     public float moveSpeed = 8;
+
+    [Header("Irrigate variables")]
     public int waterSupply = 100;
+    [Range(1, 20)] public int irrigateCost = 10;
 
     // Handles values to display anim facing dir
     public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
@@ -33,6 +37,7 @@ public class Player : Entity
         base.Awake();
         input = GetComponent<PlayerInput>();
         vfx = GetComponentInChildren<Player_VFX>();
+        tile = GetComponentInChildren<TileInteraction>();
         // sfx = GetComponent<Player_SFX>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
@@ -95,6 +100,8 @@ public class Player : Entity
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;
+
+    public bool CanPlayerIrrigate() => waterSupply >= irrigateCost;
 
     public bool FlipPlayerControlFlag() => canControl = !canControl;
 

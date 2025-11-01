@@ -9,8 +9,7 @@ public class Player_IrrigateState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
-
-        if (player.waterSupply < 10)
+        if (!player.CanPlayerIrrigate())
         {
             Debug.Log("Not enough water");
             stateMachine.ChangeState(player.idleState);
@@ -20,7 +19,7 @@ public class Player_IrrigateState : Player_ActionState
         // 1 second irrigation time, no cooldown
         player.StartCoroutine(ExecuteAction(1f, 0f, cell =>
         {
-            player.waterSupply -= 10;
+            player.waterSupply -= player.irrigateCost;
 
             // Rotate and play VFX
             if (player.vfx != null)
