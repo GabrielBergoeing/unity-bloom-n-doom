@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: AUDIO DATABASE
   m_EditorClassIdentifier: 
   playerAudio:
-  - audioName: 
-    clips: []
-    volume: 0
-    pitch: 0
+  - audioName: player_movement
+    clips:
+    - {fileID: 8300000, guid: dbcfa4a42aa00da43a280c5f886d8f2d, type: 3}
+    volume: 0.5
+    pitch: 0.4
   UIAudio:
-  - audioName: 
-    clips: []
-    volume: 0
-    pitch: 0
+  - audioName: ui_submit
+    clips:
+    - {fileID: 8300000, guid: a11404f32ffc0d74386f983390b68234, type: 3}
+    volume: 1
+    pitch: 1
   backgroundAudio:
   - audioName: 
     clips: []
