@@ -26,11 +26,18 @@ public class PlayerManager : MonoBehaviour
         for (int i = 0; i < configs.Count; i++)
         {
             var cfg = configs[i];
-            var player = PlayerInput.Instantiate(playerPrefab, i, cfg.controlScheme, -1, cfg.device);
+            if (cfg.selectedCharacter == null)
+            {
+                Debug.LogWarning($"Player {i} no tiene personaje seleccionado, usando default.");
+                continue;
+            }
+
+            GameObject prefabToUse = cfg.selectedCharacter.prefab;
+            var player = PlayerInput.Instantiate(prefabToUse, i, cfg.controlScheme, -1, cfg.device);
             player.transform.position = Vector3.zero;
             activePlayers.Add(player);
 
-            Debug.Log($"Spawned player {i} with {cfg.controlScheme} ({cfg.device.displayName})");
+            Debug.Log($"Spawned player {i} as {cfg.selectedCharacter.characterName} with {cfg.controlScheme} ({cfg.device.displayName})");
         }
 
         // Hand off to MatchManager if it exists

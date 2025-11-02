@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Dave
   portrait: {fileID: 5470928707863739333, guid: dc49ba8e4513508468c97e2edbf00e37, type: 3}
+  prefab: {fileID: 165571438480114262, guid: 091358c6c976a3f4bb3149a18b507b75, type: 3}

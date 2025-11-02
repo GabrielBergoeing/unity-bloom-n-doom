@@ -5,4 +5,5 @@ public class CharacterData : ScriptableObject
 {
     public string characterName;
     public Sprite portrait;
+    public GameObject prefab;
 }

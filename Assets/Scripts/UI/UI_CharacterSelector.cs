@@ -32,7 +32,6 @@ public class UI_CharacterSelector : MonoBehaviour
     {
         playerInput = player;
 
-        // Conecta la acción Navigate
         if (playerInput.actions["Navigate"] != null)
             playerInput.actions["Navigate"].performed += OnNavigate;
 
@@ -47,7 +46,6 @@ public class UI_CharacterSelector : MonoBehaviour
 
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
-        // Evita cambios antes de que pase el cooldown
         if (Time.time - lastInputTime < inputCooldown) return;
 
         float x = ctx.ReadValue<Vector2>().x;

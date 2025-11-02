@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Robin
   portrait: {fileID: 8847387220282742073, guid: 16b8fd3ee5cd99c479dd8608fe02f6e1, type: 3}
+  prefab: {fileID: 165571438480114262, guid: b291267d2d53d2740ae30b461b8044e1, type: 3}
