@@ -5,4 +5,5 @@ public class PlayerConfiguration
 {
     public InputDevice device;
     public string controlScheme;
+    public CharacterData selectedCharacter;
 }

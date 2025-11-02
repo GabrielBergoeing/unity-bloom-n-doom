@@ -104,6 +104,10 @@ public class UI_MatchMenu : MonoBehaviour
                 tmp3d.text = $"Player {player.playerIndex + 1} Ready!";
         }
 
+        var selector = panel.GetComponentInChildren<UI_CharacterSelector>();
+        if (selector != null)
+            selector.Init(player);
+
         activePlayers[player.playerIndex] = panel;
         UpdateStartButton();
     }
@@ -141,6 +145,23 @@ public class UI_MatchMenu : MonoBehaviour
             .ToArray();
 
         GameManager.instance.RegisterPlayers(players);
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            var selector = playerPanels[i].GetComponentInChildren<UI_CharacterSelector>();
+            if (selector != null)
+            {
+                GameManager.instance.playerConfigs[i].selectedCharacter = selector.SelectedCharacter;
+
+                // Log para verificar
+                Debug.Log($"[StartMatch] Player {i + 1} selected character: {selector.SelectedCharacter.characterName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[StartMatch] Player {i + 1} no tiene selector de personaje.");
+            }
+        }
+
         GameManager.instance.StartMatchScene(nextScene);
     }
 }
