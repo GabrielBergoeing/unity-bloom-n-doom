@@ -4,6 +4,7 @@ using UnityEngine;
 public class Plant : MonoBehaviour
 {
     public enum GrowthStage { Seed, Growing, Mature }
+    protected Rigidbody2D rb;
 
     [Header("Owner / Grid")]
     public int ownerPlayerIndex = -1;
@@ -22,10 +23,10 @@ public class Plant : MonoBehaviour
     public Sprite matureSprite;
 
     [Header("Health and Withering time (in seconds)")]
-    [Range(0, 20)][SerializeField] private float maxHealth = 10;
-    [Range(0f, 60f)][SerializeField] private float witheringTime = 30f;
-    private float health;
-    private float timer;
+    [Range(0, 20)][SerializeField] protected float maxHealth = 10;
+    [Range(0f, 60f)][SerializeField] protected float witheringTime = 30f;
+    protected float health;
+    protected float timer;
 
     [Header("Fire System")]
     [Range(0.1f, 10f)][SerializeField] private float fireDamagePerSecond = 0.5f;
@@ -39,6 +40,7 @@ public class Plant : MonoBehaviour
     [Header("Scoring")]
     [Range(0, 5)][SerializeField] private int score = 3;
 
+    protected virtual void Awake() => rb = GetComponent<Rigidbody2D>();
     public void Init(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
     {
         ownerPlayerIndex = ownerIndex;
@@ -78,7 +80,7 @@ public class Plant : MonoBehaviour
             spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         timer -= Time.deltaTime;
 
@@ -137,13 +139,15 @@ public class Plant : MonoBehaviour
         {
             FarmManager.instance.NotifyPlantDeath(cellPos);
         }
-        
+
         Destroy(gameObject);
     }
 
+    protected bool IsFullyGrown() => stage == GrowthStage.Mature;
+
     public void Interact()
     {
-        if (stage == GrowthStage.Mature) return;
+        if (IsFullyGrown()) return;
 
         currentInteractions++;
 
@@ -172,10 +176,7 @@ public class Plant : MonoBehaviour
             SetStage(GrowthStage.Growing);
     }
 
-    public void TakeDamage(float damage)
-    {
-        health -= damage;
-    }
+    public virtual void TakeDamage(float damage) => health -= damage;
 
     public int GetScoring()
     {
@@ -206,7 +207,7 @@ public class Plant : MonoBehaviour
                 originalColor = spriteRenderer.color;
         }
     }
-    
+
     public void ExtinguishFire()
     {
         isOnFire = false;

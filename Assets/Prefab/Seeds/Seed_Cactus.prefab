@@ -162,12 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3ffae8ae08af6f48853de120ff5b97f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickup: {fileID: 0}
-  farmManager: {fileID: 0}
-  tileInteraction: {fileID: 0}
-  playerInput: {fileID: 0}
-  plantDuration: 0
-  cooldown: 0
+  plantPrefab: {fileID: 5654476984458142201, guid: a45c29451d903e64dbac31174da0884c, type: 3}
 --- !u!1 &4823677795522932424
 GameObject:
   m_ObjectHideFlags: 0

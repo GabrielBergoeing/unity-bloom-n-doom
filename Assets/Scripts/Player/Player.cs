@@ -25,7 +25,7 @@ public class Player : Entity
     public Vector2 moveInput { get; private set; }
 
     [Header("Irrigate variables")]
-    public int waterSupply = 100;
+    public float waterSupply = 100;
     [Range(1, 20)] public int irrigateCost = 10;
 
     [Header("Action Active Frames")]
