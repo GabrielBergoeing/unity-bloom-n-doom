@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7950738963709284094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6566404593137259064}
+  - component: {fileID: 3668829381027802239}
+  m_Layer: 0
+  m_Name: __FARM MANAGER__
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6566404593137259064
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950738963709284094}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3668829381027802239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950738963709284094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6c3ae2af137e6740bf439af1010bb4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  farmTilemap: {fileID: 0}
+  preparedTile: {fileID: 11400000, guid: 2689b463ac947ea4fa35c007aec73cf5, type: 2}
+  seedTile: {fileID: 11400000, guid: edecc9b58eb27b641984024d2156c7d1, type: 2}
+  plantsRoot: {fileID: 0}
+  plantPrefabs:
+  - {fileID: 391816432929291485, guid: 584c077ab13c30a4b9e6967e0e4786e0, type: 3}
+  - {fileID: 5654476984458142201, guid: a6096c3c1d986e24e8cdec191e0a45d0, type: 3}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4784660374328028396}
   - component: {fileID: 745582966711712859}
-  - component: {fileID: 9206543615384696699}
+  - component: {fileID: 1608808692177452533}
   - component: {fileID: 2521046441905428487}
   m_Layer: 0
   m_Name: __MATCH MANAGER__
@@ -48,11 +48,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   matchTime: 900
   playerSpawns:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
---- !u!114 &9206543615384696699
+  - {x: -10, y: 10, z: 0}
+  - {x: 10, y: 10, z: 0}
+  - {x: -10, y: -10, z: 0}
+  - {x: 10, y: -10, z: 0}
+--- !u!114 &1608808692177452533
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -61,10 +61,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 158427986076329821}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5df4072c55010e640ad63e2e3f133184, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c0e9aa97f6e6b64fb9cca473e72ee8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 165571438480114262, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
+  mapSeeds: []
+  mapTools: []
+  mapRarities: []
+  spawnPoints: []
+  seedSpawnInterval: 10
+  toolSpawnInterval: 18
+  raritySpawnInterval: 45
 --- !u!114 &2521046441905428487
 MonoBehaviour:
   m_ObjectHideFlags: 0

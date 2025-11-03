@@ -1,49 +1,34 @@
 fileFormatVersion: 2
-guid: b8197602cff9b824dba1b396bc94b6ed
+guid: 77997cb0e29480b40a2789f7eca1a53b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7479085023802943743
-    second: items 1_0
+      213: -7566001254248236219
+    second: 1-bit_UI_byBatuhanK_0
   - first:
-      213: -3200850943440068997
-    second: items 1_1
+      213: 6900779525515493339
+    second: 1-bit_UI_byBatuhanK_1
   - first:
-      213: 2292940995249346710
-    second: items 1_2
+      213: 3966392815263420760
+    second: 1-bit_UI_byBatuhanK_2
   - first:
-      213: 4910287060075282912
-    second: items 1_3
+      213: -6681285175846793865
+    second: 1-bit_UI_byBatuhanK_3
   - first:
-      213: 4583609331636001287
-    second: items 1_4
+      213: 539889525855581842
+    second: 1-bit_UI_byBatuhanK_4
   - first:
-      213: -6830588666555044298
-    second: items 1_5
+      213: -87505471827237910
+    second: 1-bit_UI_byBatuhanK_5
   - first:
-      213: -7869611347050248297
-    second: items 1_6
+      213: 3004623737311694110
+    second: 1-bit_UI_byBatuhanK_6
   - first:
-      213: 5028655222937897706
-    second: items 1_7
+      213: -6893457498772346192
+    second: 1-bit_UI_byBatuhanK_7
   - first:
-      213: 7800266584140613243
-    second: items 1_8
-  - first:
-      213: -8934374820296615573
-    second: items 1_9
-  - first:
-      213: -5649703172290232351
-    second: items 1_10
-  - first:
-      213: 4512279385301978399
-    second: items 1_11
-  - first:
-      213: 4242710810131097925
-    second: items 1_12
-  - first:
-      213: -4592697646439668711
-    second: items 1_13
+      213: 998387198676639397
+    second: 1-bit_UI_byBatuhanK_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -76,7 +61,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -90,7 +75,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -114,7 +99,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,13 +124,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: items 1_0
+      name: 1-bit_UI_byBatuhanK_0
       rect:
         serializedVersion: 2
-        x: 1
-        y: 111
-        width: 14
-        height: 11
+        x: 7
+        y: 147
+        width: 73
+        height: 105
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,20 +139,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1071847fbc3f43890800000000000000
-      internalID: -7479085023802943743
+      spriteID: 54bbf5612f9200790800000000000000
+      internalID: -7566001254248236219
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_1
+      name: 1-bit_UI_byBatuhanK_1
       rect:
         serializedVersion: 2
-        x: 17
-        y: 111
-        width: 14
-        height: 11
+        x: 85
+        y: 154
+        width: 118
+        height: 101
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -176,20 +161,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b7ed749960b4493d0800000000000000
-      internalID: -3200850943440068997
+      spriteID: bdfb3a3aa6e74cf50800000000000000
+      internalID: 6900779525515493339
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_2
+      name: 1-bit_UI_byBatuhanK_2
       rect:
         serializedVersion: 2
-        x: 33
-        y: 111
-        width: 14
-        height: 15
+        x: 209
+        y: 152
+        width: 255
+        height: 102
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -198,20 +183,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 69894c8cfa922df10800000000000000
-      internalID: 2292940995249346710
+      spriteID: 851107920457b0730800000000000000
+      internalID: 3966392815263420760
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_3
+      name: 1-bit_UI_byBatuhanK_3
       rect:
         serializedVersion: 2
-        x: 48
-        y: 111
-        width: 17
-        height: 11
+        x: 7
+        y: 34
+        width: 73
+        height: 111
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -220,20 +205,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0e10cf8b018d42440800000000000000
-      internalID: 4910287060075282912
+      spriteID: 77d8192188e4743a0800000000000000
+      internalID: -6681285175846793865
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_4
+      name: 1-bit_UI_byBatuhanK_4
       rect:
         serializedVersion: 2
-        x: 64
-        y: 111
-        width: 17
-        height: 12
+        x: 85
+        y: 107
+        width: 118
+        height: 45
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -242,20 +227,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 70a5451f6604c9f30800000000000000
-      internalID: 4583609331636001287
+      spriteID: 296739ec9a21e7700800000000000000
+      internalID: 539889525855581842
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_5
+      name: 1-bit_UI_byBatuhanK_5
       rect:
         serializedVersion: 2
-        x: 74
-        y: 122
-        width: 6
-        height: 6
+        x: 209
+        y: 107
+        width: 37
+        height: 45
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -264,20 +249,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 63e6d2b3ccfd431a0800000000000000
-      internalID: -6830588666555044298
+      spriteID: ae3a5dbac3e19cef0800000000000000
+      internalID: -87505471827237910
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_6
+      name: 1-bit_UI_byBatuhanK_6
       rect:
         serializedVersion: 2
-        x: 0
-        y: 95
-        width: 17
-        height: 17
+        x: 249
+        y: 45
+        width: 215
+        height: 107
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -286,20 +271,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 797cfa2cc2689c290800000000000000
-      internalID: -7869611347050248297
+      spriteID: e1d8b22be5192b920800000000000000
+      internalID: 3004623737311694110
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_7
+      name: 1-bit_UI_byBatuhanK_7
       rect:
         serializedVersion: 2
-        x: 17
-        y: 95
-        width: 14
-        height: 16
+        x: 85
+        y: 34
+        width: 118
+        height: 71
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -308,20 +293,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: aea4025484f59c540800000000000000
-      internalID: 5028655222937897706
+      spriteID: 0baeb6f8de48550a0800000000000000
+      internalID: -6893457498772346192
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items 1_8
+      name: 1-bit_UI_byBatuhanK_8
       rect:
         serializedVersion: 2
-        x: 31
-        y: 79
-        width: 18
-        height: 18
+        x: 85
+        y: 7
+        width: 118
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -330,118 +315,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b760d05712d104c60800000000000000
-      internalID: 7800266584140613243
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items 1_9
-      rect:
-        serializedVersion: 2
-        x: 49
-        y: 95
-        width: 14
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b699602ff69b20480800000000000000
-      internalID: -8934374820296615573
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items 1_10
-      rect:
-        serializedVersion: 2
-        x: 65
-        y: 95
-        width: 14
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1ef3e31f5e83891b0800000000000000
-      internalID: -5649703172290232351
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items 1_11
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 79
-        width: 29
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f1d0e30a136de9e30800000000000000
-      internalID: 4512279385301978399
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items 1_12
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 63
-        width: 12
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 549e292c00321ea30800000000000000
-      internalID: 4242710810131097925
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: items 1_13
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 63
-        width: 30
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 914e03fd2d57340c0800000000000000
-      internalID: -4592697646439668711
+      spriteID: 5ae1b651edbfadd00800000000000000
+      internalID: 998387198676639397
       vertices: []
       indices: 
       edges: []
@@ -460,20 +335,15 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      items 1_0: -7479085023802943743
-      items 1_1: -3200850943440068997
-      items 1_10: -5649703172290232351
-      items 1_11: 4512279385301978399
-      items 1_12: 4242710810131097925
-      items 1_13: -4592697646439668711
-      items 1_2: 2292940995249346710
-      items 1_3: 4910287060075282912
-      items 1_4: 4583609331636001287
-      items 1_5: -6830588666555044298
-      items 1_6: -7869611347050248297
-      items 1_7: 5028655222937897706
-      items 1_8: 7800266584140613243
-      items 1_9: -8934374820296615573
+      1-bit_UI_byBatuhanK_0: -7566001254248236219
+      1-bit_UI_byBatuhanK_1: 6900779525515493339
+      1-bit_UI_byBatuhanK_2: 3966392815263420760
+      1-bit_UI_byBatuhanK_3: -6681285175846793865
+      1-bit_UI_byBatuhanK_4: 539889525855581842
+      1-bit_UI_byBatuhanK_5: -87505471827237910
+      1-bit_UI_byBatuhanK_6: 3004623737311694110
+      1-bit_UI_byBatuhanK_7: -6893457498772346192
+      1-bit_UI_byBatuhanK_8: 998387198676639397
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

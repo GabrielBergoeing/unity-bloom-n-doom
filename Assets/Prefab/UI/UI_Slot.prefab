@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 68.9, y: -83.8}
-  m_SizeDelta: {x: 90, y: 90}
+  m_SizeDelta: {x: 45, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2064552190357087731
 CanvasRenderer:
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 4637606844413936327}
   - component: {fileID: 6159079465533002653}
   m_Layer: 5
-  m_Name: slot
+  m_Name: UI_Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
