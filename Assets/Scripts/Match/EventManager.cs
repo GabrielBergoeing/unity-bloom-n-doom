@@ -11,7 +11,7 @@ public class EventManager : MonoBehaviour
     [SerializeField] private List<GameObject> mapRarities;
 
     [Header("Spawn Points")]
-    [SerializeField] private List<Transform> spawnPoints;
+    [SerializeField] private List<Vector2> spawnPoints;
 
     [Header("Spawn Rates (seconds)")]
     [Tooltip("Time between seed spawns")]
@@ -66,26 +66,26 @@ public class EventManager : MonoBehaviour
     {
         if (itemList.Count == 0 || spawnPoints.Count == 0) return;
 
-        Transform spawn = GetRandomFreeSpawnPoint();
+        Vector2 spawn = GetRandomFreeSpawnPoint();
         if (spawn == null) return;
 
         GameObject prefab = itemList[Random.Range(0, itemList.Count)];
-        Instantiate(prefab, spawn.position, Quaternion.identity);
+        Instantiate(prefab, spawn, Quaternion.identity);
     }
 
-    private Transform GetRandomFreeSpawnPoint()
+    private Vector2 GetRandomFreeSpawnPoint()
     {
-        List<Transform> shuffledPoints = new(spawnPoints);
+        List<Vector2> shuffledPoints = new(spawnPoints);
         Shuffle(shuffledPoints);
 
         foreach (var point in shuffledPoints)
         {
             // If nothing is in this tile (you can use tags, colliders, tilemap check, etc.)
-            Collider2D hit = Physics2D.OverlapCircle(point.position, 0.2f);
+            Collider2D hit = Physics2D.OverlapCircle(point, 0.2f);
             if (hit == null)
                 return point;
         }
-        return null;
+        return Vector2.zero;
     }
 
     private void Shuffle<T>(List<T> list)

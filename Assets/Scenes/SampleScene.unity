@@ -10711,11 +10711,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 447294106}
+  - component: {fileID: 447294111}
   - component: {fileID: 447294110}
   - component: {fileID: 447294109}
   - component: {fileID: 447294108}
   - component: {fileID: 447294107}
-  - component: {fileID: 447294110}
   m_Layer: 7
   m_Name: Wall
   m_TagString: Untagged
@@ -12297,6 +12297,37 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
+--- !u!114 &447294111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447294105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a3e33b66dbb846429cd88e20546efe6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 0}
+  currentType: 0
+  tiles:
+  - variant: North
+    tile: {fileID: 11400000, guid: 9b9d59a05ff035745820ba76942d8ba0, type: 2}
+  - variant: South
+    tile: {fileID: 11400000, guid: af4155705a9d2e44ba5e2f104bbad32b, type: 2}
+  - variant: East
+    tile: {fileID: 11400000, guid: 97700b5daec5e2d48822a792971571d1, type: 2}
+  - variant: West
+    tile: {fileID: 11400000, guid: 1063b5f090b2781469d94a609a2489b4, type: 2}
+  - variant: CornerNE
+    tile: {fileID: 11400000, guid: de0b8ae342aeaf843a5fde9e158b01ce, type: 2}
+  - variant: CornerNW
+    tile: {fileID: 11400000, guid: 739bbd42903c3f4498ba7fa72ea48153, type: 2}
+  - variant: CornerSE
+    tile: {fileID: 11400000, guid: adebe167bf096d7498ed565a0497c189, type: 2}
+  - variant: CornerSW
+    tile: {fileID: 11400000, guid: 9bd610fa66a9cf543876b4bfbb3a3ba8, type: 2}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -12533,7 +12564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae19d2f7a6312c8428e5f1b17dc3cc9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallHandler: {fileID: 447294110}
+  wallHandler: {fileID: 447294111}
   landHandler: {fileID: 380328460}
   waterHandler: {fileID: 407112514}
 --- !u!114 &558414329
