@@ -80,15 +80,15 @@ public class FarmManager : MonoBehaviour
         tileStates[cell] = TileState.Prepared;
     }
 
-    public void PlantSeed(Vector3Int cell, int playerIndex, int seedType = 0)
+    public void PlantSeed(Vector3Int cell, int playerIndex, GameObject plantPrefab)
     {
         if (!tileStates.ContainsKey(cell) || !IsPrepared(cell) || IsOccupied(cell))
             return;
 
-        farmTilemap.SetTile(cell, seedTile);
         tileStates[cell] = TileState.PlantedSeed;
+        farmTilemap.SetTile(cell, seedTile);
 
-        CreatePlantInstance(cell, playerIndex, seedType);
+        SpawnPlant(cell, playerIndex, plantPrefab);
     }
 
     public bool TryIrrigatePlant(Vector3Int cell)
@@ -103,14 +103,12 @@ public class FarmManager : MonoBehaviour
     #endregion
 
     #region Internal Spawn & Remove
-    private void CreatePlantInstance(Vector3Int cell, int playerIndex, int seedType)
+
+    private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
     {
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
-
-        GameObject prefab = (seedType < plantPrefabs.Count) ? plantPrefabs[seedType] : null;
-        if (prefab == null) return;
-
         GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
+
         plantObj.transform.SetParent(GetPlayerPlantRoot(playerIndex));
 
         Plant plant = plantObj.GetComponent<Plant>();

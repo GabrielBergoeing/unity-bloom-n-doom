@@ -45,14 +45,13 @@ public class Plant : MonoBehaviour
         cellPos = gridCell;
 
         if (requiredInteractions.HasValue)
-            interactionsToMature = Mathf.Max(0, requiredInteractions.Value);
+            interactionsToMature = Mathf.Max(1, requiredInteractions.Value); // force at least 1
+        else
+            interactionsToMature = Mathf.Max(1, interactionsToMature); // ensure prefab can't be 0
 
         if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
-
-        if (interactionsToMature == 0)
-            SetStage(GrowthStage.Mature);
-        else
-            SetStage(GrowthStage.Seed);
+        
+        SetStage(GrowthStage.Seed);
     }
 
     private void SetStage(GrowthStage newStage)
@@ -191,7 +190,6 @@ public class Plant : MonoBehaviour
 
     public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
 
-
     public void SetOnFire()
     {
         
@@ -209,7 +207,6 @@ public class Plant : MonoBehaviour
         }
     }
     
-
     public void ExtinguishFire()
     {
         isOnFire = false;

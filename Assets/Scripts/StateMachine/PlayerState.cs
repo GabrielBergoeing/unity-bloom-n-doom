@@ -8,6 +8,7 @@ public abstract class PlayerState: EntityState
     protected PlayerInput input;
     protected Player_SFX sfx;
     protected TileInteraction tile;
+    protected HotbarSystem inventory;
 
     public PlayerState(Player player, StateMachine stateMachine, string animBoolName) : base(stateMachine, animBoolName)
     {
@@ -18,6 +19,7 @@ public abstract class PlayerState: EntityState
         input = player.input;
         sfx = player.sfx;
         tile = player.tile;
+        inventory = player.inventory;
     }
 
     public override void UpdateAnimationParameters()
@@ -33,13 +35,12 @@ public abstract class PlayerState: EntityState
     //Allows to search for any type of component held on player's hand
     public virtual T GetItemFromOnHand<T>() where T : Component
     {
-        Transform onHand = player.transform.Find("OnHand");
+        if (player.inventory == null) return null;
 
-        if (onHand != null && onHand.childCount > 0)
+        GameObject equippedItem = player.inventory.GetCurrentItem();
+        if (equippedItem != null)
         {
-            T item = onHand.GetChild(0).GetComponent<T>();
-            if (item != null)
-                return item;
+            return equippedItem.GetComponent<T>();
         }
 
         return null;

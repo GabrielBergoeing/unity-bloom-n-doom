@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    private bool kinematicFlag = false;
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
     protected StateMachine stateMachine; //-> Helps define the states (actions) entities have

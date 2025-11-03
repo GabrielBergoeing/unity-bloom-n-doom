@@ -186,7 +186,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
       propertyPath: m_Name
-      value: Seed_basic
+      value: Seed_RedConeflower
       objectReference: {fileID: 0}
     - target: {fileID: 3136682256561082650, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
       propertyPath: m_LocalPosition.x

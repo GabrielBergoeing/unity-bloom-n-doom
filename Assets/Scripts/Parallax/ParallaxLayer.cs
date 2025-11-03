@@ -5,18 +5,13 @@ public class ParallaxLayer
 {
     [SerializeField] private Transform background;
     [SerializeField] private float parallaxMultiplier;
-    [SerializeField] private float imageWidthOffset = 10;
     private float imageFullWidth;
-    private float imageFullHeight;
     private float imageHalfWidth;
-    private float imageHalfHeight;
 
     public void CalculateImageWidth()
     {
         imageFullWidth = background.GetComponent<SpriteRenderer>().bounds.size.x;
-        imageFullHeight = background.GetComponent<SpriteRenderer>().bounds.size.y;
         imageHalfWidth = imageFullWidth / 2;
-        imageHalfHeight = imageFullHeight / 2;
     }
     public void Move(float distanceToMoveX, float distanceToMoveY)
     {

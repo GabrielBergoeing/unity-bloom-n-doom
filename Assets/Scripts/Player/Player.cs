@@ -8,6 +8,7 @@ public class Player : Entity
     public Player_VFX vfx { get; private set; }
     public TileInteraction tile { get; private set; }
     public Player_SFX sfx { get; private set; }
+    public HotbarSystem inventory { get; private set; }
 
     // States
     public Player_IdleState idleState { get; private set; }
@@ -37,7 +38,7 @@ public class Player : Entity
     [Header("Action Cooldown (in frames)")]
     [Range(0, 10)] public float irrigateCooldown = 2f;
     [Range(0, 10)] public float pickCooldown = 1f;
-    [Range(0, 10)] public float plantCooldown = 1f;
+    [Range(0, 10)] public float plantCooldown = 0f;
     [Range(0, 10)] public float prepareGroundCooldown = 1f;
     [Range(0, 10)] public float removeCooldown = 2f;
 
@@ -55,6 +56,7 @@ public class Player : Entity
         vfx = GetComponentInChildren<Player_VFX>();
         tile = GetComponentInChildren<TileInteraction>();
         sfx = GetComponent<Player_SFX>();
+        inventory = GetComponent<HotbarSystem>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
         irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");

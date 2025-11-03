@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3608451157103802395}
   - component: {fileID: -3761267209003963865}
   m_Layer: 0
-  m_Name: Seed_basic
+  m_Name: Seed_RedConeflower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -8934374820296615573, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
+  m_Sprite: {fileID: 15493971, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.14, y: 0.16}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -162,12 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3ffae8ae08af6f48853de120ff5b97f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickup: {fileID: 0}
-  farmManager: {fileID: 0}
-  tileInteraction: {fileID: 0}
-  playerInput: {fileID: 0}
-  plantDuration: 0
-  cooldown: 0
+  plantPrefab: {fileID: 391816432929291485, guid: 584c077ab13c30a4b9e6967e0e4786e0, type: 3}
 --- !u!1 &4823677795522932424
 GameObject:
   m_ObjectHideFlags: 0
