@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Fire : MonoBehaviour
+public class Water : MonoBehaviour
 {
     [Range(0.1f, 100f)]
     [SerializeField] private float speed = 10f;
@@ -33,10 +33,12 @@ public class Fire : MonoBehaviour
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {
-            Debug.Log("¡Planta incendiada!");
-            plant.SetOnFire();
+            Destroy(gameObject);
+            Debug.Log("¡Planta apagada!");
+            plant.ExtinguishFire();
+            
         }
 
-        Destroy(gameObject);
+        
     }
 }
