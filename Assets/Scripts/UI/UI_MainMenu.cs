@@ -17,4 +17,18 @@ public class UI_MainMenu : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void KeyboardBTN()
+    {
+        GameManager.instance.ChangeScene("ControlConfig");
+    }
+    public void ControllerBTN()
+    {
+        GameManager.instance.ChangeScene("ControlConfig2");
+    }
+    public void MainMenuBTN()
+    {
+        GameManager.instance.ChangeScene("MainMenu");
+    }
+
 }
