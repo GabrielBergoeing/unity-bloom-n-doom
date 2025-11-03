@@ -10715,7 +10715,8 @@ GameObject:
   - component: {fileID: 447294109}
   - component: {fileID: 447294108}
   - component: {fileID: 447294107}
-  m_Layer: 6
+  - component: {fileID: 447294110}
+  m_Layer: 7
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12269,37 +12270,33 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &447294110
-MonoBehaviour:
+--- !u!50 &447294110
+Rigidbody2D:
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 447294105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a3e33b66dbb846429cd88e20546efe6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tilemap: {fileID: 447294109}
-  currentType: 0
-  tiles:
-  - variant: North
-    tile: {fileID: 11400000, guid: 9b9d59a05ff035745820ba76942d8ba0, type: 2}
-  - variant: South
-    tile: {fileID: 11400000, guid: af4155705a9d2e44ba5e2f104bbad32b, type: 2}
-  - variant: East
-    tile: {fileID: 11400000, guid: 1063b5f090b2781469d94a609a2489b4, type: 2}
-  - variant: West
-    tile: {fileID: 11400000, guid: 97700b5daec5e2d48822a792971571d1, type: 2}
-  - variant: CornerNE
-    tile: {fileID: 11400000, guid: de0b8ae342aeaf843a5fde9e158b01ce, type: 2}
-  - variant: CornerNW
-    tile: {fileID: 11400000, guid: 739bbd42903c3f4498ba7fa72ea48153, type: 2}
-  - variant: CornerSE
-    tile: {fileID: 11400000, guid: adebe167bf096d7498ed565a0497c189, type: 2}
-  - variant: CornerSW
-    tile: {fileID: 11400000, guid: 9bd610fa66a9cf543876b4bfbb3a3ba8, type: 2}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -12484,6 +12481,14 @@ PrefabInstance:
     - target: {fileID: 873627730777378705, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3627837808076152064, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
+      propertyPath: fireRate
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 3627837808076152064, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
+      propertyPath: spreadAngle
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 6222831082444049174, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
       propertyPath: m_SortingOrder
@@ -12893,6 +12898,14 @@ PrefabInstance:
     - target: {fileID: 5993535111167845787, guid: c1cb0d70acf0bda48bcabc6f2085e522, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8153283862355464085, guid: c1cb0d70acf0bda48bcabc6f2085e522, type: 3}
+      propertyPath: fireRate
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 8153283862355464085, guid: c1cb0d70acf0bda48bcabc6f2085e522, type: 3}
+      propertyPath: spreadAngle
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
