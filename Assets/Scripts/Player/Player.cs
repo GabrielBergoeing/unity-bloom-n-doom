@@ -127,28 +127,59 @@ public class Player : Entity
     // Teleport player's transform to given position, useful for start of match or outofbounds
     public void TeleportPlayer(Vector3 position) => transform.position = position;
 
+    public void ForceIdleState() // Interrupt current action and force idle state
+    {
+        if (stateMachine != null && idleState != null)
+        {
+            stateMachine.ChangeState(idleState);
+        }
+    }
+
+    public void ApplyPushForce(Vector2 direction, float force)
+    {
+        if (rb != null)
+        {
+            RigidbodyType2D originalType = rb.bodyType;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+
+            rb.linearVelocity = Vector2.zero;
+            rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
+
+            SetVelocity(direction.x * force * 0.3f, direction.y * force * 0.3f);
+
+
+        }
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject == this.gameObject) return;
-        if (collision.gameObject.GetComponent<Player>() != null)
+        
+        Player otherPlayer = collision.gameObject.GetComponent<Player>();
+        if (otherPlayer != null)
         {
             if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
                 rb.angularVelocity = 0f;
+                
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                
+                Vector2 separationDirection = (transform.position - otherPlayer.transform.position).normalized;
+                transform.position += (Vector3)(separationDirection * 0.1f);
+                
+                StartCoroutine(RestoreRigidbodyType());
             }
         }
     }
-    private void OnCollisionStay2D(Collision2D collision)
+
+    private System.Collections.IEnumerator RestoreRigidbodyType()
     {
-        if (collision.gameObject == this.gameObject) return;
-        if (collision.gameObject.GetComponent<Player>() != null)
+        yield return new WaitForFixedUpdate();
+        if (rb != null)
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-            }
+            rb.bodyType = RigidbodyType2D.Dynamic;
         }
     }
+
+
 }

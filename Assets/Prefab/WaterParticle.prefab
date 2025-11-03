@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3621511249753334802}
   - component: {fileID: 797157473088529198}
   - component: {fileID: 2262423651773649292}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterParticle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,3 +168,5 @@ MonoBehaviour:
   speed: 7
   lifetime: 0.5
   spreadAngle: 15.5
+  pushForce: 15
+  pushDuration: 0.5

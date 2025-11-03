@@ -11,6 +11,13 @@ public class Water : MonoBehaviour
     [Range(0f, 45f)]
     [SerializeField] private float spreadAngle = 15f;
 
+    [Header("Player Push Settings")]
+    [Range(1f, 50f)]
+    [SerializeField] private float pushForce = 25f;
+
+    [Range(0.1f, 2f)]
+    [SerializeField] private float pushDuration = 0.5f;
+
     private Rigidbody2D rb;
 
     private void Start()
@@ -28,16 +35,26 @@ public class Water : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Fuego entró en trigger con: {other.gameObject.name}");
-
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {
             Debug.Log("¡Planta apagada!");
             plant.ExtinguishFire();
-            
+            plant.WaterPlant();
         }
 
-        
+        Player player = other.gameObject.GetComponent<Player>();
+        if (player != null)
+        {
+            PushPlayer(player);
+        }
+    }
+
+    private void PushPlayer(Player player)
+    {
+        Vector2 pushDirection = (player.transform.position - transform.position).normalized;
+        player.ForceIdleState();
+        player.ApplyPushForce(pushDirection, pushForce);
+    
     }
 }

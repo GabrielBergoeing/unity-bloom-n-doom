@@ -156,6 +156,11 @@ public class Plant : MonoBehaviour
 
     public void WaterPlant()
     {
+
+        if (isOnFire)
+        {
+            ExtinguishFire();
+        }
         timer = witheringTime;
 
         if (stage == GrowthStage.Mature) return;
