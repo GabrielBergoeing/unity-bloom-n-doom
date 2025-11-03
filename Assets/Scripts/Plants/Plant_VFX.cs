@@ -48,6 +48,8 @@ public class Plant_VFX : MonoBehaviour
 
     private void UpdateDarkening()
     {
+        if (plant.isOnFire) return;
+        
         float witherRatio = Mathf.Clamp01(plant.GetWitherRatio());
         float brightness = Mathf.Lerp(minBrightness, maxBrightness, witherRatio);
 

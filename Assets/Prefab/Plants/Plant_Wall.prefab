@@ -99,12 +99,10 @@ GameObject:
   - component: {fileID: 4486954698785084318}
   - component: {fileID: 8231471168190543111}
   - component: {fileID: 6263866854795462359}
-  - component: {fileID: 6968965150253004014}
   - component: {fileID: 5604063309545410721}
-  - component: {fileID: 4010321516765487977}
   m_Layer: 0
   m_Name: Plant_Wall
-  m_TagString: Untagged
+  m_TagString: Plant
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,6 +201,8 @@ MonoBehaviour:
   matureSprite: {fileID: -7869611347050248297, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
   maxHealth: 20
   witheringTime: 60
+  fireDamagePerSecond: 2
+  fireDuration: 5
   score: 3
 --- !u!114 &6263866854795462359
 MonoBehaviour:
@@ -224,18 +224,6 @@ MonoBehaviour:
   - {r: 0.8701462, g: 0.9245283, b: 0.40295476, a: 1}
   - {r: 0.8415094, g: 0.43028116, b: 0.80649245, a: 1}
   borderScale: 1.5
---- !u!114 &6968965150253004014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5654476984458142201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 097bbaaafac71514b875d9c733d1e23f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!58 &5604063309545410721
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -272,15 +260,3 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.53125
---- !u!114 &4010321516765487977
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5654476984458142201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 661d0a3f84525614cabda42208f93214, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

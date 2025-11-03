@@ -27,6 +27,15 @@ public class Plant : MonoBehaviour
     private float health;
     private float timer;
 
+    [Header("Fire System")]
+    [Range(0.1f, 10f)][SerializeField] private float fireDamagePerSecond = 0.5f;
+    [Range(0.1f, 30f)][SerializeField] private float fireDuration = float.MaxValue;
+    [Range(0.5f, 5f)][SerializeField] private float fireFlickerSpeed = 1f;
+    [SerializeField] private bool burnUntilDeath = true;
+    [HideInInspector] public bool isOnFire = false;
+    private float fireTimer = 0f;
+    private Color originalColor;
+
     [Header("Scoring")]
     [Range(0, 5)][SerializeField] private int score = 3;
 
@@ -74,8 +83,53 @@ public class Plant : MonoBehaviour
     {
         timer -= Time.deltaTime;
 
+        if (isOnFire)
+        {
+            fireTimer -= Time.deltaTime;
+            UpdateFireVisuals();
+            
+            if (Mathf.FloorToInt(Time.time) != Mathf.FloorToInt(Time.time - Time.deltaTime))
+            {
+                Debug.Log($"{gameObject.name} is burning! Fire timer: {fireTimer:F1}, Health: {health:F1}");
+            }
+            
+            TakeDamage(fireDamagePerSecond * Time.deltaTime);
+        
+            if (!burnUntilDeath && fireTimer <= 0f)
+            {
+                Debug.Log($"{gameObject.name} fire extinguished");
+                ExtinguishFire();
+            }
+        }
+
         if (timer <= 0 || health <= 0)
             Die();
+    }
+
+    private void UpdateFireVisuals()
+    {
+        if (!spriteRenderer || !isOnFire) return;
+        float time = Time.time * fireFlickerSpeed;
+        float cycle = time % 3f;
+        
+        Color fireColor;
+        
+        if (cycle < 1f)
+        {
+            fireColor = Color.Lerp(originalColor, Color.red, cycle);
+        }
+        else if (cycle < 2f)
+        {
+            float t = cycle - 1f;
+            fireColor = Color.Lerp(Color.red, Color.yellow, t);
+        }
+        else
+        {
+            float t = cycle - 2f;
+            fireColor = Color.Lerp(Color.yellow, originalColor, t);
+        }
+        
+        spriteRenderer.color = fireColor;
     }
 
     private void Die()
@@ -126,4 +180,32 @@ public class Plant : MonoBehaviour
     }
 
     public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
+
+
+    public void SetOnFire()
+    {
+        
+        if (isOnFire) 
+        {
+            return;
+        }
+        isOnFire = true;
+        fireTimer = fireDuration;
+        
+        if (spriteRenderer)
+        {
+            if (originalColor == Color.clear || originalColor == default(Color))
+                originalColor = spriteRenderer.color;
+        }
+    }
+    
+
+    public void ExtinguishFire()
+    {
+        isOnFire = false;
+        fireTimer = 0f;
+        
+        if (spriteRenderer && health > 0)
+            spriteRenderer.color = originalColor;
+    }
 }
