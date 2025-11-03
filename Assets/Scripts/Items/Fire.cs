@@ -37,6 +37,5 @@ public class Fire : MonoBehaviour
             plant.SetOnFire();
         }
 
-        Destroy(gameObject);
     }
 }

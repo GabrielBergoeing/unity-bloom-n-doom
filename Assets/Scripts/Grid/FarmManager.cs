@@ -133,6 +133,17 @@ public class FarmManager : MonoBehaviour
         tileStates[cell] = TileState.Prepared;
     }
 
+    public void NotifyPlantDeath(Vector3Int cell)
+    {
+        if (!plantsByCell.ContainsKey(cell))
+            return;
+
+        plantsByCell.Remove(cell);
+        occupiedCells.Remove(cell);
+        farmTilemap.SetTile(cell, preparedTile);
+        tileStates[cell] = TileState.Prepared;
+    }
+
     public bool TryRemovePlant(Vector3Int cell, int requesterPlayerIndex)
     {
         if (!plantsByCell.TryGetValue(cell, out var plant))

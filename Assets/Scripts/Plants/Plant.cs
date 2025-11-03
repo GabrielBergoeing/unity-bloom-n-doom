@@ -134,6 +134,11 @@ public class Plant : MonoBehaviour
 
     private void Die()
     {
+        if (FarmManager.instance != null)
+        {
+            FarmManager.instance.NotifyPlantDeath(cellPos);
+        }
+        
         Destroy(gameObject);
     }
 

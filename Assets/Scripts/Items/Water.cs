@@ -33,7 +33,6 @@ public class Water : MonoBehaviour
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {
-            Destroy(gameObject);
             Debug.Log("¡Planta apagada!");
             plant.ExtinguishFire();
             
