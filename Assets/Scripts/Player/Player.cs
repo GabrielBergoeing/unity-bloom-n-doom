@@ -1,7 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class Player : Entity
 {
@@ -48,7 +46,7 @@ public class Player : Entity
     public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
 
     // Boolean flag that inidicates if player character can be controled
-    private bool canControl = false;
+    public bool canControl { get; private set; } = false;
 
     protected override void Awake()
     {
@@ -112,7 +110,8 @@ public class Player : Entity
 
     public void OnMovement(InputValue input)
     {
-        if (!canControl) return;
+        if (!canControl) 
+            moveInput = Vector2.zero;
         moveInput = input.Get<Vector2>();
 
         DetermineFacingDir();

@@ -33,14 +33,4 @@ public class Entity : MonoBehaviour
 
     //Classical arcade-like movement, has no acceleration or force
     public void SetVelocity(float xVelocity, float yVelocity) => rb.linearVelocity = new Vector2(xVelocity, yVelocity);
-
-    //Makes sure no sliding shenanigans happen during actions
-    public void FlipKinematicFlag()
-    {
-        if (!kinematicFlag)
-            rb.bodyType = RigidbodyType2D.Static;
-        else
-            rb.bodyType = RigidbodyType2D.Kinematic;
-        kinematicFlag = !kinematicFlag;
-    }
 }

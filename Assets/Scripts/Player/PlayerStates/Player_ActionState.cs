@@ -12,14 +12,13 @@ public class Player_ActionState : PlayerState
     public override void Enter()
     {
         base.Enter();
-
         isPerformingAction = true;
-        player.FlipKinematicFlag();
     }
 
     public override void Update()
     {
         base.Update();
+        player.SetVelocity(0, 0);
 
         if (!isPerformingAction)
             stateMachine.ChangeState(player.idleState);
@@ -28,7 +27,6 @@ public class Player_ActionState : PlayerState
     public override void Exit()
     {
         base.Exit();
-        player.FlipKinematicFlag();
     }
 
     // General framework of every action state
