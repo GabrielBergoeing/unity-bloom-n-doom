@@ -112,14 +112,14 @@ MonoBehaviour:
   seedSprite: {fileID: -1343021246, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
   growingSprite: {fileID: -1345110006, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
   matureSprite: {fileID: -258386036, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
-  maxHealth: 5
-  witheringTime: 15
+  maxHealth: 20
+  witheringTime: 50
   fireDamagePerSecond: 0.5
-  fireDuration: 3.4028235e+38
+  fireDuration: 30
   fireFlickerSpeed: 1
   burnUntilDeath: 1
   isOnFire: 0
-  score: 2
+  score: 1
   maxWaterStorage: 50
   waterConsumptionRate: 0.5
 --- !u!114 &6263866854795462359
