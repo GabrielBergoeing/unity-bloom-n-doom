@@ -12,9 +12,17 @@ public class LevelManager : MonoBehaviour
 
     private void Awake()
     {
+        string levelFileToLoad = fileName;
+        
+        if (GameManager.instance != null && !string.IsNullOrEmpty(GameManager.instance.nextLevelFileName))
+        {
+            levelFileToLoad = GameManager.instance.nextLevelFileName;
+            GameManager.instance.nextLevelFileName = null;
+        }
+        
         dataHandler = new FileDataHandler(
             Path.Combine(Application.dataPath, "Levels"),
-            fileName,
+            levelFileToLoad,
             encryptData: encryptData
         );
     }

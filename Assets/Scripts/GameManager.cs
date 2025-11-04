@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     // Store player device info for respawning
     public readonly List<PlayerConfiguration> playerConfigs = new();
+    
+    public string nextLevelFileName = null;
 
     private void Awake()
     {
@@ -77,6 +79,12 @@ public class GameManager : MonoBehaviour
     public void ChangeScene(string sceneName)
     {
         StartCoroutine(ChangeSceneCo(sceneName));
+    }
+
+    public void ChangeSceneWithLevel(string sceneName, string levelFileName)
+    {
+        nextLevelFileName = levelFileName;
+        ChangeScene(sceneName);
     }
 
     public void StartMatchScene(string sceneName)
