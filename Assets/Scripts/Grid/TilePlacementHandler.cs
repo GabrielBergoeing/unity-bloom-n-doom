@@ -40,7 +40,7 @@ public class TilePlacementHandler : MonoBehaviour
         if (tileLookup.TryGetValue(subtype, out var tile))
             tilemap.SetTile(cell, tile);
         else
-            Debug.LogWarning($"❌ No tile assigned for {currentType}.{subtype}");
+            Debug.LogWarning($"No tile assigned for {currentType}.{subtype}");
     }
 
     public void ClearTile(Vector3Int cell)

@@ -37,6 +37,11 @@ public class LevelManager : MonoBehaviour
         }
 
         PopulateObjects(loadedLevel);
+
+        if (FarmManager.instance != null)
+        {
+            FarmManager.instance.InitializeTileStates(true);
+        }
     }
 
     public LevelData GetLoadedLevel() => loadedLevel;

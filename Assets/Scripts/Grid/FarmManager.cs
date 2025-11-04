@@ -30,13 +30,15 @@ public class FarmManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeTileStates();
         EnsurePlantsRootExists();
     }
 
     #region Init Helpers
-    private void InitializeTileStates()
+    public void InitializeTileStates(bool clearBefore = false)
     {
+        if (clearBefore)
+            tileStates.Clear();
+
         foreach (var pos in farmTilemap.cellBounds.allPositionsWithin)
         {
             if (farmTilemap.HasTile(pos))
@@ -78,6 +80,7 @@ public class FarmManager : MonoBehaviour
             return;
 
         farmTilemap.SetTile(cell, preparedTile);
+        farmTilemap.RefreshTile(cell);
         tileStates[cell] = TileState.Prepared;
     }
 
@@ -176,4 +179,5 @@ public class FarmManager : MonoBehaviour
     #region Water Tile
     public bool IsWaterTile(Vector3Int cell) => waterTilemap.HasTile(cell);
     #endregion
+
 }
