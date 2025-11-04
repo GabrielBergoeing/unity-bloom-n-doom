@@ -5,8 +5,9 @@ public class Cactus : Plant
 {
     [Header("Water Absorption")]
     [SerializeField] private float maxWaterStorage = 50f;
-    [SerializeField][Range(0.1f, 1.5f)] private float waterConsumptionRate = 0.5f;
-    private float currentWaterStorage;
+    [SerializeField][Range(0.001f, 0.01f)] private float waterConsumptionRate = 0.005f;
+    [SerializeField][Range(5, 15)] private int waterStealRate = 5;
+    public float currentWaterStorage;
 
     protected override void Awake()
     {
@@ -28,15 +29,16 @@ public class Cactus : Plant
         currentWaterStorage -= waterConsumptionRate;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject == this.gameObject || !IsFullyGrown()) return;
 
+        Debug.Log($"Collision: {collision.gameObject.name}");
         Player otherPlayer = collision.gameObject.GetComponent<Player>();
         if (otherPlayer != null && otherPlayer.input.playerIndex != ownerPlayerIndex)
         {
             // Steal water
-            float waterToSteal = Mathf.Min(waterConsumptionRate, otherPlayer.waterSupply);
+            float waterToSteal = Mathf.Min(waterStealRate, otherPlayer.waterSupply);
             otherPlayer.waterSupply -= waterToSteal;
             currentWaterStorage = Mathf.Min(currentWaterStorage + waterToSteal, maxWaterStorage);
         }
