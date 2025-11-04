@@ -7,5 +7,6 @@ public enum WaterVariant
     CornerNE,
     CornerNW,
     CornerSE,
-    CornerSW
+    CornerSW,
+    Center
 }

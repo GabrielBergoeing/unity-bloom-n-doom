@@ -582,7 +582,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -735,6 +735,8 @@ MonoBehaviour:
     tile: {fileID: 11400000, guid: c143947f91c6bac40815d670536ceaa9, type: 2}
   - variant: CornerSW
     tile: {fileID: 11400000, guid: 84103b5c02e4c644a8f4dc73debe2b3f, type: 2}
+  - variant: Center
+    tile: {fileID: 11400000, guid: 2e476d5bf07d37e488ed21f0d572157b, type: 2}
 --- !u!66 &407112515
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -1341,7 +1343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   factory: {fileID: 558414328}
-  fileName: level3.json
+  fileName: level1.json
   encryptData: 0
 --- !u!4 &558414330
 Transform:
