@@ -1534,6 +1534,10 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1608808692177452533, guid: 952e99452418be14f872b9d65bf665fe, type: 3}
+      propertyPath: landTilemap
+      value: 
+      objectReference: {fileID: 380328459}
+    - target: {fileID: 1608808692177452533, guid: 952e99452418be14f872b9d65bf665fe, type: 3}
       propertyPath: mapSeeds.Array.size
       value: 2
       objectReference: {fileID: 0}

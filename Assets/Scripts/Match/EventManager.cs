@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class EventManager : MonoBehaviour
 {
@@ -10,17 +11,12 @@ public class EventManager : MonoBehaviour
     [SerializeField] private List<GameObject> mapTools;
     [SerializeField] private List<GameObject> mapRarities;
 
-    [Header("Spawn Points")]
-    [SerializeField] private List<Vector2> spawnPoints;
+    [Header("Spawn Terrain")]
+    [SerializeField] private Tilemap landTilemap;
 
     [Header("Spawn Rates (seconds)")]
-    [Tooltip("Time between seed spawns")]
     [SerializeField] private float seedSpawnInterval = 10f;
-
-    [Tooltip("Time between tool spawns")]
     [SerializeField] private float toolSpawnInterval = 18f;
-
-    [Tooltip("Time between rare item spawns")]
     [SerializeField] private float raritySpawnInterval = 45f;
 
     private float seedTimer;
@@ -29,7 +25,7 @@ public class EventManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) 
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
@@ -48,13 +44,11 @@ public class EventManager : MonoBehaviour
             SpawnRandomItem(mapSeeds);
             seedTimer = 0f;
         }
-
         if (toolTimer >= toolSpawnInterval)
         {
             SpawnRandomItem(mapTools);
             toolTimer = 0f;
         }
-
         if (rarityTimer >= raritySpawnInterval)
         {
             SpawnRandomItem(mapRarities);
@@ -64,36 +58,40 @@ public class EventManager : MonoBehaviour
 
     private void SpawnRandomItem(List<GameObject> itemList)
     {
-        if (itemList.Count == 0 || spawnPoints.Count == 0) return;
+        if (itemList.Count == 0) return;
 
-        Vector2 spawn = GetRandomFreeSpawnPoint();
-        if (spawn == null) return;
+        Vector3? spawnPos = GetRandomFreeTile();
+
+        if (spawnPos == null) 
+            return;
 
         GameObject prefab = itemList[Random.Range(0, itemList.Count)];
-        Instantiate(prefab, spawn, Quaternion.identity);
+        Instantiate(prefab, spawnPos.Value, Quaternion.identity);
     }
 
-    private Vector2 GetRandomFreeSpawnPoint()
+    private Vector3? GetRandomFreeTile()
     {
-        List<Vector2> shuffledPoints = new(spawnPoints);
-        Shuffle(shuffledPoints);
+        BoundsInt bounds = landTilemap.cellBounds;
+        int attempts = 50; // safety to prevent infinite loops
 
-        foreach (var point in shuffledPoints)
+        while (attempts-- > 0)
         {
-            // If nothing is in this tile (you can use tags, colliders, tilemap check, etc.)
-            Collider2D hit = Physics2D.OverlapCircle(point, 0.2f);
+            int x = Random.Range(bounds.xMin, bounds.xMax);
+            int y = Random.Range(bounds.yMin, bounds.yMax);
+            Vector3Int cell = new Vector3Int(x, y, 0);
+
+            // Tile must exist (walkable zone)
+            if (!landTilemap.HasTile(cell))
+                continue;
+
+            Vector3 worldPos = landTilemap.GetCellCenterWorld(cell);
+
+            // Ensure nothing else is here
+            Collider2D hit = Physics2D.OverlapCircle(worldPos, 0.25f);
             if (hit == null)
-                return point;
+                return worldPos;
         }
-        return Vector2.zero;
-    }
 
-    private void Shuffle<T>(List<T> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            int rand = Random.Range(i, list.Count);
-            (list[i], list[rand]) = (list[rand], list[i]);
-        }
+        return null; // no free position found
     }
 }
