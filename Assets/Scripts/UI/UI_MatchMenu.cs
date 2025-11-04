@@ -6,9 +6,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class UI_MatchMenu : MonoBehaviour
 {
+    private UI_SFX sfx;
     [Header("Player Panels (order: TL, TR, BL, BR)")]
     [SerializeField] private GameObject[] playerPanels;
 
@@ -42,7 +44,9 @@ public class UI_MatchMenu : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    private void Start() => sfx = GetComponent<UI_SFX>();
+
+   private void OnEnable()
     {
         StartCoroutine(WaitForInputManager());
     }
@@ -141,6 +145,7 @@ public class UI_MatchMenu : MonoBehaviour
     public void StartMatch()
     {
         if (!ready) return;
+        sfx.PlayOnConfirm();
 
         PlayerInput[] players = activePlayers.Keys
             .OrderBy(i => i)
