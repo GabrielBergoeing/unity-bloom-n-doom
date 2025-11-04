@@ -22,6 +22,9 @@ public class UI_MatchMenu : MonoBehaviour
     [Header("Scene Transition")]
     [SerializeField] private string nextScene;
 
+    [Header("DEBUG: Min Number of Players")]
+    [SerializeField][Range(1, 4)] private int minPlayerNum;
+
     private readonly Dictionary<int, GameObject> activePlayers = new();
 
     private bool ready = false;
@@ -128,7 +131,7 @@ public class UI_MatchMenu : MonoBehaviour
     {
         if (startMatchButton == null) return;
 
-        ready = activePlayers.Count >= 2;
+        ready = activePlayers.Count >= minPlayerNum;
         startMatchButton.interactable = ready;
 
         if (ready)
