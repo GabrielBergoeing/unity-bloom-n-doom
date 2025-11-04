@@ -8,6 +8,7 @@ public class FarmManager : MonoBehaviour
 
     [Header("References")]
     public Tilemap farmTilemap;
+    public Tilemap waterTilemap;
     public Tile preparedTile;
     public Tile seedTile;
     [SerializeField] private Transform plantsRoot;
@@ -170,5 +171,9 @@ public class FarmManager : MonoBehaviour
         }
         return root;
     }
+    #endregion
+
+    #region Water Tile
+    public bool IsWaterTile(Vector3Int cell) => waterTilemap.HasTile(cell);
     #endregion
 }

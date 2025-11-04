@@ -5,7 +5,6 @@ public class WeaponRotation : MonoBehaviour
 {
 	Camera mainCamera;
 	Player player;
-	PlayerInput playerInput;
 	InputAction moveAction;
 
 

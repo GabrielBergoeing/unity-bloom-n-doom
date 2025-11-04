@@ -9,6 +9,24 @@ public class Player_PickState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
-        stateMachine.ChangeState(player.idleState);
+
+        if (player.tile.CanRefillWater())
+            player.StartCoroutine(ExecuteAction(player.pickFrame, player.pickCooldown, _ => { player.waterSupply += 10; }));
+
+        else
+        {
+            Pickup pickup = player.GetPickupNearby();
+            if (pickup != null)
+            {
+                player.StartCoroutine(
+                    ExecuteAction(player.pickFrame, player.pickCooldown, _ =>
+                    {
+                        if (player.inventory.AddItem(pickup.gameObject))
+                            pickup.Pick(player);
+                    }));
+            }
+            else
+                stateMachine.ChangeState(player.idleState);
+        }
     }
 }

@@ -1,214 +1,93 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Analytics;
-using UnityEngine.InputSystem;
 
 public class Pickup : MonoBehaviour
 {
-    public bool canPickup = false;
-
-    public bool isPickedUp = false;
-    public bool stackable = false; 
+    [Header("Item Settings")]
+    public bool stackable;
     public int maxStackCount = 5; 
+    public int itemId;
 
-    public int itemId; 
-    public PlayerInput playerInput;
-    public Player currentPlayer;
-    public HotbarSystem hotbarSystem;
-    private Player savedPlayer;
-    private HotbarSystem savedHotbarSystem;
-    private PlayerInput savedPlayerInput;
+    [Header("Pickup Control")]
+    public bool canPickup = false;
+    public bool isPickedUp = false;
+    public float pickupDelay = 0.25f; 
+    private float pickupReadyTime;
 
-    public float unpickupableUntil = 0f;
-    public float throwCooldown = 10f;
+    public System.Action<Player> OnPickup;
+    public System.Action<Player> OnDrop;
+    public Player playerInRange;
 
-    [SerializeField] private float thrownFadeDuration = 10f; 
-    private float thrownFadeTimer = 0f;
-    private bool isThrownVisual = false;
-    private SpriteRenderer[] spriteRenderers;
-    private Color[] originalColors;
+    private Collider2D col;
 
-    void Start()
+    private void Awake()
     {
-
-        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
-        if (spriteRenderers != null && spriteRenderers.Length > 0)
-        {
-            originalColors = new Color[spriteRenderers.Length];
-            for (int i = 0; i < spriteRenderers.Length; i++)
-            {
-                originalColors[i] = spriteRenderers[i].color;
-            }
-        }
+        col = GetComponent<Collider2D>();
     }
-    void Update()
+
+    private void OnEnable()
     {
-        if (playerInput != null && playerInput.actions["Pickup"].triggered)
-        {
-            if (canPickup)
-            {
-                PickupItem();
-            }
-        }
-        if (playerInput != null && playerInput.actions["Drop"].triggered)
-        {
-            if (isPickedUp)
-            {
-                DropItem();
-            }
-        }
-
-
-        if (isThrownVisual)
-        {
-            thrownFadeTimer += Time.deltaTime;
-            float t = Mathf.Clamp01(thrownFadeTimer / thrownFadeDuration);
-            if (spriteRenderers != null && originalColors != null)
-            {
-                for (int i = 0; i < spriteRenderers.Length; i++)
-                {
-                    if (spriteRenderers[i] != null)
-                    {
-                        spriteRenderers[i].color = Color.Lerp(Color.black, originalColors[i], t);
-                    }
-                }
-            }
-            if (t >= 1f)
-            {
-                isThrownVisual = false;
-            }
-        }
+        pickupReadyTime = Time.time + pickupDelay;
+        canPickup = false;
+        isPickedUp = false;
+        col.enabled = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (Time.time < pickupReadyTime) return;
+        if (!other.CompareTag("Player")) return;
 
-        if (Time.time < unpickupableUntil) return;
-
-        if (other.CompareTag("Player"))
+        Player player = other.GetComponent<Player>();
+        if (player != null)
         {
-            currentPlayer = other.GetComponent<Player>();
-            playerInput = currentPlayer.GetComponent<PlayerInput>();
-            hotbarSystem = currentPlayer.GetComponent<HotbarSystem>();
+            player.pickupsInRange.Add(this);
+            playerInRange = player;
             canPickup = true;
-            savedPlayer = currentPlayer;
-            savedHotbarSystem = hotbarSystem;
-            savedPlayerInput = playerInput;
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && !isPickedUp)
+        if (!other.CompareTag("Player")) return;
+
+        Player player = other.GetComponent<Player>();
+        if (player != null)
         {
-            currentPlayer = null;
-            playerInput = null;
-            hotbarSystem = null;
-            canPickup = false;
-        }
-    }
-    private void PickupItem()
-    {
-        if (gameObject.CompareTag("water"))
-        {
-            savedPlayer.waterSupply += Mathf.Min(100 - savedPlayer.waterSupply, 10);
-            Debug.Log($"waterSupply: {savedPlayer.waterSupply}");
-            return;
-        }
-        if (hotbarSystem != null)
-        {
-            if (hotbarSystem.AddItem(gameObject))
+            player.pickupsInRange.Remove(this);
+
+            if (!isPickedUp && playerInRange == player)
             {
+                playerInRange = null;
                 canPickup = false;
-                currentPlayer = savedPlayer;
-                hotbarSystem = savedHotbarSystem;
-                playerInput = savedPlayerInput;
-                isPickedUp = true;
-                RestoreOriginalColors();
-
-                if (GetComponent<Collider2D>() != null)
-                {
-                    GetComponent<Collider2D>().enabled = false;
-                }
             }
         }
     }
-
-
-    public void DropItem(bool consume = false, bool thrown = false)
+    
+    public void Pick(Player player)
     {
-        if (hotbarSystem != null)
-        {
-            if (consume)
-            {
+        if (!canPickup) return;
 
-                if (hotbarSystem.stackCounts[hotbarSystem.currentSlot] == 1)
-                {
-                    isPickedUp = false;
-                    hotbarSystem.RemoveItem(gameObject);
-                    Destroy(gameObject);
-                }
-                else
-                {
-                    hotbarSystem.RemoveItem(gameObject);
-                }
-                return;
-            }
-
-            if (hotbarSystem.stackCounts[hotbarSystem.currentSlot] == 1)
-            {
-                isPickedUp = false;
-                transform.SetParent(null);
-                hotbarSystem.RemoveItem(gameObject);
-                gameObject.SetActive(true);
-            }
-            else
-            {
-                hotbarSystem.RemoveItem(gameObject);
-            }
-
-            if (thrown)
-            {
-                unpickupableUntil = Time.time + throwCooldown;
-                currentPlayer = null;
-                playerInput = null;
-                hotbarSystem = null;
-                canPickup = false;
-
-                thrownFadeTimer = 0f;
-                isThrownVisual = true;
-                if (spriteRenderers != null)
-                {
-                    for (int i = 0; i < spriteRenderers.Length; i++)
-                    {
-                        if (spriteRenderers[i] != null)
-                        {
-                            spriteRenderers[i].color = Color.black;
-                        }
-                    }
-                }
-            }
-
-            if (GetComponent<Collider2D>() != null)
-            {
-                GetComponent<Collider2D>().enabled = true;
-            }
-        }
+        isPickedUp = true;
+        canPickup = false;
+        col.enabled = false;
+        OnPickup?.Invoke(player);
     }
-    private void RestoreOriginalColors()
+
+    public void Drop(Player player, bool consume = false)
     {
-        isThrownVisual = false;
-        thrownFadeTimer = 0f;
-        if (spriteRenderers != null && originalColors != null)
+        isPickedUp = false;
+        col.enabled = true;
+        OnDrop?.Invoke(player);
+    }
+
+    public void Consume(Player player)
+    {
+        var hotbar = player.GetComponent<HotbarSystem>();
+        if (hotbar != null)
         {
-            for (int i = 0; i < spriteRenderers.Length; i++)
-            {
-                if (spriteRenderers[i] != null)
-                {
-                    spriteRenderers[i].color = originalColors[i];
-                }
-            }
+            hotbar.RemoveItem(gameObject, consume: true);
         }
+
+        OnDrop?.Invoke(player);
     }
 }

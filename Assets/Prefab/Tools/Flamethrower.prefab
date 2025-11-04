@@ -79,17 +79,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canPickup: 0
-  isPickedUp: 0
   stackable: 0
   maxStackCount: 5
   itemId: 5
-  playerInput: {fileID: 0}
-  currentPlayer: {fileID: 0}
-  hotbarSystem: {fileID: 0}
-  unpickupableUntil: 0
-  throwCooldown: 10
-  thrownFadeDuration: 10
+  canPickup: 0
+  isPickedUp: 0
+  pickupDelay: 0.25
+  playerInRange: {fileID: 0}
 --- !u!61 &4850354406917675611
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -148,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d94a98f5616d0d043ab657cecd73806d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickup: {fileID: 0}
+  pickup: {fileID: 8509811695705940979}
   firePrefab: {fileID: 187991493021349217, guid: fb48b5dc270d65b429391925ed90d613, type: 3}
   fireSpawnPoint: {fileID: 369885534356091158}
   fireRate: 0.2

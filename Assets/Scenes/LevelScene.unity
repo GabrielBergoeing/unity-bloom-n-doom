@@ -697,17 +697,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canPickup: 0
-  isPickedUp: 0
   stackable: 0
   maxStackCount: 5
   itemId: 0
-  playerInput: {fileID: 0}
-  currentPlayer: {fileID: 0}
-  hotbarSystem: {fileID: 0}
-  unpickupableUntil: 0
-  throwCooldown: 10
-  thrownFadeDuration: 10
+  canPickup: 0
+  isPickedUp: 0
+  pickupDelay: 0.25
+  playerInRange: {fileID: 0}
 --- !u!114 &407112514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1687,6 +1683,10 @@ PrefabInstance:
       propertyPath: farmTilemap
       value: 
       objectReference: {fileID: 380328459}
+    - target: {fileID: 3668829381027802239, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
+      propertyPath: waterTilemap
+      value: 
+      objectReference: {fileID: 407112512}
     - target: {fileID: 6566404593137259064, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

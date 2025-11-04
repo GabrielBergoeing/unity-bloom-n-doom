@@ -103,17 +103,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canPickup: 0
-  isPickedUp: 0
   stackable: 1
   maxStackCount: 2
   itemId: 0
-  playerInput: {fileID: 0}
-  currentPlayer: {fileID: 0}
-  hotbarSystem: {fileID: 0}
-  unpickupableUntil: 0
-  throwCooldown: 10
-  thrownFadeDuration: 10
+  canPickup: 0
+  isPickedUp: 0
+  pickupDelay: 0.25
+  playerInRange: {fileID: 0}
 --- !u!58 &3608451157103802395
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -163,6 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plantPrefab: {fileID: 391816432929291485, guid: 584c077ab13c30a4b9e6967e0e4786e0, type: 3}
+  pickup: {fileID: 1434435754104446993}
 --- !u!1 &4823677795522932424
 GameObject:
   m_ObjectHideFlags: 0

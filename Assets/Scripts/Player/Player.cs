@@ -1,16 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : Entity
 {
-    // Components
+    #region Components
     public PlayerInput input { get; private set; }
     public Player_VFX vfx { get; private set; }
     public TileInteraction tile { get; private set; }
     public Player_SFX sfx { get; private set; }
     public HotbarSystem inventory { get; private set; }
+    #endregion
 
-    // States
+    #region States
     public Player_IdleState idleState { get; private set; }
     public Player_IrrigateState irrigateState { get; private set; }
     public Player_MoveState moveState { get; private set; }
@@ -19,7 +21,9 @@ public class Player : Entity
     public Player_PrepareGroundState prepareGroundState { get; private set; }
     public Player_RemoveState removeState { get; private set; }
     public Player_SabotageState sabotageState { get; private set; }
+    #endregion
 
+    #region Interface Variables
     [Header("Movement variables")]
     public float moveSpeed = 8;
     public Vector2 moveInput { get; private set; }
@@ -41,7 +45,9 @@ public class Player : Entity
     [Range(0, 10)] public float plantCooldown = 0f;
     [Range(0, 10)] public float prepareGroundCooldown = 1f;
     [Range(0, 10)] public float removeCooldown = 2f;
+    #endregion
 
+    #region In-House Variables
     // Handles values to display anim facing dir
     public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
     public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
@@ -49,6 +55,10 @@ public class Player : Entity
     // Boolean flag that inidicates if player character can be controled
     public bool canControl { get; private set; } = false;
 
+    public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
+    #endregion
+
+    #region MonoBehaviour Functions
     protected override void Awake()
     {
         base.Awake();
@@ -78,6 +88,7 @@ public class Player : Entity
     {
         base.Update();
     }
+    #endregion
 
     private void DetermineFacingDir()
     {
@@ -98,6 +109,7 @@ public class Player : Entity
         }
     }
 
+    #region Public Functions
     public void OnEnable() // Enable player control after spawn
     {
         if (canControl) return;
@@ -127,7 +139,10 @@ public class Player : Entity
 
     // Teleport player's transform to given position, useful for start of match or outofbounds
     public void TeleportPlayer(Vector3 position) => transform.position = position;
+    public Pickup GetPickupNearby() => pickupsInRange.Count > 0 ? pickupsInRange[0] : null;
+    #endregion
 
+    #region Physics Functions
     public void ForceIdleState() // Interrupt current action and force idle state
     {
         if (stateMachine != null && idleState != null)
@@ -181,6 +196,24 @@ public class Player : Entity
             rb.bodyType = RigidbodyType2D.Dynamic;
         }
     }
+    #endregion
 
+    #region First To Be Refactor
+    public void DropCurrentItem(bool consume = false, bool thrown = false)
+    {
+        var item = inventory.GetCurrentItem();
+        if (item == null) return;
+
+        // Inventory handles slot removal & reparenting
+        inventory.RemoveItem(item, consume);
+
+        // Re-enable pickup collider & drop in world
+        var pickup = item.GetComponent<Pickup>();
+        pickup?.Drop(this);
+
+        item.transform.parent = null;
+        item.transform.position = transform.position;
+    }
+    #endregion
 
 }

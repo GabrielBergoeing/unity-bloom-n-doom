@@ -35,6 +35,9 @@ public class Player_NeutralState : PlayerState
             if (state != null)
                 stateMachine.ChangeState(state);
         }
+
+        if (input.actions["Drop"].triggered)
+            player.DropCurrentItem();
     }
 
     private PlayerState DetermineInteractionState()

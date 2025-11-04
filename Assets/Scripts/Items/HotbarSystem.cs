@@ -86,23 +86,41 @@ public class HotbarSystem : MonoBehaviour
         return false;
     }
 
-    public void RemoveItem(GameObject item)
+    public void RemoveItem(GameObject item, bool consume = false)
     {
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] == item)
             {
-                if (stackCounts[i] > 1){
-                    GameObject droppedItem = Instantiate(item, transform.position, transform.rotation);
-                    droppedItem.GetComponent<Pickup>().stackable = true;
-                }
                 stackCounts[i]--;
-                if (stackCounts[i] <= 0)
+
+                // If items still in stack
+                if (stackCounts[i] > 0)
+                {
+                    if (!consume)
+                    {
+                        GameObject droppedCopy = Instantiate(item, transform.position, Quaternion.identity);
+                        droppedCopy.GetComponent<Pickup>().stackable = true;
+                    }
+                }
+                else
                 {
                     slots[i] = null;
                     stackCounts[i] = 0;
+
+                    // Last item consumed → destroy it
+                    if (consume)
+                    {
+                        Destroy(item);
+                    }
+                    else
+                    {
+                        item.transform.SetParent(null);
+                        item.SetActive(true);
+                    }
                 }
-                break;
+
+                return; // ✅ stop here
             }
         }
     }

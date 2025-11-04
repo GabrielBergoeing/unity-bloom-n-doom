@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Flamethrower : MonoBehaviour
 {
@@ -16,24 +15,29 @@ public class Flamethrower : MonoBehaviour
     [Range(0f, 360f)]
     [SerializeField] private float spreadAngle = 30f;
 
-    private float nextFireTime;
     [SerializeField] private float maxAmmoSeconds = 10f;
-    private float currentAmmo = 0f;
+    private float currentAmmo;
+    private float nextFireTime;
+
+    private Player owner; // who currently holds it
 
     private void Start()
     {
         pickup = GetComponent<Pickup>();
         currentAmmo = maxAmmoSeconds;
+
+        pickup.OnPickup += (player) => owner = player;
+        pickup.OnDrop += (_) => owner = null;
     }
+
     private void Update()
     {
-        if (!pickup.isPickedUp) return;
+        if (owner == null) return; // not held by player
 
-        bool firing = pickup.playerInput.actions["Sabotage"].ReadValue<float>() > 0f;
+        bool isFiring = owner.input.actions["Sabotage"].ReadValue<float>() > 0f;
 
-        if (firing && currentAmmo > 0f)
+        if (isFiring && currentAmmo > 0f)
         {
-
             currentAmmo -= Time.deltaTime;
             if (currentAmmo < 0f) currentAmmo = 0f;
 
@@ -52,10 +56,10 @@ public class Flamethrower : MonoBehaviour
             nextFireTime -= Time.deltaTime;
         }
 
+        // Out of fuel — drop
         if (currentAmmo <= 0f)
         {
-            pickup.DropItem(false, true);
-            currentAmmo = maxAmmoSeconds;
+            pickup.Consume(owner); 
         }
     }
 
@@ -67,9 +71,10 @@ public class Flamethrower : MonoBehaviour
         for (int i = 0; i < projectilesPerShot; i++)
         {
             float currentAngle = startAngle + (angleStep * i);
-            Quaternion rotation = fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
+            Quaternion rotation =
+                fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
+
             Instantiate(firePrefab, fireSpawnPoint.position, rotation);
         }
     }
-
 }
