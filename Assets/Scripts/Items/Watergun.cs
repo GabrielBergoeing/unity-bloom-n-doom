@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Water : MonoBehaviour
+public class Watergun : MonoBehaviour
 {
     [Range(0.1f, 100f)]
     [SerializeField] private float speed = 10f;
@@ -17,6 +17,7 @@ public class Water : MonoBehaviour
 
     [Range(0.1f, 2f)]
     [SerializeField] private float pushDuration = 0.5f;
+    [SerializeField] private Pickup pickup;
 
     private Rigidbody2D rb;
 
@@ -55,6 +56,5 @@ public class Water : MonoBehaviour
         Vector2 pushDirection = (player.transform.position - transform.position).normalized;
         player.ForceIdleState();
         player.ApplyPushForce(pushDirection, pushForce);
-    
     }
 }

@@ -9891,7 +9891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 407112512}
-  currentType: 1
+  currentType: 2
   tiles:
   - variant: North
     tile: {fileID: 11400000, guid: 45a8138f5810c6c40b3d26620032ad23, type: 2}
@@ -9909,6 +9909,16 @@ MonoBehaviour:
     tile: {fileID: 11400000, guid: c143947f91c6bac40815d670536ceaa9, type: 2}
   - variant: CornerSW
     tile: {fileID: 11400000, guid: 84103b5c02e4c644a8f4dc73debe2b3f, type: 2}
+  - variant: Center
+    tile: {fileID: 11400000, guid: 45a8138f5810c6c40b3d26620032ad23, type: 2}
+  - variant: Arid
+    tile: {fileID: 0}
+  - variant: Barren
+    tile: {fileID: 0}
+  - variant: Concrete
+    tile: {fileID: 0}
+  - variant: Grass
+    tile: {fileID: 11400000, guid: 3150a4751eb31bc4cb2682929b6f9d4b, type: 2}
 --- !u!66 &407112515
 CompositeCollider2D:
   m_ObjectHideFlags: 0

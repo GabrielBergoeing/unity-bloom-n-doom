@@ -82,11 +82,17 @@ public class Pickup : MonoBehaviour
 
     public void Consume(Player player)
     {
+        if (player == null)
+        {
+            Debug.LogError("[PICKUP] Consume failed — player was NULL!");
+            return;
+        }
+
+        Debug.Log($"[PICKUP] Consume by {player.name}");
+
         var hotbar = player.GetComponent<HotbarSystem>();
         if (hotbar != null)
-        {
             hotbar.RemoveItem(gameObject, consume: true);
-        }
 
         OnDrop?.Invoke(player);
     }

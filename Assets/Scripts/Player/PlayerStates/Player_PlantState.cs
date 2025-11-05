@@ -14,7 +14,7 @@ public class Player_PlantState : Player_ActionState
         }
 
         player.StartCoroutine(
-            ExecuteAction(player.plantFrame, player.plantCooldown, cell => seed.Use(cell, input.playerIndex))
+            ExecuteAction(player.plantFrame, player.plantCooldown, cell => seed.Use(cell, player))
         );
     }
 }

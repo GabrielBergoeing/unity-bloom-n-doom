@@ -1504,6 +1504,10 @@ PrefabInstance:
       value: __MATCH MANAGER__
       objectReference: {fileID: 0}
     - target: {fileID: 745582966711712859, guid: 952e99452418be14f872b9d65bf665fe, type: 3}
+      propertyPath: matchTime
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 745582966711712859, guid: 952e99452418be14f872b9d65bf665fe, type: 3}
       propertyPath: playerSpawns.Array.data[0].x
       value: 15
       objectReference: {fileID: 0}

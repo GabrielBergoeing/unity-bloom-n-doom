@@ -26,7 +26,11 @@ public class FarmManager : MonoBehaviour
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    private void Awake() => instance = this;
+    private void Awake()
+    {
+        instance = this;
+        LevelManager.OnLevelLoaded += () => HandleLevelLoaded(); //Subcribe to LevelManager signal and trigger function when invoked
+    }
 
     private void Start()
     {
@@ -53,6 +57,18 @@ public class FarmManager : MonoBehaviour
     }
     #endregion
 
+    #region Level Signal Handler
+    private void OnDestroy() => LevelManager.OnLevelLoaded -= HandleLevelLoaded;
+
+    private void HandleLevelLoaded()
+    {
+        InitializeTileStates(true);
+        Debug.Log("✅ FarmManager tile states initialized after level load");
+
+        LevelManager.OnLevelLoaded -= HandleLevelLoaded;
+    }
+    #endregion
+
     #region Tile State Queries
     public bool IsPrepared(Vector3Int cell) =>
         tileStates.TryGetValue(cell, out var state) && state == TileState.Prepared;
@@ -73,7 +89,6 @@ public class FarmManager : MonoBehaviour
     #endregion
 
     #region Actions: Prepare / Plant / Water
-
     public void PrepareTile(Vector3Int cell)
     {
         if (!tileStates.TryGetValue(cell, out var state) || state != TileState.NotPrepared)

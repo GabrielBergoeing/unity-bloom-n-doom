@@ -1,6 +1,6 @@
+using System;
 using System.IO;
 using UnityEngine;
-
 public class LevelManager : MonoBehaviour
 {
     public LevelObjectFactory factory;
@@ -9,17 +9,18 @@ public class LevelManager : MonoBehaviour
 
     private LevelData loadedLevel;
     public FileDataHandler dataHandler;
+    public static event Action OnLevelLoaded; //Signal-based event
 
     private void Awake()
     {
         string levelFileToLoad = fileName;
-        
+
         if (GameManager.instance != null && !string.IsNullOrEmpty(GameManager.instance.nextLevelFileName))
         {
             levelFileToLoad = GameManager.instance.nextLevelFileName;
             GameManager.instance.nextLevelFileName = null;
         }
-        
+
         dataHandler = new FileDataHandler(
             Path.Combine(Application.dataPath, "Levels"),
             levelFileToLoad,
@@ -37,11 +38,7 @@ public class LevelManager : MonoBehaviour
         }
 
         PopulateObjects(loadedLevel);
-
-        if (FarmManager.instance != null)
-        {
-            FarmManager.instance.InitializeTileStates(true);
-        }
+        OnLevelLoaded?.Invoke(); //Trigger any script subscribed to the event
     }
 
     public LevelData GetLoadedLevel() => loadedLevel;
