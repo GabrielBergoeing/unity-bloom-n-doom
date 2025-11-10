@@ -13,8 +13,8 @@ public class FarmManager : MonoBehaviour
     public Tile seedTile;
     [SerializeField] private Transform plantsRoot;
 
-    [Header("Plant Prefabs (index = seedType)")]
-    public List<GameObject> plantPrefabs = new();
+    [Header("DEV: Generate farm")]
+    [SerializeField] private bool startFarm = false;
 
     // --- Tile State Tracking ---
     private readonly Dictionary<Vector3Int, TileState> tileStates = new();
@@ -29,7 +29,11 @@ public class FarmManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        LevelManager.OnLevelLoaded += () => HandleLevelLoaded(); //Subcribe to LevelManager signal and trigger function when invoked
+
+        if (!startFarm)
+            LevelManager.OnLevelLoaded += () => HandleLevelLoaded(); //Subcribe to LevelManager signal and trigger function when invoked
+        else
+            InitializeTileStates(true);
     }
 
     private void Start()
@@ -63,7 +67,7 @@ public class FarmManager : MonoBehaviour
     private void HandleLevelLoaded()
     {
         InitializeTileStates(true);
-        Debug.Log("✅ FarmManager tile states initialized after level load");
+        Debug.Log("FarmManager tile states initialized after level load");
 
         LevelManager.OnLevelLoaded -= HandleLevelLoaded;
     }

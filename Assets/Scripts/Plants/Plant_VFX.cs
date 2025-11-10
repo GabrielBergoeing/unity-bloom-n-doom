@@ -13,7 +13,7 @@ public class Plant_VFX : MonoBehaviour
     [Header("Player Border")]
     [SerializeField] private SpriteRenderer borderRenderer;
     [SerializeField] private Color[] playerColors;
-    [SerializeField] private float borderScale = 1.5f;
+    [SerializeField] private float borderScale = 1.3f;
 
     private void Awake()
     {

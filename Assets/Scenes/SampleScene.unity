@@ -12339,6 +12339,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3668829381027802239, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
+      propertyPath: startFarm
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668829381027802239, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
       propertyPath: farmTilemap
       value: 
       objectReference: {fileID: 380328459}

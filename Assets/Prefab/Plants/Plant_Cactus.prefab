@@ -121,7 +121,9 @@ MonoBehaviour:
   isOnFire: 0
   score: 1
   maxWaterStorage: 50
-  waterConsumptionRate: 0.5
+  waterConsumptionRate: 0.01
+  waterStealRate: 5
+  currentWaterStorage: 0
 --- !u!114 &6263866854795462359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,13 +137,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minBrightness: 0.2
-  borderRenderer: {fileID: 0}
+  borderRenderer: {fileID: 4486954698785084318}
   playerColors:
   - {r: 0, g: 1, b: 0.8694532, a: 1}
   - {r: 0.87169814, g: 0.26808822, b: 0.26808822, a: 1}
   - {r: 0.8701462, g: 0.9245283, b: 0.40295476, a: 1}
   - {r: 0.8415094, g: 0.43028116, b: 0.80649245, a: 1}
-  borderScale: 1.5
+  borderScale: 1.2
 --- !u!50 &6695270640106779132
 Rigidbody2D:
   serializedVersion: 5

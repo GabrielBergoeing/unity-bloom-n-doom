@@ -68,12 +68,6 @@ public class TileInteraction : MonoBehaviour
     public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
     public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(input.playerIndex);
     public bool CanRefillWater() => farmManager.IsWaterTile(currentCell);
-    /*
-    {
-        var tile = farmManager.farmTilemap.GetTile(currentCell);
-        return tile != null && tile.CompareTag("WaterTile"); 
-    }
-    */
 
 
     public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
