@@ -1,4 +1,4 @@
-public enum WallVariant
+public enum ConcreteVariant
 {
     North,
     South,

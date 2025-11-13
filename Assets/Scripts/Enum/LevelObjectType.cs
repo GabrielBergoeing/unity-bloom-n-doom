@@ -2,5 +2,6 @@ public enum LevelObjectType
 {
     Wall,
     Water,
-    Land
+    Land,
+    Concrete
 }

@@ -5,6 +5,7 @@ public class LevelObjectFactory : MonoBehaviour
     public TilePlacementHandler wallHandler;
     public TilePlacementHandler landHandler;
     public TilePlacementHandler waterHandler;
+    public TilePlacementHandler concreteHandler;
 
     public void Create(LevelObjectType type, Vector3 position, string variant)
     {
@@ -22,6 +23,10 @@ public class LevelObjectFactory : MonoBehaviour
 
             case LevelObjectType.Water:
                 waterHandler?.PlaceTile(cell, variant);
+                break;
+
+            case LevelObjectType.Concrete:
+                concreteHandler?.PlaceTile(cell, variant);
                 break;
         }
     }

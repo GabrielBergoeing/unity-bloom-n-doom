@@ -24,6 +24,7 @@ public class TilePlacementHandlerEditor : Editor
             LevelObjectType.Wall => typeof(WallVariant),
             LevelObjectType.Water => typeof(WaterVariant),
             LevelObjectType.Land => typeof(LandVariant),
+            LevelObjectType.Concrete => typeof(ConcreteVariant),
             _ => null
         };
 
