@@ -8,6 +8,7 @@ public enum ConcreteVariant
     CornerNW,
     CornerSE,
     CornerSW,
+    Center,
     InnerNE,
     InnerNW,
     InnerSE,

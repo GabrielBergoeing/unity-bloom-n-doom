@@ -6,25 +6,27 @@ public class Plant_VFX : MonoBehaviour
     private Plant plant;
     private SpriteRenderer spriteRenderer;
 
-    [Header("Darkening Effect")]
+    [Header("Darkening")]
     [SerializeField, Range(0f, 1f)] private float minBrightness = 0.2f;
     private const float maxBrightness = 1f;
+    private float lastWitherRatio = -1f;
 
     [Header("Player Border")]
     [SerializeField] private SpriteRenderer borderRenderer;
     [SerializeField] private Color[] playerColors;
-    [SerializeField] private float borderScale = 1.3f;
+    [SerializeField] private float borderScale = 1.5f;
+
+    private int lastOwnerIndex = -999;
+    private Sprite lastSprite;
 
     private void Awake()
     {
         plant = GetComponent<Plant>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Find or create border child
         if (!borderRenderer)
-            FindBorder();
+            FindOrCreateBorder();
 
-        // Default color palette
         if (playerColors == null || playerColors.Length == 0)
         {
             playerColors = new Color[]
@@ -35,65 +37,90 @@ public class Plant_VFX : MonoBehaviour
                 Color.yellow
             };
         }
+
+        // Initial sync
+        UpdateVisuals(force: true);
     }
 
-    private void Update()
+    private void LateUpdate()
+    {
+        UpdateVisuals();
+    }
+
+    private void UpdateVisuals(bool force = false)
     {
         if (plant == null) return;
 
-        UpdateDarkening();
-        UpdateBorderColor();
-        SyncBorderSprite();
+        UpdateDarkening(force);
+        UpdateBorderColor(force);
+        UpdateBorderSprite(force);
     }
 
-    private void UpdateDarkening()
+
+    #region VFX
+    private void UpdateDarkening(bool force)
     {
         if (plant.isOnFire) return;
-        
-        float witherRatio = Mathf.Clamp01(plant.GetWitherRatio());
-        float brightness = Mathf.Lerp(minBrightness, maxBrightness, witherRatio);
 
+        float ratio = Mathf.Clamp01(plant.GetWitherRatio());
+
+        if (!force && Mathf.Abs(ratio - lastWitherRatio) < 0.001f)
+            return;
+
+        lastWitherRatio = ratio;
+
+        float brightness = Mathf.Lerp(minBrightness, maxBrightness, ratio);
         spriteRenderer.color = new Color(brightness, brightness, brightness, 1f);
     }
 
-    private void UpdateBorderColor()
+    private void UpdateBorderColor(bool force)
     {
         if (!borderRenderer || plant.ownerPlayerIndex < 0) return;
 
-        int index = Mathf.Clamp(plant.ownerPlayerIndex, 0, playerColors.Length - 1);
-        Color playerColor = playerColors[index];
-        borderRenderer.color = playerColor * 1.3f; // Slightly brightened
+        if (!force && plant.ownerPlayerIndex == lastOwnerIndex)
+            return;
+
+        lastOwnerIndex = plant.ownerPlayerIndex;
+
+        int index = Mathf.Clamp(lastOwnerIndex, 0, playerColors.Length - 1);
+        borderRenderer.color = playerColors[index] * 1.3f;
     }
+    #endregion
 
-    private void SyncBorderSprite()
+    #region Updates & Init
+    private void UpdateBorderSprite(bool force)
     {
-        if (borderRenderer == null || spriteRenderer == null) return;
+        if (!borderRenderer || !spriteRenderer) return;
 
-        // Match sprite and sorting layer
-        borderRenderer.sprite = spriteRenderer.sprite;
+        if (!force && spriteRenderer.sprite == lastSprite)
+            return;
+
+        lastSprite = spriteRenderer.sprite;
+
+        borderRenderer.sprite = lastSprite;
         borderRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         borderRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
     }
 
-    private void FindBorder()
+    private void FindOrCreateBorder()
     {
         Transform child = transform.Find("Border");
+
         if (child)
+        {
             borderRenderer = child.GetComponent<SpriteRenderer>();
-        else
-            InitBorder();
-    }
+            return;
+        }
 
-    private void InitBorder()
-    {
-        GameObject borderObj = new GameObject("Border");
-        borderObj.transform.SetParent(transform);
-        borderObj.transform.localPosition = Vector3.zero;
-        borderObj.transform.localScale = Vector3.one * borderScale;
+        GameObject obj = new GameObject("Border");
+        obj.transform.SetParent(transform);
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one * borderScale;
 
-        borderRenderer = borderObj.AddComponent<SpriteRenderer>();
+        borderRenderer = obj.AddComponent<SpriteRenderer>();
         borderRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
-        borderRenderer.sortingOrder = spriteRenderer.sortingOrder - 1; // Behind main sprite
+        borderRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
         borderRenderer.color = Color.white;
     }
+    #endregion
 }

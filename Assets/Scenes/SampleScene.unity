@@ -11627,7 +11627,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a3e33b66dbb846429cd88e20546efe6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemap: {fileID: 0}
+  tilemap: {fileID: 447294109}
   currentType: 0
   tiles:
   - variant: North
@@ -12014,7 +12014,7 @@ GameObject:
   - component: {fileID: 1570417790}
   - component: {fileID: 1570417789}
   m_Layer: 0
-  m_Name: Level Grid
+  m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

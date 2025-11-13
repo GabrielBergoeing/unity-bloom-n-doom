@@ -3,9 +3,11 @@ using UnityEngine.Tilemaps;
 using System;
 using System.Collections.Generic;
 
+[ExecuteInEditMode]   // Allows levels to be edited on editor
 public class TilePlacementHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
+    public Tilemap Tilemap => tilemap;
 
     [Header("Tile Type")]
     public LevelObjectType currentType;
@@ -22,12 +24,23 @@ public class TilePlacementHandler : MonoBehaviour
 
     private Dictionary<string, TileBase> tileLookup;
 
-    private void Awake()
+    private void OnEnable()
     {
         if (tilemap == null)
             tilemap = GetComponentInChildren<Tilemap>();
 
+        RebuildLookup();
+    }
+
+    private void OnValidate()
+    {
+        RebuildLookup();
+    }
+
+    private void RebuildLookup()
+    {
         tileLookup = new Dictionary<string, TileBase>();
+
         foreach (var t in tiles)
         {
             if (!tileLookup.ContainsKey(t.variant))
@@ -46,5 +59,20 @@ public class TilePlacementHandler : MonoBehaviour
     public void ClearTile(Vector3Int cell)
     {
         tilemap.SetTile(cell, null);
+    }
+
+    public bool TryGetSubtypeFromTile(TileBase tile, out string subtype)
+    {
+        foreach (var pair in tiles)
+        {
+            if (pair.tile == tile)
+            {
+                subtype = pair.variant;
+                return true;
+            }
+        }
+
+        subtype = null;
+        return false;
     }
 }
