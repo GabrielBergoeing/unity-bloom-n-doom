@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Char_John
   m_EditorClassIdentifier: 
   characterName: John
-  portrait: {fileID: -4723740333052284903, guid: 194b273b1c71cd846b3fff732e27f77c, type: 3}
+  portrait: {fileID: -5474514372253443550, guid: 823e93f069bd9a3448631a9045fbcf90, type: 3}
   prefab: {fileID: 165571438480114262, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
