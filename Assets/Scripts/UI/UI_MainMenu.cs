@@ -32,6 +32,13 @@ public class UI_MainMenu : MonoBehaviour
         sfx.PlayOnConfirm();
         GameManager.instance.ChangeScene("ControlConfig2");
     }
+
+    public void SettingsBTN()
+    {
+        sfx.PlayOnConfirm();
+        GameManager.instance.ChangeScene("SettingsMenu");
+    }
+
     public void MainMenuBTN()
     {
         sfx.PlayOnConfirm();
