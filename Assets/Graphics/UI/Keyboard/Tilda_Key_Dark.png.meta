@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Tilda_Key_Dark_0: -2012462191512576640
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
