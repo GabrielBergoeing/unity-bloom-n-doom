@@ -7,9 +7,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-
-    // Store player device info for respawning
-    public readonly List<PlayerConfiguration> playerConfigs = new();
     
     public string nextLevelFileName = null;
 
@@ -22,6 +19,16 @@ public class GameManager : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Start()
+    {
+        UI_FadeScreen fadeScreen = FindFadeScreenUI();
+        
+        if (fadeScreen != null)
+        {
+            fadeScreen.FadeIn();
+        }
     }
 
     private IEnumerator ChangeSceneCo(string sceneName)
@@ -54,26 +61,6 @@ public class GameManager : MonoBehaviour
             return UI.instance.fadeScreen;
         }
         return FindFirstObjectByType<UI_FadeScreen>();
-    }
-
-    public void RegisterPlayers(PlayerInput[] lobbyPlayers)
-    {
-        playerConfigs.Clear();
-
-        foreach (var p in lobbyPlayers)
-        {
-            if (p.devices.Count == 0) continue;
-
-            playerConfigs.Add(new PlayerConfiguration
-            {
-                device = p.devices[0],
-                controlScheme = p.currentControlScheme
-            });
-
-            Destroy(p.gameObject);
-        }
-
-        Debug.Log($"[GameManager] Stored {playerConfigs.Count} players before scene change");
     }
 
     public void ChangeScene(string sceneName)

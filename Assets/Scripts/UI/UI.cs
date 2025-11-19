@@ -6,6 +6,7 @@ public class UI : MonoBehaviour
 
     #region UI Components
     public UI_FadeScreen fadeScreen {get; private set;}
+    public UI_SFX sfx {get; private set;}
 
     #endregion
 
@@ -13,5 +14,6 @@ public class UI : MonoBehaviour
     {
         instance = this;
         fadeScreen = GetComponentInChildren<UI_FadeScreen>();
+        sfx = GetComponent<UI_SFX>();
     }
 }

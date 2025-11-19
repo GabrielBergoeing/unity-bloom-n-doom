@@ -226,7 +226,7 @@ PrefabInstance:
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1425176660}
+      objectReference: {fileID: 1608088173}
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -509,7 +509,7 @@ PrefabInstance:
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1425176660}
+      objectReference: {fileID: 1608088173}
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -628,8 +628,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1425176656}
-  - component: {fileID: 1425176660}
-  - component: {fileID: 1425176661}
   - component: {fileID: 1425176659}
   - component: {fileID: 1425176658}
   - component: {fileID: 1425176657}
@@ -723,31 +721,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425176655}
   m_CullTransparentMesh: 1
---- !u!114 &1425176660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1425176655}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed3f92f035925c8a0a3ba46eaac9bed9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1425176661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1425176655}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08b697094d5421c4fb7189c99312a0a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  confirm: ui_submit
 --- !u!1 &1608088167
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,6 +730,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1608088171}
+  - component: {fileID: 1608088173}
   - component: {fileID: 1608088172}
   - component: {fileID: 1608088170}
   - component: {fileID: 1608088169}
@@ -861,7 +835,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1608088167}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ed4ae299eba8c8b28be6dce33f39d7d, type: 3}
+  m_Script: {fileID: 11500000, guid: 08b697094d5421c4fb7189c99312a0a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  confirm: ui_submit
+--- !u!114 &1608088173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608088167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed3f92f035925c8a0a3ba46eaac9bed9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &1676435177 stripped
@@ -1127,6 +1114,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5380111548822830219, guid: 8fb20e2991f119044a4483f72360161a, type: 3}
+      propertyPath: sfxSource
+      value: 
+      objectReference: {fileID: 2121150561}
     - target: {fileID: 6827758390756311116, guid: 8fb20e2991f119044a4483f72360161a, type: 3}
       propertyPath: m_Name
       value: __AUDIO MANAGER__
@@ -1390,7 +1381,7 @@ PrefabInstance:
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1425176660}
+      objectReference: {fileID: 1608088173}
     - target: {fileID: 17929372864361224, guid: 0c0c57f21da76dddf87e8323ab88ad01, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2

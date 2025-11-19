@@ -103,10 +103,10 @@ TextureImporter:
       name: XboxSeriesX_Dpad_0
       rect:
         serializedVersion: 2
-        x: 1
-        y: 1
-        width: 98
-        height: 98
+        x: 0
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2bf40efc981fea10e83d1b26af520b37
     internalID: 0
     vertices: []
     indices: 
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      XboxSeriesX_Dpad_0: -8094871925263065233
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

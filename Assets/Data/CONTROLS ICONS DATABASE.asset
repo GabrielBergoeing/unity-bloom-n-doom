@@ -1,0 +1,173 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1070036cf64e038697b772587f61299, type: 3}
+  m_Name: CONTROLS ICONS DATABASE
+  m_EditorClassIdentifier: 
+  deviceSets:
+  - deviceName: Xbox Controller
+    icons:
+    - buttonName: buttonSouth
+      sprite: {fileID: 6618122927494612730, guid: 27259ea0c0e0f4c4d880eee3c0cec370, type: 3}
+    - buttonName: buttonNorth
+      sprite: {fileID: -6152457158109837985, guid: 863cc91613310bd4b9b51ee9a5756dff, type: 3}
+    - buttonName: buttonWest
+      sprite: {fileID: -6432432886893527694, guid: 498f5cb42ea6eef4b9789177daa15de7, type: 3}
+    - buttonName: buttonEast
+      sprite: {fileID: 4564764429337591670, guid: 66b238e6e109696448b614fd566f6cfc, type: 3}
+    - buttonName: leftStick
+      sprite: {fileID: -926093451288266833, guid: 25f8f3df4fb66394c93ccb498df901c2, type: 3}
+    - buttonName: rightStick
+      sprite: {fileID: -1756151491830324165, guid: 001a07e47b28ce244b3c7fdd0939929f, type: 3}
+    - buttonName: Left Bumper
+      sprite: {fileID: -3295574553951712294, guid: ecbdd5afe2767624c9fc5d29c628ddfe, type: 3}
+    - buttonName: Right Bumper
+      sprite: {fileID: -5817298876420957275, guid: 100d31ad0b421874fbdb6166c5140ea7, type: 3}
+    - buttonName: leftTrigger
+      sprite: {fileID: 6645698301694725204, guid: 194d95a5db8975941a81fa9ecac6778d, type: 3}
+    - buttonName: rightTrigger
+      sprite: {fileID: 1666278587567156368, guid: c4b9fa65fab1782438bc4125f2aae707, type: 3}
+    - buttonName: View
+      sprite: {fileID: 2653117872228925527, guid: 0e17c49423395b84d97b782839862d6f, type: 3}
+    - buttonName: Share
+      sprite: {fileID: -8740853128763173855, guid: c5fe53ea37866e142b8b4bae0880eceb, type: 3}
+    - buttonName: up
+      sprite: {fileID: 404773099142596370, guid: 6a7528d2a144c844581fe5fd04ccf6c8, type: 3}
+    - buttonName: down
+      sprite: {fileID: 2930338477949960238, guid: 93215b2b8147d5d4f965ff42e8105f17, type: 3}
+    - buttonName: left
+      sprite: {fileID: 5165951116834236553, guid: 350fe717135b21744a9e734a852d6387, type: 3}
+    - buttonName: right
+      sprite: {fileID: 8396321016212902572, guid: 09d9d93df6f5cbb48b9f138bab367185, type: 3}
+    - buttonName: leftStickPress
+      sprite: {fileID: -8764950724157162824, guid: 16be132e7c8532a4c90280abc02016dc, type: 3}
+  - deviceName: Generic
+    icons:
+    - buttonName: buttonSouth
+      sprite: {fileID: 6618122927494612730, guid: 27259ea0c0e0f4c4d880eee3c0cec370, type: 3}
+    - buttonName: buttonNorth
+      sprite: {fileID: -6152457158109837985, guid: 863cc91613310bd4b9b51ee9a5756dff, type: 3}
+    - buttonName: buttonWest
+      sprite: {fileID: -6432432886893527694, guid: 498f5cb42ea6eef4b9789177daa15de7, type: 3}
+    - buttonName: buttonEast
+      sprite: {fileID: 4564764429337591670, guid: 66b238e6e109696448b614fd566f6cfc, type: 3}
+    - buttonName: leftStick
+      sprite: {fileID: -926093451288266833, guid: 25f8f3df4fb66394c93ccb498df901c2, type: 3}
+    - buttonName: rightStick
+      sprite: {fileID: -1756151491830324165, guid: 001a07e47b28ce244b3c7fdd0939929f, type: 3}
+    - buttonName: Left Bumper
+      sprite: {fileID: -3295574553951712294, guid: ecbdd5afe2767624c9fc5d29c628ddfe, type: 3}
+    - buttonName: Right Bumper
+      sprite: {fileID: -5817298876420957275, guid: 100d31ad0b421874fbdb6166c5140ea7, type: 3}
+    - buttonName: leftTrigger
+      sprite: {fileID: 6645698301694725204, guid: 194d95a5db8975941a81fa9ecac6778d, type: 3}
+    - buttonName: rightTrigger
+      sprite: {fileID: 1666278587567156368, guid: c4b9fa65fab1782438bc4125f2aae707, type: 3}
+    - buttonName: View
+      sprite: {fileID: 2653117872228925527, guid: 0e17c49423395b84d97b782839862d6f, type: 3}
+    - buttonName: Share
+      sprite: {fileID: -8740853128763173855, guid: c5fe53ea37866e142b8b4bae0880eceb, type: 3}
+    - buttonName: up
+      sprite: {fileID: 404773099142596370, guid: 6a7528d2a144c844581fe5fd04ccf6c8, type: 3}
+    - buttonName: down
+      sprite: {fileID: 2930338477949960238, guid: 93215b2b8147d5d4f965ff42e8105f17, type: 3}
+    - buttonName: left
+      sprite: {fileID: 5165951116834236553, guid: 350fe717135b21744a9e734a852d6387, type: 3}
+    - buttonName: right
+      sprite: {fileID: 8396321016212902572, guid: 09d9d93df6f5cbb48b9f138bab367185, type: 3}
+    - buttonName: leftStickPress
+      sprite: {fileID: -8764950724157162824, guid: 16be132e7c8532a4c90280abc02016dc, type: 3}
+  - deviceName: Keyboard
+    icons:
+    - buttonName: upArrow
+      sprite: {fileID: 8970520238253460967, guid: ede08b34cf46f6d4fa14723e5cb23015, type: 3}
+    - buttonName: downArrow
+      sprite: {fileID: 1271868996396006813, guid: bb6c68b2bda8a9e409cff802e621e25e, type: 3}
+    - buttonName: leftArrow
+      sprite: {fileID: -15191791339021723, guid: a5a13d2c5cbc7c741b79d9a2ec0c348f, type: 3}
+    - buttonName: rightArrow
+      sprite: {fileID: 2433227130642963363, guid: 8d8dd8d7d7c14c5479b2302933579fea, type: 3}
+    - buttonName: 0
+      sprite: {fileID: -5647384863275158744, guid: 7e24a87e6ac680742ab89048eb14ce48, type: 3}
+    - buttonName: 1
+      sprite: {fileID: -3535065811136526625, guid: 740beda897946a84b9af580bb3288166, type: 3}
+    - buttonName: 2
+      sprite: {fileID: 5275859378755171404, guid: a570a9fe62768b74ea1e13ddc809d91b, type: 3}
+    - buttonName: 3
+      sprite: {fileID: -8309825019948495042, guid: c507bc6eed44b014b92b0b2e9ea96746, type: 3}
+    - buttonName: 4
+      sprite: {fileID: -7776391889386036727, guid: 9b911d13eeeebd54880864b3fc01352d, type: 3}
+    - buttonName: 5
+      sprite: {fileID: 3371851298502460764, guid: be426b56f6632ef48996d1e9c83a8e74, type: 3}
+    - buttonName: 6
+      sprite: {fileID: -8888622283215209401, guid: a22a4adfccfd9804ebfc632126454e24, type: 3}
+    - buttonName: 7
+      sprite: {fileID: -2775959141278861846, guid: 19c642251b8e89f43beab677830d9514, type: 3}
+    - buttonName: 8
+      sprite: {fileID: -6799884926914297336, guid: 56aaf1e80d25be442b94287041f2822b, type: 3}
+    - buttonName: 9
+      sprite: {fileID: 7658477874620382997, guid: c15a9bd32bfcb66459707c81f3023343, type: 3}
+    - buttonName: a
+      sprite: {fileID: -8087277332904408611, guid: 2bfb211a5e961d84a82fa8dfc2d7e70e, type: 3}
+    - buttonName: b
+      sprite: {fileID: 8970520238253460967, guid: ede08b34cf46f6d4fa14723e5cb23015, type: 3}
+    - buttonName: c
+      sprite: {fileID: 4747760561572539048, guid: ec178fc046c722842872e92ad1c4f40a, type: 3}
+    - buttonName: d
+      sprite: {fileID: -7878400062945185510, guid: bcca4196863110b47911bbb0ba755844, type: 3}
+    - buttonName: e
+      sprite: {fileID: 364962840345947878, guid: 88902b85d9b1dc24c9995e8db4f9e8a5, type: 3}
+    - buttonName: f
+      sprite: {fileID: 1330907040209344332, guid: e783e5438a559e34f964b8ea422ee06d, type: 3}
+    - buttonName: g
+      sprite: {fileID: -4365078278698622999, guid: 3cea4f4e6174150498d7d8d185d4eed9, type: 3}
+    - buttonName: h
+      sprite: {fileID: 845193520888961765, guid: 5eb789dfc901259489e1c51af19cf219, type: 3}
+    - buttonName: i
+      sprite: {fileID: 8562017369637212552, guid: 65680506a0b6f3d46b3154b5345c1148, type: 3}
+    - buttonName: j
+      sprite: {fileID: 5070908041889532297, guid: 4e586da32df32544d971fa6f9fbe0cee, type: 3}
+    - buttonName: k
+      sprite: {fileID: 6716557084206943261, guid: 9bcb50e4920762749a0f59819e88b1b1, type: 3}
+    - buttonName: l
+      sprite: {fileID: 1657206665011635626, guid: 3f0c2a8c83543a64eb0de4a04557b92f, type: 3}
+    - buttonName: m
+      sprite: {fileID: 4912123754108566307, guid: 04d47991cb6d73845bb4aeed85a20e77, type: 3}
+    - buttonName: n
+      sprite: {fileID: 3154697403493830091, guid: 9c50e93ebbf20064c920b92e770b4ab6, type: 3}
+    - buttonName: o
+      sprite: {fileID: 7273603631122269993, guid: e9dd03497ead5574fafdae9ad21c10e7, type: 3}
+    - buttonName: p
+      sprite: {fileID: -8433740996645338570, guid: c60042fc60dfc324da4a6feade5862f4, type: 3}
+    - buttonName: q
+      sprite: {fileID: 939206729947113630, guid: 5d3dff9ad7873e743874e7935bd013f9, type: 3}
+    - buttonName: r
+      sprite: {fileID: -1194547604179565705, guid: 5291ae8eb4405264cb1e69b98b41229d, type: 3}
+    - buttonName: s
+      sprite: {fileID: 5425675006975768427, guid: 2c6df5e089a8d4a4c9407c300d19fc49, type: 3}
+    - buttonName: t
+      sprite: {fileID: -4742654261865483402, guid: cde9268429c87c0479e96abd1dbb9219, type: 3}
+    - buttonName: u
+      sprite: {fileID: -6813354463044124041, guid: 4088b4c1354ff8d4d805c9588297bb4b, type: 3}
+    - buttonName: v
+      sprite: {fileID: 3196363069438737102, guid: 917e2278514364146bae0844a9e89bd5, type: 3}
+    - buttonName: w
+      sprite: {fileID: 5259733778668853094, guid: be84c2e4962abd74f90ecc69f205568b, type: 3}
+    - buttonName: x
+      sprite: {fileID: 1900428134395661894, guid: f686b58519c904046bc6a7c5b3b89b31, type: 3}
+    - buttonName: y
+      sprite: {fileID: 3671754403899603223, guid: 0292127e021f0294d81c7d907e27c548, type: 3}
+    - buttonName: z
+      sprite: {fileID: -2478116961160761714, guid: 5fce960aa7feae041879b2ce1edb6a07, type: 3}
+    - buttonName: space
+      sprite: {fileID: 3422460683651458147, guid: 59588684099be2444a85efb25edb595f, type: 3}
+    - buttonName: numpadMultiply
+      sprite: {fileID: -3749663142573296254, guid: fbb4ac8b34c24f8489563586ff0718d9, type: 3}

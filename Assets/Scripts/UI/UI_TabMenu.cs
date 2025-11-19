@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,9 +6,9 @@ using UnityEngine.UI;
 
 public class UI_TabMenu : MonoBehaviour
 {
-
     [Header("Current Index")]
     [SerializeField] private int pageIndex = 0;
+    public int CurrentPageIndex => pageIndex;
 
     [Header("Components")]
     [SerializeField] private ToggleGroup toggleGroup;
@@ -19,12 +18,17 @@ public class UI_TabMenu : MonoBehaviour
     [Header("Event to call")]
     public UnityEvent<int> OnPageIndexChanged;
 
+    private bool initialized = false;
+
+    // ---------------------------------------------------------
+    // INITIALIZATION (safe for runtime AND editor)
+    // ---------------------------------------------------------
     private void Initialize()
     {
-        toggleGroup = GetComponentInChildren<ToggleGroup>();
-
         tabs.Clear();
         pages.Clear();
+
+        toggleGroup = GetComponentInChildren<ToggleGroup>(true);
 
         var tabsParent = transform.Find("Tabs");
         if (tabsParent != null)
@@ -40,97 +44,128 @@ public class UI_TabMenu : MonoBehaviour
                     pages.Add(cg);
             }
         }
+
+        initialized = true;
+        SetupToggleListeners();
     }
 
+    private void SetupToggleListeners()
+    {
+        foreach (var toggle in tabs)
+        {
+            toggle.onValueChanged.RemoveListener(CheckForTab);
+            toggle.onValueChanged.AddListener(CheckForTab);
+            toggle.group = toggleGroup;
+        }
+    }
 
     private void Reset()
     {
         Initialize();
     }
+
     private void OnValidate()
     {
-        Initialize();
-
-        if (tabs == null || pages == null) return;
-        if (tabs.Count == 0 || pages.Count == 0) return;
-        if (pageIndex < 0 || pageIndex >= pages.Count) return;
-
-        // Evita nulls si se ejecuta mientras el editor actualiza la jerarquía
-        if (tabs[pageIndex] == null || pages[pageIndex] == null)
-            return;
-
-        OpenPage(pageIndex);
-
-        // Evita null si la lista de tabs cambia durante validación
-        if (pageIndex < tabs.Count && tabs[pageIndex] != null)
-            tabs[pageIndex].SetIsOnWithoutNotify(true);
+        if (!Application.isPlaying)
+            Initialize();
     }
 
     private void Awake()
     {
-        foreach (var toggle in tabs)
+        Initialize(); // ensure everything is loaded BEFORE Start
+    }
+
+    private void Start()
+    {
+        // Auto-select the first tab
+        if (tabs.Count > 0)
         {
-            toggle.onValueChanged.AddListener(CheckForTab);
-            toggle.group = toggleGroup;
+            tabs[0].SetIsOnWithoutNotify(true);
+            OpenPage(0);
         }
     }
 
     private void OnDestroy()
     {
         foreach (var toggle in tabs)
-        {
             toggle.onValueChanged.RemoveListener(CheckForTab);
-        }
     }
+
+    // ---------------------------------------------------------
+    // TAB SELECTION
+    // ---------------------------------------------------------
     private void CheckForTab(bool value)
     {
+        if (!value) return;
+
         for (int i = 0; i < tabs.Count; i++)
         {
-            if (!tabs[i].isOn) continue;
-            pageIndex = i;
+            if (tabs[i].isOn)
+            {
+                pageIndex = i;
+                break;
+            }
         }
 
         OpenPage(pageIndex);
     }
 
+    // ---------------------------------------------------------
+    // PAGE SWITCHING
+    // ---------------------------------------------------------
     private void OpenPage(int index)
     {
         EnsureIndexIsInRange(index);
 
         for (int i = 0; i < pages.Count; i++)
         {
-            bool isActivePage = i == pageIndex;
-
-            pages[i].alpha = isActivePage ? 1.0f : 0.0f;
-            pages[i].interactable = isActivePage;
-            pages[i].blocksRaycasts = isActivePage;
+            bool isActive = (i == pageIndex);
+            pages[i].alpha = isActive ? 1 : 0;
+            pages[i].interactable = isActive;
+            pages[i].blocksRaycasts = isActive;
         }
 
         if (Application.isPlaying)
             OnPageIndexChanged?.Invoke(pageIndex);
 
-        var activePage = pages[pageIndex].gameObject;
-        var firstSelectable = activePage.GetComponentInChildren<Selectable>();
+        SelectFirstUIElement();
+    }
 
-        if (firstSelectable != null && EventSystem.current != null && Application.isPlaying)
-            EventSystem.current.SetSelectedGameObject(firstSelectable.gameObject);
+    private void SelectFirstUIElement()
+    {
+        var activePage = pages[pageIndex].gameObject;
+        var firstSel = activePage.GetComponentInChildren<Selectable>();
+        if (firstSel != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(firstSel.gameObject);
     }
 
     private void EnsureIndexIsInRange(int index)
     {
         if (tabs.Count == 0 || pages.Count == 0)
         {
-            Debug.Log("Forgot to Setup Tabs or Pages");
+            Debug.LogWarning("[UI_TabMenu] Tabs or Pages missing!");
             return;
         }
 
         pageIndex = Mathf.Clamp(index, 0, pages.Count - 1);
     }
 
+    // ---------------------------------------------------------
+    // PUBLIC API
+    // ---------------------------------------------------------
     public void JumpToPage(int page)
     {
         EnsureIndexIsInRange(page);
-
         tabs[pageIndex].isOn = true;
+    }
+
+    /// <summary>
+    /// Called by SettingsMenu when input device swaps.
+    /// Ensures pages and tabs resync.
+    /// </summary>
+    public void ReinitializeTabs()
+    {
+        Initialize();
+        OpenPage(pageIndex);
     }
 }
