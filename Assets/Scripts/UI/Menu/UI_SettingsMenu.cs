@@ -1,134 +1,89 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class UI_SettingsMenu : UI
+public class UI_SettingsMenu : MonoBehaviour
 {
-    [Header("Input Actions")]
-    public InputActionAsset inputActions;
+    [Header("Wiring")]
+    [SerializeField] private UI_InputFactory inputFactory;
+    [SerializeField] private UI_TabMenu tabMenu;
+    [SerializeField] private InputActionAsset inputActions;
+    [Tooltip("Index of the 'Controls' tab inside the TabMenu")]
+    public int controlsPageIndex = 1;
 
-    [Header("References")]
-    public UI_InputFactory inputFactory;
-    public UI_TabMenu tabMenu;
+    private bool isRegenerating;
 
-    [Header("Controls Tab")]
-    public int controlsPageIndex = 2;
-    public bool IsControlsTabOpen => 
+    public bool IsControlsTabOpen =>
         tabMenu != null && tabMenu.CurrentPageIndex == controlsPageIndex;
-    
-    private bool isRegenerating = false;
 
-    private void Start()
+    private void Start() => tabMenu.OnPageIndexChanged.AddListener(TabChanged);
+    private void OnDestroy() => tabMenu.OnPageIndexChanged.RemoveListener(TabChanged);
+
+    private void TabChanged(int index)
     {
-        tabMenu.OnPageIndexChanged.AddListener(OnPageChanged);
+        if (index == controlsPageIndex)
+            RegenerateControlsImmediate();
     }
 
-    private void OnDestroy()
+    public void RefreshIfActiveAndOnControlsTab()
     {
-        tabMenu.OnPageIndexChanged.RemoveListener(OnPageChanged);
+        if (gameObject.activeInHierarchy && IsControlsTabOpen)
+            RegenerateControlsImmediate();
     }
 
-    private void OnPageChanged(int pageIndex)
-    {
-        if (pageIndex == controlsPageIndex)
-            GenerateControlBindings();
-    }
-
-    private void GenerateControlBindings()
+    public void RegenerateControlsImmediate()
     {
         if (isRegenerating) return;
         isRegenerating = true;
 
         inputFactory.Clear();
+        GenerateBindings();
+        RestoreSelection();
 
-        try
+        isRegenerating = false;
+    }
+
+    private void GenerateBindings()
+    {
+        var svc = PlayerInputService.instance;
+        var cfgs = svc.Configs;
+
+        if (cfgs.Count > 0)
         {
-            var service = PlayerInputService.instance;
-            var configs = service.Configs;
-
-            // ----------------------------------------------------
-            // CASE 1 — We have real players (from lobby)
-            // ----------------------------------------------------
-            if (configs.Count > 0)
+            for (int i = 0; i < cfgs.Count; i++)
             {
-                Debug.Log("[Settings] Using PlayerInputService configs.");
-
-                for (int i = 0; i < configs.Count; i++)
-                {
-                    var cfg = configs[i];
-                    PlayerInput p = service.GetPlayerByDevice(cfg.device);
-
-                    if (p == null)
-                    {
-                        Debug.LogWarning(
-                            $"[Settings] No PlayerInput for config {i}. Using assigned InputActions."
-                        );
-
-                        InputActionMap cfgMap = inputActions.FindActionMap("Player", false);
-                        if (cfgMap != null)
-                            inputFactory.Generate(cfgMap, i);
-
-                        continue;
-                    }
-
-                    InputActionMap realMap = p.actions.FindActionMap("Player", false);
-                    if (realMap != null)
-                        inputFactory.Generate(realMap, i);
-                }
-
-                return;
+                var player = svc.GetPlayerByDevice(cfgs[i].device);
+                var map = player?.actions.FindActionMap("Player") ??
+                          inputActions.FindActionMap("Player");
+                if (map != null) inputFactory.Generate(map, i);
             }
-
-            // ----------------------------------------------------
-            // CASE 2 — No players exist (System Menu)
-            // ----------------------------------------------------
-            Debug.Log("[Settings] No player configs → generating from assigned InputActions.");
-
-            if (inputActions == null)
-            {
-                Debug.LogError("[Settings] No inputActions asset assigned in inspector!");
-                return;
-            }
-
-            InputActionMap defaultMap = inputActions.FindActionMap("Player", false);
-
-            if (defaultMap == null)
-            {
-                Debug.LogError("[Settings] InputActions asset has no 'Player' map!");
-                return;
-            }
-
-            inputFactory.Generate(defaultMap, 0);
         }
-        finally
+        else
         {
-            isRegenerating = false;
+            var map = inputActions.FindActionMap("Player");
+            if (map != null) inputFactory.Generate(map, 0);
         }
     }
 
-
-    private PlayerInput GetPlayerInputFromDevice(InputDevice dev)
+    private void RestoreSelection()
     {
-        foreach (var p in PlayerInput.all)
-        {
-            if (p != null && p.OwnsDevice(dev))
-            {
-                Debug.Log($"[SettingsMenu] Matched device {dev.displayName} → PlayerInput {p.playerIndex}");
-                return p;
-            }
-        }
+        if (!IsControlsTabOpen) return;
+        if (EventSystem.current == null) return;
 
-        Debug.LogWarning($"[SettingsMenu] No PlayerInput owns device: {dev.displayName}");
-        return null;
+        var first = tabMenu.GetCurrentPageObject()?.GetComponentInChildren<Selectable>(true);
+        if (first != null) EventSystem.current.SetSelectedGameObject(first.gameObject);
     }
 
     public void ReturnBTN()
     {
-        sfx.PlayOnConfirm();
-        GameManager.instance.ChangeScene("MainMenu");
-    }
+        UIService.instance.sfx.PlayOnConfirm();
+        UIService.instance.menu.HideSettingsOverlay();
 
-    public void RegenerateControlsImmediate()
-    {
-        GenerateControlBindings();
+        var ev = EventSystem.current;
+        var menuObj = UIService.instance.menu.mainMenuPanel;
+        var selectable = menuObj.GetComponentInChildren<Selectable>(true);
+        if (selectable != null) ev?.SetSelectedGameObject(selectable.gameObject);
     }
 }
+

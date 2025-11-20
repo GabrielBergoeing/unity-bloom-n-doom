@@ -1,31 +1,50 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class UI_PlayerSlot : MonoBehaviour
+public class UI_PlayerUI : MonoBehaviour
 {
-    public PlayerInput playerInput { get; private set; }
+    private PlayerInput input;
 
     private void Awake()
     {
-        playerInput = GetComponent<PlayerInput>();
+        input = GetComponent<PlayerInput>();
     }
 
-    public void OnJoin()
+    // Called automatically when PlayerInput is created
+    private void Start()
+    {
+        var menu = FindFirstObjectByType<UI_MatchMenu>(FindObjectsInactive.Include);
+        if (menu == null)
+        {
+            Debug.LogError("[UI_PlayerUI] No UI_MatchMenu found in scene!");
+            return;
+        }
+
+        menu.RegisterPlayer(input);
+    }
+
+    // Called when UI Cancel is pressed (or PlayerInput destroyed)
+    public void Leave()
     {
         var menu = FindFirstObjectByType<UI_MatchMenu>();
         if (menu != null)
-            menu.RegisterPlayer(this);
+            menu.UnregisterPlayer(input);
+
+        Destroy(gameObject);
     }
 
-    public void OnLeave()
-    {
-        OnCancel();
-    }
-
+    // Called by Input System using Send Messages or UnityEvents
     public void OnCancel()
     {
-        if (PlayerInputManager.instance != null)
-            PlayerInputManager.instance.playerLeftEvent.Invoke(playerInput);
-        Destroy(playerInput.gameObject);
+        var selector = GetComponentInChildren<UI_CharacterSelector>();
+        
+        // If selector exists and slot is not locked → do NOT leave the lobby
+        if (selector != null && !selector.IsLocked)
+        {
+            selector.ClearAssignment();
+            return;
+        }
+
+        Leave(); // full leave if locked or no slot
     }
 }

@@ -27,6 +27,13 @@ public class PlayerPrefabHandler : MonoBehaviour
             );
 
             p.transform.position = Vector3.zero;
+
+            // NEW: Attach inventory UI to player
+            UI_Hotbar hotbarUI = FindFirstObjectByType<UI_Hotbar>();
+            Player player = p.GetComponent<Player>();
+            if (player != null && hotbarUI != null)
+                hotbarUI.AssignHotbar(player.inventory);
+
             activePlayers.Add(p);
         }
     }

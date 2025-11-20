@@ -1,29 +1,23 @@
 using UnityEngine;
 
-public class UI_MainMenu : UI
+public class UI_MainMenu : MonoBehaviour
 {
+    private UIService UI => UIService.instance;
     public void PlayBTN()
     {
-        sfx.PlayOnConfirm();
+        UI.sfx.PlayOnConfirm();
         GameManager.instance.ChangeScene("MatchMenu");
-    }
-
-    public void QuitGameBTN()
-    {
-        sfx.PlayOnConfirm();
-        Application.Quit();
     }
 
     public void SettingsBTN()
     {
-        sfx.PlayOnConfirm();
-        GameManager.instance.ChangeScene("SettingsMenu");
+        UI.sfx.PlayOnConfirm();
+        UI.menu.ShowSettingsOverlay();
     }
 
-    public void MainMenuBTN()
+    public void QuitGameBTN()
     {
-        sfx.PlayOnConfirm();
-        GameManager.instance.ChangeScene("MainMenu");
+        UI.sfx.PlayOnConfirm();
+        UI.menu.QuitGame();
     }
-
 }

@@ -1,176 +1,141 @@
-using System.Linq;
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
 
 public class UI_MatchMenu : MonoBehaviour
 {
-    private UI_SFX sfx;
-    [Header("Player Panels (order: TL, TR, BL, BR)")]
-    [SerializeField] private GameObject[] playerPanels;
+    [Header("Character Slots (4 max)")]
+    [SerializeField] private UI_CharacterSelector[] slots = new UI_CharacterSelector[4];
 
-    [Header("Start Button")]
-    [SerializeField] private Button startMatchButton;
+    [Header("Settings")]
+    [SerializeField] private InputActionAsset menuInputActions;
+    [Range(1, 4)] [SerializeField] private int minimumPlayers = 1;
+    [SerializeField] private float autoStartDelay = 2.0f;
 
-    [Header("Input Settings")]
-    [SerializeField] private InputActionAsset inputActions;
-    [SerializeField] private string actionMapToUse = "UI";
-
-    [Header("Scene Transition")]
-    [SerializeField] private string nextScene;
-
-    [Header("DEBUG: Min Number of Players")]
-    [SerializeField][Range(1, 4)] private int minPlayerNum;
-
-    private readonly Dictionary<int, GameObject> activePlayers = new();
-
-    private bool ready = false;
+    private readonly Dictionary<PlayerInput, UI_CharacterSelector> players = new();
+    private Coroutine autoStartCoroutine;
+    private UIService UI => UIService.instance;
 
     private void Awake()
     {
-        foreach (var panel in playerPanels)
-        {
-            if (panel != null) panel.SetActive(false);
-        }
-
-        if (startMatchButton != null)
-        {
-            startMatchButton.interactable = false;
-        }
-    }
-
-    private void Start() => sfx = GetComponent<UI_SFX>();
-
-   private void OnEnable()
-    {
-        StartCoroutine(WaitForInputManager());
-    }
-
-    private IEnumerator WaitForInputManager()
-    {
-        yield return new WaitUntil(() => PlayerInputManager.instance != null);
-
-        PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
-        PlayerInputManager.instance.onPlayerLeft += HandlePlayerLeft;
-        UpdateStartButton();
+        foreach (var s in slots)
+            if (s != null) s.SetEmptyVisuals();
     }
 
     private void OnDisable()
     {
-        if (PlayerInputManager.instance == null) return;
-        PlayerInputManager.instance.onPlayerJoined -= HandlePlayerJoined;
-        PlayerInputManager.instance.onPlayerLeft -= HandlePlayerLeft;
+        CancelAutoStart();
     }
 
-    public void RegisterPlayer(UI_PlayerSlot slot)
+    // ------------------- JOIN / LEAVE -------------------
+    public void RegisterPlayer(PlayerInput pi)
     {
-        var player = slot.playerInput;
-
-        if (player.playerIndex >= playerPanels.Length)
+        var slot = FindFreeSlot();
+        if (slot == null)
         {
-            Debug.LogWarning($"Player {player.playerIndex} exceeds panel slots!");
+            Debug.LogWarning("[MatchMenu] No free slot left. Rejecting player.");
+            Destroy(pi.gameObject);
             return;
         }
 
-        AssignPanel(player);
+        // optional: enforce action map
+        pi.SwitchCurrentActionMap("UI");
+
+        players[pi] = slot;
+        slot.AssignPlayer(pi, OnSlotUpdated);
+        EvaluateAutoStart();
     }
 
-    private void HandlePlayerJoined(PlayerInput player)
+    public void UnregisterPlayer(PlayerInput pi)
     {
-        if (inputActions != null)
-            player.actions = inputActions;
+        if (!players.TryGetValue(pi, out var slot)) return;
 
-        if (!string.IsNullOrEmpty(actionMapToUse))
-            player.SwitchCurrentActionMap(actionMapToUse);
-
-        AssignPanel(player);
+        slot.ClearAssignment();
+        players.Remove(pi);
+        EvaluateAutoStart();
     }
 
-    private void AssignPanel(PlayerInput player)
+
+    private UI_CharacterSelector FindFreeSlot()
     {
-        if (player.playerIndex >= playerPanels.Length) return;
+        return slots.FirstOrDefault(s => !s.IsOccupied);
+    }
 
-        var panel = playerPanels[player.playerIndex];
-        if (panel == null) return;
+    // ------------------- AUTO START -------------------
 
-        panel.SetActive(true);
+    private void EvaluateAutoStart()
+    {
+        CancelAutoStart();
 
-        // Change txt
-        var tmp = panel.GetComponentInChildren<TextMeshProUGUI>();
-        if (tmp != null)
-            tmp.text = $"Player {player.playerIndex + 1} Ready!";
-        else
+        var active = slots.Where(s => s.IsOccupied).ToArray();
+        if (active.Length < minimumPlayers) return;
+
+        if (active.Any(s => s.SelectedCharacter == null)) return;
+
+        autoStartCoroutine = StartCoroutine(AutoStart());
+    }
+
+    private IEnumerator AutoStart()
+    {
+        float t = autoStartDelay;
+        while (t > 0f)
         {
-            var tmp3d = panel.GetComponentInChildren<TextMeshPro>();
-            if (tmp3d != null)
-                tmp3d.text = $"Player {player.playerIndex + 1} Ready!";
+            if (!AllLockedValid())
+            {
+                autoStartCoroutine = null;
+                yield break;
+            }
+            t -= Time.unscaledDeltaTime;
+            yield return null;
         }
 
-        var selector = panel.GetComponentInChildren<UI_CharacterSelector>();
-        if (selector != null)
-            selector.Init(player);
-
-        activePlayers[player.playerIndex] = panel;
-        UpdateStartButton();
+        autoStartCoroutine = null;
+        StartMatch();
     }
 
-    private void HandlePlayerLeft(PlayerInput player)
+    private bool AllLockedValid()
     {
-        if (activePlayers.TryGetValue(player.playerIndex, out var panel))
+        var active = slots.Where(s => s.IsOccupied);
+        return active.All(s => s.SelectedCharacter != null);
+    }
+
+    private void CancelAutoStart()
+    {
+        if (autoStartCoroutine != null)
         {
-            if (panel != null)
-                panel.SetActive(false);
-            activePlayers.Remove(player.playerIndex);
+            StopCoroutine(autoStartCoroutine);
+            autoStartCoroutine = null;
         }
-
-        UpdateStartButton();
     }
 
-    private void UpdateStartButton()
+    // ------------------- COMMENCE MATCH -------------------
+
+    private void StartMatch()
     {
-        if (startMatchButton == null) return;
+        UI.sfx.PlayOnConfirm();
+        Debug.Log("[MatchMenu] Launching next scene.");
 
-        ready = activePlayers.Count >= minPlayerNum;
-        startMatchButton.interactable = ready;
+        // keep player order consistent: slot order = player order
+        var ordered = slots.Where(s => s.IsOccupied)
+                           .Select(s => s.AssignedPlayer)
+                           .ToArray();
 
-        if (ready)
-            EventSystem.current.SetSelectedGameObject(startMatchButton.gameObject);
-    }
+        PlayerInputService.instance.StoreLobbyPlayers(ordered);
 
-    public void StartMatch()
-    {
-        if (!ready) return;
-        sfx.PlayOnConfirm();
-
-        PlayerInput[] players = activePlayers.Keys
-            .OrderBy(i => i)
-            .Select(i => PlayerInput.all.First(p => p.playerIndex == i))
-            .ToArray();
-
-        // Store device + control scheme for the match
-        PlayerInputService.instance.StoreLobbyPlayers(players);
+        // write selected characters to config for gameplay spawning
         var configs = PlayerInputService.instance.Configs;
-
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < ordered.Length; i++)
         {
-            var selector = playerPanels[i].GetComponentInChildren<UI_CharacterSelector>();
-            if (selector != null)
-            {
-                configs[i].selectedCharacter = selector.SelectedCharacter;
-                Debug.Log($"[StartMatch] Player {i + 1} selected {selector.SelectedCharacter.characterName}");
-            }
-            else
-            {
-                Debug.LogWarning($"[StartMatch] Player {i + 1} has no selector.");
-            }
+            var selector = slots[i];
+            configs[i].selectedCharacter = selector.SelectedCharacter;
         }
 
-        GameManager.instance.StartMatchScene(nextScene);
+        GameManager.instance.StartMatchScene("MapSelector");
     }
 
+    // callback from selector when state changes
+    private void OnSlotUpdated(UI_CharacterSelector s) => EvaluateAutoStart();
 }

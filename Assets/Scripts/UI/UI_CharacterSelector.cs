@@ -5,88 +5,182 @@ using UnityEngine.InputSystem;
 
 public class UI_CharacterSelector : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Visual References")]
     [SerializeField] private Image portraitImage;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private CanvasGroup slotCanvas;
+    [SerializeField] private GameObject lockIndicator;
 
-    [Header("Character Data")]
+    [Header("Characters")]
     [SerializeField] private CharacterDatabase characterDB;
 
-    [Header("Input Settings")]
-    [SerializeField] private float inputThreshold = 0.5f;
-    [SerializeField] private float inputCooldown = 0.3f;
+    [Header("Input")]
+    [SerializeField] private float navCooldown = 0.25f;
+    [SerializeField] private float navThreshold = 0.5f;
 
-    private int currentIndex = 0;
-    private PlayerInput playerInput;
+    [Header("Coloring")]
+    [SerializeField] private Image panelBackground;
+    [SerializeField] private Image borderImage;
+    [SerializeField] private PanelColorTheme theme;
 
-    private float lastInputTime = 0f;
+    // Internal
+    private PlayerInput player;
+    public PlayerInput AssignedPlayer => player;
+    private int index = 0;
+    private float cooldown;
+    private System.Action<UI_CharacterSelector> notify;
 
-    public CharacterData SelectedCharacter => characterDB.characters[currentIndex];
+    public bool IsOccupied => player != null;
+    public bool IsLocked { get; private set; }
+    public CharacterData SelectedCharacter => IsLocked ? characterDB.characters[index] : null;
 
-    private void Awake()
+    // ========================= ASSIGNMENT =========================
+
+    public void AssignPlayer(PlayerInput input, System.Action<UI_CharacterSelector> callback)
     {
-        UpdateUI();
+        player = input;
+        player.SwitchCurrentActionMap("UI");
+
+        notify = callback;
+        IsLocked = false;
+
+        RegisterControls();
+        SetActiveVisuals();
+        UpdateDisplay(true);
     }
 
-    public void Init(PlayerInput player)
+    public void ClearAssignment()
     {
-        playerInput = player;
+        UnregisterControls();
+        player = null;
+        IsLocked = false;
+        notify = null;
+        index = 0; // reset character cycling
 
-        if (playerInput.actions["Navigate"] != null)
-            playerInput.actions["Navigate"].performed += OnNavigate;
-
-        UpdateUI();
+        SetEmptyVisuals();
     }
 
-    private void OnDestroy()
+    // ========================= INPUT =========================
+    private void RegisterControls()
     {
-        if (playerInput != null && playerInput.actions["Navigate"] != null)
-            playerInput.actions["Navigate"].performed -= OnNavigate;
+        var nav = player.actions["Navigate"];
+        var ok = player.actions["Submit"];
+        var cancel = player.actions["Cancel"];
+
+        if (nav != null) nav.performed += OnNavigate;
+        if (ok != null) ok.performed += OnConfirm;
+        if (cancel != null) cancel.performed += OnCancel;
+    }
+
+    private void UnregisterControls()
+    {
+        if (player == null) return;
+        var nav = player.actions["Navigate"];
+        var ok = player.actions["Submit"];
+        var cancel = player.actions["Cancel"];
+
+        if (nav != null) nav.performed -= OnNavigate;
+        if (ok != null) ok.performed -= OnConfirm;
+        if (cancel != null) cancel.performed -= OnCancel;
     }
 
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
-        if (Time.time - lastInputTime < inputCooldown) return;
+        if (!IsOccupied || IsLocked) return;
+        if (Time.time < cooldown) return;
 
         float x = ctx.ReadValue<Vector2>().x;
+        if (Mathf.Abs(x) < navThreshold) return;
 
-        if (x > inputThreshold)
+        int count = characterDB.characters.Length;
+        index = (index + (x > 0 ? 1 : -1) + count) % count;
+
+        cooldown = Time.time + navCooldown;
+        UpdateDisplay();
+    }
+
+    private void OnConfirm(InputAction.CallbackContext ctx)
+    {
+        if (!IsOccupied || IsLocked) return;
+
+        IsLocked = true;
+        UpdateDisplay();
+    }
+
+    private void OnCancel(InputAction.CallbackContext ctx)
+    {
+        if (!IsOccupied) return;
+
+        if (IsLocked)
         {
-            NextCharacter();
-            lastInputTime = Time.time;
+            IsLocked = false;
+            UpdateDisplay();
+            return;
         }
-        else if (x < -inputThreshold)
+
+        // Not locked → leave slot entirely
+        ClearAssignment();
+        notify?.Invoke(this);
+    }
+
+    // ========================= VISUALS =========================
+
+    public void SetEmptyVisuals()
+    {
+        ApplyColor(PanelColorType.Empty);
+        slotCanvas.alpha = 0.25f;
+        lockIndicator.SetActive(false);
+        nameText.text = "Press The Join Button!";
+        portraitImage.sprite = null;
+    }
+
+    private void SetActiveVisuals()
+    {
+        slotCanvas.alpha = 1f;
+        lockIndicator.SetActive(false);
+        ApplyColor(PanelColorType.Active);
+    }
+
+    private void UpdateDisplay(bool forced = false)
+    {
+        if (!IsOccupied) return;
+
+        var c = characterDB.characters[index];
+        portraitImage.sprite = c.portrait;
+        nameText.text = c.characterName;
+
+        lockIndicator.SetActive(IsLocked);
+        ApplyColor(IsLocked ? PanelColorType.Locked : PanelColorType.Active);
+
+        if (!forced) notify?.Invoke(this);
+    }
+
+    // ========================= COLORING =========================
+
+    private void ApplyColor(PanelColorType type)
+    {
+        var t = GetCurrentTheme(); // <- NEW
+
+        var s = type switch
         {
-            PreviousCharacter();
-            lastInputTime = Time.time;
-        }
+            PanelColorType.Empty => t.emptyColor,
+            PanelColorType.Active => t.activeColor,
+            PanelColorType.Locked => t.lockedColor,
+            _ => t.emptyColor
+        };
+
+        panelBackground.color = s.background;
+        borderImage.color = s.border;
+        nameText.color = s.text;
     }
 
-    private void NextCharacter()
+    private PanelColorTheme GetCurrentTheme()
     {
-        if (characterDB == null || characterDB.characters.Length == 0) return;
+        // If character defines theme, use it
+        if (IsOccupied && characterDB.characters[index].overrideTheme != null)
+            return characterDB.characters[index].overrideTheme;
 
-        currentIndex = (currentIndex + 1) % characterDB.characters.Length;
-        UpdateUI();
-    }
-
-    private void PreviousCharacter()
-    {
-        if (characterDB == null || characterDB.characters.Length == 0) return;
-
-        currentIndex--;
-        if (currentIndex < 0)
-            currentIndex = characterDB.characters.Length - 1;
-
-        UpdateUI();
-    }
-
-    private void UpdateUI()
-    {
-        if (characterDB == null || characterDB.characters.Length == 0) return;
-
-        var data = characterDB.characters[currentIndex];
-        if (portraitImage != null) portraitImage.sprite = data.portrait;
-        if (nameText != null) nameText.text = data.characterName;
+        // Otherwise use slot default
+        return theme;
     }
 }

@@ -5,22 +5,38 @@ using UnityEngine.InputSystem;
 public class Player_ScreenCamera : MonoBehaviour
 {
     private Camera cam;
+    private PlayerInput player;  // Now stored
     private int index;
     private int totalPlayers;
 
     private void Awake()
     {
-        PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
-    }
-    private void Start()
-    {
-        index = GetComponentInParent<PlayerInput>().playerIndex;
-        totalPlayers = PlayerInput.all.Count;
         cam = GetComponent<Camera>();
+
+        // Wait for PlayerInput to exist
+        StartCoroutine(WaitForPlayerInput());
+
+        // Update camera layout when new players join
+        if (PlayerInputManager.instance != null)
+            PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
+    }
+
+    private System.Collections.IEnumerator WaitForPlayerInput()
+    {
+        // Wait until PlayerInput exists on parent
+        while (player == null)
+        {
+            player = GetComponentInParent<PlayerInput>();
+            yield return null;
+        }
+
+        index = player.playerIndex;
+        totalPlayers = PlayerInput.all.Count;
         cam.depth = index;
 
         SetupCamera();
     }
+
     private void HandlePlayerJoined(PlayerInput obj)
     {
         totalPlayers = PlayerInput.all.Count;
@@ -29,6 +45,8 @@ public class Player_ScreenCamera : MonoBehaviour
 
     private void SetupCamera()
     {
+        if (totalPlayers <= 0 || cam == null) return;
+
         if (totalPlayers == 1)
             cam.rect = new Rect(0, 0, 1, 1);
         else if (totalPlayers == 2)
