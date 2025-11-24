@@ -1,10 +1,37 @@
 fileFormatVersion: 2
-guid: 7c75082d7bf2e2c41a7a566d353afffe
+guid: b1d8067a9d7b70bd9b9c089ae6db58c8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2107300234012056611
-    second: Button - PS Directional Arrows Up_0
+      213: 209936614900725652
+    second: logo_bloomdoom_0
+  - first:
+      213: 5688698645488246838
+    second: logo_bloomdoom_1
+  - first:
+      213: 5070339252594050427
+    second: logo_bloomdoom_2
+  - first:
+      213: 7126319703165326674
+    second: logo_bloomdoom_3
+  - first:
+      213: -8860011822824784945
+    second: logo_bloomdoom_4
+  - first:
+      213: -2690479616268097504
+    second: logo_bloomdoom_5
+  - first:
+      213: 1766601426787584658
+    second: logo_bloomdoom_6
+  - first:
+      213: 8415882756042892633
+    second: logo_bloomdoom_7
+  - first:
+      213: 8222843472055397810
+    second: logo_bloomdoom_8
+  - first:
+      213: -3968690107750959309
+    second: logo_bloomdoom_9
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +78,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 300
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +127,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Button - PS Directional Arrows Up_0
+      name: logo_bloomdoom_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 100
-        height: 100
+        width: 1500
+        height: 820
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +142,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9d70dc512771fe747b9249e37d35e252
-      internalID: -620884389
+      spriteID: 9d9450c2b86f5e177996771bb04b64bf
+      internalID: 956579878
       vertices: []
       indices: 
       edges: []
@@ -125,7 +152,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5dac5ebcbcfd3794fa2192b50c59614d
+    spriteID: 96204fe199860381999deaface466820
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +162,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Button - PS Directional Arrows Up_0: -620884389
+      logo_bloomdoom_0: 956579878
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

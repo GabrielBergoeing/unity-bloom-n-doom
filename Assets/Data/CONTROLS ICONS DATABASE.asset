@@ -171,7 +171,7 @@ MonoBehaviour:
       sprite: {fileID: 8396321016212902572, guid: 09d9d93df6f5cbb48b9f138bab367185, type: 3}
     - buttonName: leftStickPress
       sprite: {fileID: -8764950724157162824, guid: 16be132e7c8532a4c90280abc02016dc, type: 3}
-  - deviceName: Generic
+  - deviceName: PlayStation
     icons:
     - buttonName: buttonSouth
       sprite: {fileID: 6618122927494612730, guid: 27259ea0c0e0f4c4d880eee3c0cec370, type: 3}
