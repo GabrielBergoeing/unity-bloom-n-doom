@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 
 public class UI_MatchMenu : MonoBehaviour
 {
+    #region Variables
     [Header("Character Slots (4 max)")]
     [SerializeField] private UI_CharacterSelector[] slots = new UI_CharacterSelector[4];
 
@@ -18,6 +19,7 @@ public class UI_MatchMenu : MonoBehaviour
     private readonly Dictionary<PlayerInput, UI_CharacterSelector> players = new();
     private Coroutine autoStartCoroutine;
     private UIService UI => UIService.instance;
+    #endregion
 
     private void Awake()
     {
@@ -30,7 +32,7 @@ public class UI_MatchMenu : MonoBehaviour
         CancelAutoStart();
     }
 
-    // ------------------- JOIN / LEAVE -------------------
+    #region Join/Leave
     public void RegisterPlayer(PlayerInput pi)
     {
         var slot = FindFreeSlot();
@@ -63,9 +65,10 @@ public class UI_MatchMenu : MonoBehaviour
     {
         return slots.FirstOrDefault(s => !s.IsOccupied);
     }
+    #endregion
 
-    // ------------------- AUTO START -------------------
 
+    #region Autostart Timer
     private void EvaluateAutoStart()
     {
         CancelAutoStart();
@@ -110,9 +113,10 @@ public class UI_MatchMenu : MonoBehaviour
             autoStartCoroutine = null;
         }
     }
+    #endregion
 
-    // ------------------- COMMENCE MATCH -------------------
 
+    #region Start Match
     private void StartMatch()
     {
         UI.sfx.PlayOnConfirm();
@@ -138,4 +142,5 @@ public class UI_MatchMenu : MonoBehaviour
 
     // callback from selector when state changes
     private void OnSlotUpdated(UI_CharacterSelector s) => EvaluateAutoStart();
+    #endregion
 }

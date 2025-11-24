@@ -71,9 +71,8 @@ public class PlayerInputService : MonoBehaviour
         if (settings == null || !settings.gameObject.activeInHierarchy)
             return;
 
-        // Only refresh IF controls tab is open
         if (settings.IsControlsTabOpen)
-            settings.RegenerateControlsImmediate();
+            settings.RefreshIfActiveAndOnControlsTab();
 
         RefreshUIInputModule();
     }

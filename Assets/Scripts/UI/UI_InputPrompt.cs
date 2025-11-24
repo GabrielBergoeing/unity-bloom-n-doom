@@ -33,6 +33,9 @@ public class UI_InputPrompt : MonoBehaviour
 
         UpdateIcon();
 
+        string btn = ExtractName(binding.effectivePath);
+        gameObject.name = $"Rebind_{action.name}_{btn}";
+
         InputSystem.onActionChange += OnActionChange;
         InputSystem.onDeviceChange += OnDeviceChange;
 

@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ButtonText_Geen_OnOffButton_0: 26688609787311656
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
