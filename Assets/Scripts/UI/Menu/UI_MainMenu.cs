@@ -11,13 +11,23 @@ public class UI_MainMenu : MonoBehaviour
 
     public void SettingsBTN()
     {
-        UI.sfx.PlayOnConfirm();
+        UI.sfx.PlayOnToggle();
         UI.menu.ShowSettingsOverlay();
     }
 
     public void QuitGameBTN()
     {
-        UI.sfx.PlayOnConfirm();
+        UI.sfx.PlayOnToggle();
         UI.menu.QuitGame();
+    }
+
+    public void HoverBTN()
+    {
+        UI.sfx.PlayOnHover();
+    }
+
+    public void ToggleBTN()
+    {
+        UI.sfx.PlayOnToggle();
     }
 }

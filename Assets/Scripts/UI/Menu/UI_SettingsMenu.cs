@@ -36,6 +36,7 @@ public class UI_SettingsMenu : MonoBehaviour
     private void TabChanged(int index)
     {
         Debug.Log($"[SettingsMenu] Tab changed → {index}");
+        UIService.instance.sfx.PlayOnToggle();
         if (index == controlsPageIndex)
         {
             Debug.Log("[SettingsMenu] Controls tab opened → regenerating controls");
@@ -142,7 +143,7 @@ public class UI_SettingsMenu : MonoBehaviour
     public void ReturnBTN()
     {
         Debug.Log("[SettingsMenu] Returning to main menu...");
-        UIService.instance.sfx.PlayOnConfirm();
+        UIService.instance.sfx.PlayOnToggle();
         UIService.instance.menu.HideSettingsOverlay();
 
         var ev = EventSystem.current;

@@ -24,6 +24,16 @@ MonoBehaviour:
     - {fileID: 8300000, guid: a11404f32ffc0d74386f983390b68234, type: 3}
     volume: 1
     pitch: 1
+  - audioName: ui_toggle
+    clips:
+    - {fileID: 8300000, guid: 2b472defca15df749a5aeadae97b84ff, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: ui_hover
+    clips:
+    - {fileID: 8300000, guid: 3f1b99b460281884cb1a5ffcc139a0da, type: 3}
+    volume: 1
+    pitch: 1
   backgroundAudio:
   - audioName: 
     clips: []
