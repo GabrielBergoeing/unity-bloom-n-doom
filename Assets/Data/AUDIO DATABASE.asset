@@ -15,9 +15,9 @@ MonoBehaviour:
   playerAudio:
   - audioName: player_movement
     clips:
-    - {fileID: 8300000, guid: dbcfa4a42aa00da43a280c5f886d8f2d, type: 3}
-    volume: 0.5
-    pitch: 0.4
+    - {fileID: 8300000, guid: 6400a23ed751c0440a92b5177f9cc4e7, type: 3}
+    volume: 1
+    pitch: 1.3
   UIAudio:
   - audioName: ui_submit
     clips:
