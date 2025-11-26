@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6263866854795462359}
   - component: {fileID: 6695270640106779132}
   - component: {fileID: 5604063309545410721}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plant_Cactus
   m_TagString: Plant
   m_Icon: {fileID: 0}
