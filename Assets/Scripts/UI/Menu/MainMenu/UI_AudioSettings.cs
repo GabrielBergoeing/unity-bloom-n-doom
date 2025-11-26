@@ -17,15 +17,26 @@ public class UI_AudioSettings : MonoBehaviour
         musicSlider.value  = audioSvc.MusicVolume;
         sfxSlider.value    = audioSvc.SFXVolume;
 
-        masterSlider.onValueChanged.AddListener(v => audioSvc.MasterVolume = v);
-        musicSlider.onValueChanged.AddListener(v => audioSvc.MusicVolume  = v);
-        sfxSlider.onValueChanged.AddListener(v => audioSvc.SFXVolume      = v);
+        masterSlider.onValueChanged.AddListener(OnMasterChanged);
+        musicSlider.onValueChanged.AddListener(OnMusicChanged);
+        sfxSlider.onValueChanged.AddListener(OnSfxChanged);
     }
 
-    public void ApplyChanges()
+    private void OnMasterChanged(float v)
     {
+        audioSvc.MasterVolume = v;
         audioSvc.ApplyVolumes();
-        (audioSvc as AudioSettingsService)?.Save();
-        UIService.instance.sfx.PlayOnConfirm(); // keep your UX feedback!
+    }
+
+    private void OnMusicChanged(float v)
+    {
+        audioSvc.MusicVolume = v;
+        audioSvc.ApplyVolumes();
+    }
+
+    private void OnSfxChanged(float v)
+    {
+        audioSvc.SFXVolume = v;
+        audioSvc.ApplyVolumes();
     }
 }

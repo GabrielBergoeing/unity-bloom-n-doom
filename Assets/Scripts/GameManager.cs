@@ -54,9 +54,9 @@ public class GameManager : MonoBehaviour
 
     private UI_FadeScreen FindFadeScreenUI()
     {
-        if (UI.instance != null)
+        if (UIService.instance != null)
         {
-            return UI.instance.fadeScreen;
+            return UIService.instance.fade;
         }
         return FindFirstObjectByType<UI_FadeScreen>();
     }
