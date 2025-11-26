@@ -4,22 +4,18 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     public LevelObjectFactory factory;
+    private LevelData currentLevel;
     [SerializeField] private string fileName = "leveltest.json";
     [SerializeField] private bool encryptData = false;
 
-    private LevelData loadedLevel;
+    private GridData loadedLevel;
     public FileDataHandler dataHandler;
     public static event Action OnLevelLoaded; //Signal-based event
 
     private void Awake()
     {
-        string levelFileToLoad = fileName;
-
-        if (GameManager.instance != null && !string.IsNullOrEmpty(GameManager.instance.nextLevelFileName))
-        {
-            levelFileToLoad = GameManager.instance.nextLevelFileName;
-            GameManager.instance.nextLevelFileName = null;
-        }
+        currentLevel = GameManager.instance.currentLevel;
+        string levelFileToLoad = currentLevel.jsonFileName ?? fileName;
 
         dataHandler = new FileDataHandler(
             Path.Combine(Application.dataPath, "Levels"),
@@ -41,14 +37,14 @@ public class LevelManager : MonoBehaviour
         OnLevelLoaded?.Invoke(); //Trigger any script subscribed to the event
     }
 
-    public LevelData GetLoadedLevel() => loadedLevel;
+    public GridData GetLoadedLevel() => loadedLevel;
 
-    public void SaveLevel(LevelData data)
+    public void SaveLevel(GridData data)
     {
         dataHandler.SaveData(data);
     }
 
-    private void PopulateObjects(LevelData data)
+    private void PopulateObjects(GridData data)
     {
         foreach (var obj in data.objects)
         {

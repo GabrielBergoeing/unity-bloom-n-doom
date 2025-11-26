@@ -1,20 +1,25 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UI_MapSelector : MonoBehaviour
 {
     private UIService UI => UIService.instance;
+    [Header("Levels Data")]
+    [SerializeField] private List<LevelData> levels;
 
-    public void Level1BTN() => SelectLevel("level1.json");
-    public void Level2BTN() => SelectLevel("level2.json");
-    public void Level3BTN() => SelectLevel("level3.json");
-    public void Level4BTN() => SelectLevel("level4.json");
-    public void Level5BTN() => SelectLevel("level5.json");
+    public void Level1BTN() => SelectLevel(1);
+    public void Level2BTN() => SelectLevel(2);
+    public void Level3BTN() => SelectLevel(3);
+    public void Level4BTN() => SelectLevel(4);
+    public void Level5BTN() => SelectLevel(5);
 
-    private void SelectLevel(string levelFile)
+    public void SelectLevel(int index)
     {
+        var chosenLevel = levels[index];
         AudioManager.instance.StopBGM();
         UI.sfx.PlayOnConfirm();
-        GameManager.instance.ChangeSceneWithLevel("LevelScene", levelFile);
-        AudioManager.instance.StartBGM("bgm_level1");
+        
+        GameManager.instance.ChangeSceneWithLevel("LevelScene", chosenLevel);
+        AudioManager.instance.StartBGM(chosenLevel.bgmTrackName);
     }
 }

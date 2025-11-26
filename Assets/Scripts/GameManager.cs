@@ -5,8 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    
-    public string nextLevelFileName = null;
+    public LevelData currentLevel;
 
     private void Awake()
     {
@@ -66,9 +65,9 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ChangeSceneCo(sceneName));
     }
 
-    public void ChangeSceneWithLevel(string sceneName, string levelFileName)
+    public void ChangeSceneWithLevel(string sceneName, LevelData levelFile)
     {
-        nextLevelFileName = levelFileName;
+        currentLevel = levelFile;
         ChangeScene(sceneName);
     }
 

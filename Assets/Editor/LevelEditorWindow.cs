@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class LevelEditorWindow : EditorWindow
 {
-    private LevelData currentLevel = new LevelData();
+    private GridData currentLevel = new GridData();
     private string fileName = "leveltest.json";
 
     private TilePlacementHandler wall;
@@ -62,7 +62,7 @@ public class LevelEditorWindow : EditorWindow
         }
 
         string json = File.ReadAllText(path);
-        currentLevel = JsonUtility.FromJson<LevelData>(json);
+        currentLevel = JsonUtility.FromJson<GridData>(json);
 
         // Clear tilemaps
         wall?.Tilemap.ClearAllTiles();
@@ -114,7 +114,7 @@ public class LevelEditorWindow : EditorWindow
 
             if (handler.TryGetSubtypeFromTile(tile, out string subtype))
             {
-                currentLevel.objects.Add(new LevelObjectData
+                currentLevel.objects.Add(new GridObjectData
                 {
                     type = type.ToString(),
                     subtype = subtype,

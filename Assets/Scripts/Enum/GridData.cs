@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
-public class LevelData
+public class GridData
 {
-    public List<LevelObjectData> objects = new();
+    public List<GridObjectData> objects = new();
 }
 
 [Serializable]
-public class LevelObjectData
+public class GridObjectData
 {
     public string type;
     public string subtype;
