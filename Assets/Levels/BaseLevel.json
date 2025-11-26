@@ -249,6 +249,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 1
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 1
         },
@@ -261,6 +267,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 2
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 2
         },
@@ -273,6 +285,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 3
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 3
         },
@@ -285,6 +303,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 4
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 4
         },
@@ -297,6 +321,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 5
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 5
         },
@@ -309,6 +339,12 @@
         {
             "type": "Wall",
             "subtype": "East",
+            "x": 9,
+            "y": 6
+        },
+        {
+            "type": "Wall",
+            "subtype": "East",
             "x": 39,
             "y": 6
         },
@@ -584,78 +620,6 @@
         },
         {
             "type": "Wall",
-            "subtype": "North",
-            "x": 6,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 7,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 8,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 9,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 10,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 11,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 12,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 13,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 14,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 15,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 16,
-            "y": 29
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 17,
-            "y": 29
-        },
-        {
-            "type": "Wall",
             "subtype": "East",
             "x": 39,
             "y": 29
@@ -664,36 +628,6 @@
             "type": "Wall",
             "subtype": "West",
             "x": 0,
-            "y": 30
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 4,
-            "y": 30
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 5,
-            "y": 30
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 6,
-            "y": 30
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 17,
-            "y": 30
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 18,
             "y": 30
         },
         {
@@ -710,24 +644,6 @@
         },
         {
             "type": "Wall",
-            "subtype": "North",
-            "x": 4,
-            "y": 31
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 5,
-            "y": 31
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 18,
-            "y": 31
-        },
-        {
-            "type": "Wall",
             "subtype": "East",
             "x": 39,
             "y": 31
@@ -736,42 +652,6 @@
             "type": "Wall",
             "subtype": "West",
             "x": 0,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 13,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 14,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 15,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 16,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 17,
-            "y": 32
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 18,
             "y": 32
         },
         {
@@ -788,44 +668,8 @@
         },
         {
             "type": "Wall",
-            "subtype": "North",
-            "x": 7,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 8,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 9,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 10,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 11,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 12,
-            "y": 33
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 13,
+            "subtype": "West",
+            "x": 31,
             "y": 33
         },
         {
@@ -842,14 +686,8 @@
         },
         {
             "type": "Wall",
-            "subtype": "North",
-            "x": 6,
-            "y": 34
-        },
-        {
-            "type": "Wall",
-            "subtype": "North",
-            "x": 7,
+            "subtype": "West",
+            "x": 31,
             "y": 34
         },
         {
@@ -866,6 +704,12 @@
         },
         {
             "type": "Wall",
+            "subtype": "West",
+            "x": 31,
+            "y": 35
+        },
+        {
+            "type": "Wall",
             "subtype": "East",
             "x": 39,
             "y": 35
@@ -878,6 +722,12 @@
         },
         {
             "type": "Wall",
+            "subtype": "West",
+            "x": 31,
+            "y": 36
+        },
+        {
+            "type": "Wall",
             "subtype": "East",
             "x": 39,
             "y": 36
@@ -890,6 +740,12 @@
         },
         {
             "type": "Wall",
+            "subtype": "West",
+            "x": 31,
+            "y": 37
+        },
+        {
+            "type": "Wall",
             "subtype": "East",
             "x": 39,
             "y": 37
@@ -898,6 +754,12 @@
             "type": "Wall",
             "subtype": "West",
             "x": 0,
+            "y": 38
+        },
+        {
+            "type": "Wall",
+            "subtype": "West",
+            "x": 31,
             "y": 38
         },
         {
@@ -1191,43 +1053,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 12,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 13,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 14,
             "y": 1
         },
         {
@@ -1252,18 +1078,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 1
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 1
         },
         {
@@ -1419,43 +1233,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 12,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 13,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 14,
             "y": 2
         },
         {
@@ -1480,18 +1258,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 2
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 2
         },
         {
@@ -1647,25 +1413,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 3
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 3
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 3
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
             "y": 3
         },
         {
@@ -1708,18 +1456,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 3
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 3
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 3
         },
         {
@@ -1875,25 +1611,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 4
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 4
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 4
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
             "y": 4
         },
         {
@@ -1936,18 +1654,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 4
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 4
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 4
         },
         {
@@ -2103,25 +1809,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 5
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 5
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 5
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
             "y": 5
         },
         {
@@ -2164,18 +1852,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 5
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 5
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 5
         },
         {
@@ -2331,25 +2007,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 8,
-            "y": 6
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
-            "y": 6
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 6
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
             "y": 6
         },
         {
@@ -2392,18 +2050,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 6
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 6
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 6
         },
         {
@@ -2517,54 +2163,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 1,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 2,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 3,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 4,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 5,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 6,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 7,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 8,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 9,
             "y": 7
         },
@@ -2620,18 +2218,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 7
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 7
         },
         {
@@ -2853,18 +2439,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 8
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 8
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 8
         },
@@ -3081,18 +2655,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 9
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 9
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 9
         },
@@ -3304,18 +2866,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 10
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 10
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 10
         },
         {
@@ -3537,18 +3087,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 11
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 11
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 11
         },
@@ -3760,18 +3298,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 12
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 12
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 12
         },
         {
@@ -3993,18 +3519,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 13
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 13
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 13
         },
@@ -4221,18 +3735,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 14
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 14
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 14
         },
@@ -4425,66 +3927,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 15,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 16,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 17,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 18,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 21,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 22,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 23,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 24,
-            "y": 15
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 25,
             "y": 15
         },
@@ -4648,12 +4090,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 14,
-            "y": 16
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 15,
             "y": 16
         },
         {
@@ -4827,12 +4263,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 15,
-            "y": 17
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 25,
             "y": 17
         },
@@ -5001,12 +4431,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 15,
-            "y": 18
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 25,
             "y": 18
         },
@@ -5092,354 +4516,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 1,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 2,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 3,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 4,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 5,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 6,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 7,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 8,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 9,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 12,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 13,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 14,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 15,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 25,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 26,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 27,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 28,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 29,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 31,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 33,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 34,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 35,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 36,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 37,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 38,
-            "y": 19
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 1,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 2,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 3,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 4,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 5,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 6,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 7,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 8,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 9,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 10,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 11,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 12,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 13,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 14,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 15,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 25,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 26,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 27,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 28,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 29,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 31,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 33,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 34,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 35,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 36,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 37,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 38,
-            "y": 20
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 1,
             "y": 21
         },
         {
@@ -5518,12 +4594,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 14,
-            "y": 21
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 15,
             "y": 21
         },
         {
@@ -5697,12 +4767,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 15,
-            "y": 22
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 25,
             "y": 22
         },
@@ -5871,12 +4935,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 15,
-            "y": 23
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 25,
             "y": 23
         },
@@ -6040,12 +5098,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 14,
-            "y": 24
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 15,
             "y": 24
         },
         {
@@ -6238,18 +5290,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 25
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 25
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 25
         },
         {
@@ -6471,18 +5511,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 26
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 26
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 26
         },
@@ -6694,18 +5722,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 27
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 27
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 27
         },
         {
@@ -6927,18 +5943,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 28
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 28
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 28
         },
@@ -7150,18 +6154,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 29
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 29
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 29
         },
         {
@@ -7383,18 +6375,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 30
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 30
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 30
         },
@@ -7606,18 +6586,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 18,
-            "y": 31
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 19,
-            "y": 31
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
             "y": 31
         },
         {
@@ -7839,18 +6807,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 32
         },
@@ -7912,48 +6868,6 @@
             "type": "Land",
             "subtype": "Grass",
             "x": 31,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 33,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 34,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 35,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 36,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 37,
-            "y": 32
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 38,
             "y": 32
         },
         {
@@ -8067,18 +6981,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 33
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 33
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 33
         },
@@ -8127,25 +7029,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 29,
-            "y": 33
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 33
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 33
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 33
         },
         {
@@ -8295,18 +7179,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 34
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 34
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 34
         },
@@ -8355,25 +7227,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 29,
-            "y": 34
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 34
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 34
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 34
         },
         {
@@ -8523,18 +7377,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 35
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 35
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 35
         },
@@ -8583,25 +7425,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 29,
-            "y": 35
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 35
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 35
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 35
         },
         {
@@ -8751,18 +7575,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 36
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 36
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 36
         },
@@ -8811,25 +7623,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 29,
-            "y": 36
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 36
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 36
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 36
         },
         {
@@ -8979,18 +7773,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 37
         },
@@ -9015,49 +7797,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 25,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 26,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 27,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 28,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 29,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 37
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 37
         },
         {
@@ -9207,18 +7947,6 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 19,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 20,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 21,
             "y": 38
         },
@@ -9243,49 +7971,7 @@
         {
             "type": "Land",
             "subtype": "Grass",
-            "x": 25,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 26,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 27,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 28,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 29,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 30,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
             "x": 31,
-            "y": 38
-        },
-        {
-            "type": "Land",
-            "subtype": "Grass",
-            "x": 32,
             "y": 38
         },
         {
@@ -9323,6 +8009,114 @@
             "subtype": "Grass",
             "x": 38,
             "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerSW",
+            "x": 10,
+            "y": 1
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 11,
+            "y": 1
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 12,
+            "y": 1
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 13,
+            "y": 1
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerSE",
+            "x": 14,
+            "y": 1
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 10,
+            "y": 2
+        },
+        {
+            "type": "Water",
+            "subtype": "Center",
+            "x": 11,
+            "y": 2
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 12,
+            "y": 2
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 13,
+            "y": 2
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerNE",
+            "x": 14,
+            "y": 2
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 10,
+            "y": 3
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 11,
+            "y": 3
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 10,
+            "y": 4
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 11,
+            "y": 4
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 10,
+            "y": 5
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 11,
+            "y": 5
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerNW",
+            "x": 10,
+            "y": 6
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerNE",
+            "x": 11,
+            "y": 6
         },
         {
             "type": "Water",
@@ -9368,14 +8162,8 @@
         },
         {
             "type": "Water",
-            "subtype": "South",
-            "x": 23,
-            "y": 16
-        },
-        {
-            "type": "Water",
             "subtype": "CornerSE",
-            "x": 24,
+            "x": 23,
             "y": 16
         },
         {
@@ -9386,50 +8174,44 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 17
         },
         {
             "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 17
-        },
-        {
-            "type": "Water",
             "subtype": "East",
-            "x": 24,
+            "x": 23,
             "y": 17
         },
         {
@@ -9440,50 +8222,44 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 18
         },
         {
             "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 18
-        },
-        {
-            "type": "Water",
             "subtype": "East",
-            "x": 24,
+            "x": 23,
             "y": 18
         },
         {
@@ -9494,50 +8270,44 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 19
         },
         {
             "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 19
-        },
-        {
-            "type": "Water",
             "subtype": "East",
-            "x": 24,
+            "x": 23,
             "y": 19
         },
         {
@@ -9548,50 +8318,44 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 20
         },
         {
             "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 20
-        },
-        {
-            "type": "Water",
             "subtype": "East",
-            "x": 24,
+            "x": 23,
             "y": 20
         },
         {
@@ -9602,50 +8366,44 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 21
         },
         {
             "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 21
-        },
-        {
-            "type": "Water",
             "subtype": "East",
-            "x": 24,
+            "x": 23,
             "y": 21
         },
         {
@@ -9656,159 +8414,1695 @@
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 17,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 18,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 19,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 20,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 21,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "Center",
             "x": 22,
             "y": 22
         },
         {
             "type": "Water",
-            "subtype": "North",
+            "subtype": "East",
             "x": 23,
             "y": 22
-        },
-        {
-            "type": "Water",
-            "subtype": "East",
-            "x": 24,
-            "y": 22
-        },
-        {
-            "type": "Water",
-            "subtype": "West",
-            "x": 16,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 17,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 18,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 19,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 20,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 21,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 22,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "North",
-            "x": 23,
-            "y": 23
-        },
-        {
-            "type": "Water",
-            "subtype": "East",
-            "x": 24,
-            "y": 23
         },
         {
             "type": "Water",
             "subtype": "CornerNW",
             "x": 16,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 17,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 18,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 19,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 20,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 21,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
             "subtype": "North",
             "x": 22,
-            "y": 24
+            "y": 23
         },
         {
             "type": "Water",
+            "subtype": "CornerNE",
+            "x": 23,
+            "y": 23
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerSW",
+            "x": 29,
+            "y": 33
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerSE",
+            "x": 30,
+            "y": 33
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 29,
+            "y": 34
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 30,
+            "y": 34
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 29,
+            "y": 35
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 30,
+            "y": 35
+        },
+        {
+            "type": "Water",
+            "subtype": "West",
+            "x": 29,
+            "y": 36
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 30,
+            "y": 36
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerSW",
+            "x": 25,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 26,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 27,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "South",
+            "x": 28,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "Center",
+            "x": 29,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "East",
+            "x": 30,
+            "y": 37
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerNW",
+            "x": 25,
+            "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 26,
+            "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 27,
+            "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 28,
+            "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "North",
+            "x": 29,
+            "y": 38
+        },
+        {
+            "type": "Water",
+            "subtype": "CornerNE",
+            "x": 30,
+            "y": 38
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 1
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 1
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 1
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 2
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 2
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 2
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 3
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 3
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 3
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 4
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 4
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 4
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 5
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 5
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 5
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 8,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "Center",
+            "x": 20,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 21,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 22,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 23,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 24,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 25,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 26,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 27,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 28,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 29,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 30,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 31,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 32,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 33,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 34,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 35,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 36,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 37,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 38,
+            "y": 6
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 1,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 2,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 3,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 4,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 5,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 6,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 7,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "CornerNE",
+            "x": 8,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "Center",
+            "x": 20,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 21,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 22,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 23,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 24,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 25,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 26,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 27,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 28,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 29,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 30,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 31,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 32,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 33,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 34,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 35,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 36,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 37,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 38,
+            "y": 7
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 8
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 8
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 9
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 9
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 10
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 10
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 11
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 11
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 12
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 12
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 13
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 13
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 14
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 14
+        },
+        {
+            "type": "Concrete",
+            "subtype": "CornerSW",
+            "x": 15,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 16,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 17,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 18,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 19,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 20,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 21,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 22,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 23,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "CornerSE",
+            "x": 24,
+            "y": 15
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 16
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 16
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 17
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 17
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 18
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 18
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 1,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 2,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 3,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 4,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 5,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 6,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 7,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 8,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 9,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 10,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 11,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 12,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 13,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 14,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 25,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 26,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 27,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 28,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 29,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 30,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 31,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 32,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 33,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 34,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 35,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 36,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 37,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 38,
+            "y": 19
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 1,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 2,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 3,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 4,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 5,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 6,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 7,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 8,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 9,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 10,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 11,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 12,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 13,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 14,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 25,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 26,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 27,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 28,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 29,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 30,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 31,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 32,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 33,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 34,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 35,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 36,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 37,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 38,
+            "y": 20
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 21
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 21
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 22
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 22
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 15,
+            "y": 23
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 24,
+            "y": 23
+        },
+        {
+            "type": "Concrete",
+            "subtype": "CornerNW",
+            "x": 15,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 16,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 17,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 18,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 19,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 20,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 21,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 22,
+            "y": 24
+        },
+        {
+            "type": "Concrete",
             "subtype": "North",
             "x": 23,
             "y": 24
         },
         {
-            "type": "Water",
+            "type": "Concrete",
             "subtype": "CornerNE",
             "x": 24,
             "y": 24
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 25
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 25
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 26
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 26
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 27
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 27
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 28
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 28
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 29
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 29
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 30
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 30
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 31
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 31
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 1,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 2,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 3,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 4,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 5,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 6,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 7,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 8,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 9,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 10,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 11,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 12,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 13,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 14,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 15,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 16,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 17,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 18,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "Center",
+            "x": 19,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "CornerSW",
+            "x": 32,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 33,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 34,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 35,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 36,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 37,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "South",
+            "x": 38,
+            "y": 32
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 1,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 2,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 3,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 4,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 5,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 6,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 7,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 8,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 9,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 10,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 11,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 12,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 13,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 14,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 15,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 16,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 17,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "North",
+            "x": 18,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "Center",
+            "x": 19,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 33
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 34
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 34
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 34
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 35
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 35
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 35
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 36
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 36
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 36
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 37
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 37
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 37
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 19,
+            "y": 38
+        },
+        {
+            "type": "Concrete",
+            "subtype": "East",
+            "x": 20,
+            "y": 38
+        },
+        {
+            "type": "Concrete",
+            "subtype": "West",
+            "x": 32,
+            "y": 38
         }
     ]
 }
