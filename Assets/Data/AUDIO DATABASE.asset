@@ -70,7 +70,13 @@ MonoBehaviour:
     volume: 1
     pitch: 1
   backgroundAudio:
-  - audioName: 
-    clips: []
-    volume: 0
-    pitch: 0
+  - audioName: bgm_menu
+    clips:
+    - {fileID: 8300000, guid: 5d81b33faba09404ca68f623c44804a0, type: 3}
+    volume: 0.15
+    pitch: 1
+  - audioName: bgm_level1
+    clips:
+    - {fileID: 8300000, guid: 829368c1ca33c424f9f1040da8c07c9b, type: 3}
+    volume: 0.15
+    pitch: 1
