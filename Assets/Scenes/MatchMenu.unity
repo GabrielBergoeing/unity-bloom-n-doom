@@ -164,7 +164,7 @@ AudioSource:
   m_GameObject: {fileID: 30660954}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6157543011492657632, guid: 799cfed5f86f4234da2fe9bcb385a09d, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
@@ -1014,6 +1014,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5380111548822830219, guid: 8fb20e2991f119044a4483f72360161a, type: 3}
+      propertyPath: sfxSource
+      value: 
+      objectReference: {fileID: 30660956}
     - target: {fileID: 6827758390756311116, guid: 8fb20e2991f119044a4483f72360161a, type: 3}
       propertyPath: m_Name
       value: __AUDIO MANAGER__
@@ -1694,6 +1698,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   confirm: ui_submit
+  toggle: 
+  hover: 
 --- !u!114 &1956980092
 MonoBehaviour:
   m_ObjectHideFlags: 0

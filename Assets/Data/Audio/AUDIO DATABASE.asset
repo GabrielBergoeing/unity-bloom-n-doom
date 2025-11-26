@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd2e87a3080ac8b43bb119cf1e2b9f73, type: 3}
+  m_Name: AUDIO DATABASE
+  m_EditorClassIdentifier: 
+  playerAudio:
+  - audioName: player_movement
+    clips:
+    - {fileID: 8300000, guid: 6400a23ed751c0440a92b5177f9cc4e7, type: 3}
+    volume: 1
+    pitch: 1.3
+  - audioName: player_irrigate
+    clips:
+    - {fileID: 8300000, guid: 43b0ba1fcd574e5498cf3ef37025e9a6, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_pick
+    clips:
+    - {fileID: 8300000, guid: 8cee22bc177085442b5257f0615b9347, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_plant
+    clips:
+    - {fileID: 8300000, guid: 23ede0becd5a55d4e8e1d578e7a9da70, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_prepare
+    clips:
+    - {fileID: 8300000, guid: ac4d1b24a3ceb654699e60759e555e80, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_remove
+    clips:
+    - {fileID: 8300000, guid: 4b455bb1bd3704e4ea99def09d77c5b2, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_sabotage
+    clips:
+    - {fileID: 8300000, guid: 43b0ba1fcd574e5498cf3ef37025e9a6, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: player_refill
+    clips:
+    - {fileID: 8300000, guid: 0915099a08f9dda4985186867448aee8, type: 3}
+    volume: 0.2
+    pitch: 1
+  UIAudio:
+  - audioName: ui_submit
+    clips:
+    - {fileID: 8300000, guid: a11404f32ffc0d74386f983390b68234, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: ui_toggle
+    clips:
+    - {fileID: 8300000, guid: 2b472defca15df749a5aeadae97b84ff, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: ui_hover
+    clips:
+    - {fileID: 8300000, guid: 3f1b99b460281884cb1a5ffcc139a0da, type: 3}
+    volume: 1
+    pitch: 1
+  backgroundAudio:
+  - audioName: bgm_menu
+    clips:
+    - {fileID: 8300000, guid: 5d81b33faba09404ca68f623c44804a0, type: 3}
+    volume: 0.15
+    pitch: 1
+  - audioName: bgm_level1
+    clips:
+    - {fileID: 8300000, guid: 829368c1ca33c424f9f1040da8c07c9b, type: 3}
+    volume: 0.15
+    pitch: 1

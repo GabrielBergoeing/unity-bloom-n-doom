@@ -7,15 +7,16 @@ public class MatchManager : MonoBehaviour
 {
     public static MatchManager instance;
     private ScoreTally scoreTally;
+    private LevelData currentLevel;
     private bool hasPrintResults = false;
 
     [Header("Match Time (in seconds)")]
-    [SerializeField] private float matchTime = 900; //15 min
+    [SerializeField] private float matchTime;
     private bool isPlayingMatch = false; //Indicates when to start counting down timer
     public float timer { get; private set; }
 
     [Header("Player Spawn Locations")]
-    [SerializeField] private Vector3[] playerSpawns = new Vector3[4];
+    [SerializeField] private Vector3[] playerSpawns;
     private List<PlayerInput> players = new();
 
     private void OnValidate() //Checks whenever values are changed on inspector
@@ -24,12 +25,16 @@ public class MatchManager : MonoBehaviour
             Array.Resize(ref playerSpawns, 4);
     }
 
-   private void Awake()
+    private void Awake()
     {
         instance = this;
-        timer = matchTime;
-
         scoreTally = GetComponent<ScoreTally>();
+
+        currentLevel = GameManager.instance.currentLevel;
+        timer = currentLevel.matchDuration;
+
+        for(int i = 0; i < 4; i++)
+            playerSpawns[i] = currentLevel.playerSpawnPositions[i];
     }
 
     private void Update()

@@ -6,6 +6,8 @@ public class UI_SFX : MonoBehaviour
 
     [Header("SFX Names")]
     [SerializeField] private string confirm;
+    [SerializeField] private string toggle;
+    [SerializeField] private string hover;
 
     private void Awake()
     {
@@ -13,4 +15,6 @@ public class UI_SFX : MonoBehaviour
     }
 
     public void PlayOnConfirm() => AudioManager.instance.PlaySFX(confirm, audioSource);
+    public void PlayOnToggle() => AudioManager.instance.PlaySFX(toggle, audioSource);
+    public void PlayOnHover() => AudioManager.instance.PlaySFX(hover, audioSource);
 }

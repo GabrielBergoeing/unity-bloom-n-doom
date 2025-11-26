@@ -7,6 +7,8 @@ public class AudioDatabaseSO : ScriptableObject
     public List<AudioClipData> playerAudio;
     public List<AudioClipData> UIAudio;
     public List<AudioClipData> backgroundAudio;
+    public List<AudioClipData> toolAudio;
+    public List<AudioClipData> plantAudio;
 
     private Dictionary<string, AudioClipData> clipCollection;
 
@@ -17,6 +19,8 @@ public class AudioDatabaseSO : ScriptableObject
         AddClipToCollection(playerAudio);
         AddClipToCollection(UIAudio);
         AddClipToCollection(backgroundAudio);
+        AddClipToCollection(toolAudio);
+        AddClipToCollection(plantAudio);
     }
 
     private void AddClipToCollection(List<AudioClipData> listToAdd)

@@ -10,6 +10,7 @@ public class UI_CharacterSelector : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private CanvasGroup slotCanvas;
     [SerializeField] private GameObject lockIndicator;
+    [SerializeField] private UI_CharacterArrowsAnimator arrows;
 
     [Header("Characters")]
     [SerializeField] private CharacterDatabase characterDB;
@@ -89,11 +90,11 @@ public class UI_CharacterSelector : MonoBehaviour
         if (!IsOccupied || IsLocked) return;
         if (Time.time < cooldown) return;
 
-        float x = ctx.ReadValue<Vector2>().x;
-        if (Mathf.Abs(x) < navThreshold) return;
+        float y = ctx.ReadValue<Vector2>().y; //up and down like castle crashers
+        if (Mathf.Abs(y) < navThreshold) return;
 
         int count = characterDB.characters.Length;
-        index = (index + (x > 0 ? 1 : -1) + count) % count;
+        index = (index + (y > 0 ? 1 : -1) + count) % count;
 
         cooldown = Time.time + navCooldown;
         UpdateDisplay();
@@ -132,6 +133,7 @@ public class UI_CharacterSelector : MonoBehaviour
         lockIndicator.SetActive(false);
         nameText.text = "Press The Join Button!";
         portraitImage.sprite = null;
+        arrows.Hide();
     }
 
     private void SetActiveVisuals()
@@ -151,6 +153,12 @@ public class UI_CharacterSelector : MonoBehaviour
 
         lockIndicator.SetActive(IsLocked);
         ApplyColor(IsLocked ? PanelColorType.Locked : PanelColorType.Active);
+
+        // === Arrow Logic ===
+        if (IsLocked)
+            arrows.Hide();
+        else
+            arrows.Show();
 
         if (!forced) notify?.Invoke(this);
     }

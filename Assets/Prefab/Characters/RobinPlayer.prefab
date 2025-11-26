@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 5709191765789113511}
   - component: {fileID: 1618419494059639732}
   - component: {fileID: 4213318453253227017}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: RobinPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -112,12 +112,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   move: player_movement
-  irrigate: 
-  pick: 
-  plant: 
-  prepareGround: 
-  remove: 
-  sabotage: 
+  irrigate: player_irrigate
+  pick: player_pick
+  plant: player_plant
+  prepareGround: player_prepare
+  remove: player_remove
+  sabotage: player_sabotage
+  refill: player_refill
 --- !u!50 &5709191765789113511
 Rigidbody2D:
   serializedVersion: 5
@@ -5602,7 +5603,7 @@ AudioSource:
   m_GameObject: {fileID: 6664115330610913341}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6157543011492657632, guid: 799cfed5f86f4234da2fe9bcb385a09d, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1

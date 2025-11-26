@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1895933091848658943}
   - component: {fileID: 3914484153873355524}
   - component: {fileID: -6992555186534881674}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plant_RedConeflower
   m_TagString: Plant
   m_Icon: {fileID: 0}

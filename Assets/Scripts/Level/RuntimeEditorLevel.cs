@@ -67,7 +67,7 @@ public class LevelEditorRuntime : MonoBehaviour
     // -------------------------------
     private void Place(Vector3Int gridPos)
     {
-        LevelData data = levelManager.GetLoadedLevel() ?? new LevelData();
+        GridData data = levelManager.GetLoadedLevel() ?? new GridData();
 
         if (data.objects.Any(o => o.x == gridPos.x && o.y == gridPos.y))
         {
@@ -79,7 +79,7 @@ public class LevelEditorRuntime : MonoBehaviour
         levelManager.factory.Create(currentType, gridPos, currentSubtype);
 
         // Save level object
-        data.objects.Add(new LevelObjectData
+        data.objects.Add(new GridObjectData
         {
             type = currentType.ToString(),
             subtype = currentSubtype,
@@ -96,7 +96,7 @@ public class LevelEditorRuntime : MonoBehaviour
     // -------------------------------
     private void Delete(Vector3Int gridPos)
     {
-        LevelData data = levelManager.GetLoadedLevel();
+        GridData data = levelManager.GetLoadedLevel();
         if (data == null || data.objects.Count == 0)
         {
             Debug.LogWarning("[Editor] Nothing stored to delete");

@@ -15,7 +15,7 @@ public class FileDataHandler
         this.encryptData = encryptData;
     }
 
-    public void SaveData(LevelData levelData)
+    public void SaveData(GridData levelData)
     {
         try
         {
@@ -37,9 +37,9 @@ public class FileDataHandler
         }
     }
 
-    public LevelData LoadData()
+    public GridData LoadData()
     {
-        LevelData levelData = null;
+        GridData levelData = null;
 
         if (File.Exists(fullPath))
         {
@@ -58,7 +58,7 @@ public class FileDataHandler
                 if (encryptData)
                     dataToLoad = EncryptDecrypt(dataToLoad);
 
-                levelData = JsonUtility.FromJson<LevelData>(dataToLoad);
+                levelData = JsonUtility.FromJson<GridData>(dataToLoad);
                 Debug.Log("Savefile path: " + fullPath);
             }
             catch (Exception e)

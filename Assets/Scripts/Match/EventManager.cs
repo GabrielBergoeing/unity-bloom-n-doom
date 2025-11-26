@@ -4,7 +4,8 @@ using UnityEngine.Tilemaps;
 
 public class EventManager : MonoBehaviour
 {
-    public static EventManager Instance;
+    public static EventManager instance;
+    private LevelData currentLevel;
 
     [Header("Spawnable Prefabs")]
     [SerializeField] private List<GameObject> mapSeeds;
@@ -25,12 +26,17 @@ public class EventManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
+        instance = this;
+
+        currentLevel = GameManager.instance.currentLevel;
+        mapSeeds = currentLevel.seedPrefabs;
+        mapTools = currentLevel.toolPrefabs;
+        mapRarities = currentLevel.rarePrefabs;
     }
 
     private void Update()

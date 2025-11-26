@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
     [Space]
+    private AudioMixerGroup mixer;
     private string currentBGMGroup;
     private Coroutine currentBGMCo;
     [SerializeField] private bool bgmShouldPlay;
@@ -20,6 +22,8 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
+        instance = this;
+        mixer = bgmSource.outputAudioMixerGroup;
         instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -113,4 +117,9 @@ public class AudioManager : MonoBehaviour
         if (currentBGMCo != null)
             StopCoroutine(currentBGMCo);
     }
+
+    #region Lineal/Decibel Converters
+    private float DbToLinear(float db) => Mathf.Pow(10f, db / 20f);
+    private float LinearToDb(float linear) => (linear != 0) ? 20.0f * Mathf.Log10(linear) : -144.0f;
+    #endregion
 }

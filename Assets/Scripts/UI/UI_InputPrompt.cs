@@ -97,4 +97,15 @@ public class UI_InputPrompt : MonoBehaviour
                 return i;
         return -1;
     }
+
+    // ---------- Sounds ----------
+    public void PlayToggleSFX()
+    {
+        UIService.instance.sfx.PlayOnToggle();
+    }
+
+    public void PlayHoverSFX()
+    {
+        UIService.instance.sfx.PlayOnHover();
+    }
 }

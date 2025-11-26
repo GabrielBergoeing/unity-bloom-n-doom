@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac2f5a564a18d9786be87023bf92b6c7, type: 3}
+  m_Name: LevelData2
+  m_EditorClassIdentifier: 
+  jsonFileName: level2.json
+  matchDuration: 900
+  playerSpawnPositions:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  bgmTrackName: bgm_level1
+  seedPrefabs:
+  - {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
+  - {fileID: 6445088790610930207, guid: efb202bd4dead634c9fdfefa8dc37831, type: 3}
+  toolPrefabs:
+  - {fileID: 3485547710261962795, guid: a9dd71347878ab242836d22b98d90c79, type: 3}
+  rarePrefabs:
+  - {fileID: 7554891935492345296, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
+  - {fileID: 2558169981995761550, guid: e940a3d33077a8c4e9a2cb3b65cdb2dd, type: 3}
