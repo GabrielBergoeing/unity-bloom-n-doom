@@ -80,3 +80,15 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 829368c1ca33c424f9f1040da8c07c9b, type: 3}
     volume: 0.15
     pitch: 1
+  toolAudio:
+  - audioName: tool_scissors
+    clips:
+    - {fileID: 8300000, guid: 1f82cc722aa9bf44a81040addc2d79ab, type: 3}
+    volume: 1
+    pitch: 1
+  - audioName: tool_flamethrower
+    clips:
+    - {fileID: 8300000, guid: 2bb836db499b29b46910c48445023da0, type: 3}
+    volume: 1
+    pitch: 1
+  plantAudio: []

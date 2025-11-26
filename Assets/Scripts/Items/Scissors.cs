@@ -12,6 +12,13 @@ public class Scissors : MonoBehaviour
     public float Cooldown => cooldown;
     public bool IsOnCooldown => isOnCooldown;
 
+    public Items_SFX sfx { get; private set; }
+
+    private void Awake()
+    {
+        sfx = GetComponent<Items_SFX>();
+    }
+
     public void Use(Vector3Int targetCell)
     {
         if (isOnCooldown)
@@ -19,6 +26,7 @@ public class Scissors : MonoBehaviour
             Debug.Log("Scissors cooldown");
             return;
         }
+        sfx.PlayOnUse();
 
         if (FarmManager.instance.IsOccupied(targetCell))
         {
