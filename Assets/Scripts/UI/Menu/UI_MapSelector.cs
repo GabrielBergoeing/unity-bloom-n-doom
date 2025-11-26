@@ -15,7 +15,7 @@ public class UI_MapSelector : MonoBehaviour
 
     public void SelectLevel(int index)
     {
-        var chosenLevel = levels[index];
+        var chosenLevel = levels[index-1];
         AudioManager.instance.StopBGM();
         UI.sfx.PlayOnConfirm();
         

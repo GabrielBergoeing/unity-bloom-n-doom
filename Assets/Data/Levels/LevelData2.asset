@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac2f5a564a18d9786be87023bf92b6c7, type: 3}
   m_Name: LevelData2
   m_EditorClassIdentifier: 
-  jsonFileName: level2.json
+  jsonFileName: SecondLevel.json
   matchDuration: 900
   playerSpawnPositions:
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
+  - {x: -4, y: 42}
+  - {x: 2, y: 48}
+  - {x: -10, y: 48}
+  - {x: -4, y: 54}
   bgmTrackName: bgm_level1
   seedPrefabs:
   - {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}

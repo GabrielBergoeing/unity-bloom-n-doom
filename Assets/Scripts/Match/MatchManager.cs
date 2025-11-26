@@ -19,12 +19,6 @@ public class MatchManager : MonoBehaviour
     [SerializeField] private Vector3[] playerSpawns;
     private List<PlayerInput> players = new();
 
-    private void OnValidate() //Checks whenever values are changed on inspector
-    {
-        if (playerSpawns.Length > 4)
-            Array.Resize(ref playerSpawns, 4);
-    }
-
     private void Awake()
     {
         instance = this;
@@ -81,18 +75,22 @@ public class MatchManager : MonoBehaviour
         {
             if (p != null)
             {
-                // p.SwitchCurrentActionMap("UI");
                 p.DeactivateInput();
-                Debug.Log($"[MatchManager] Disabled input for Player {p.playerIndex}");
+                p.SwitchCurrentActionMap("UI");
             }
         }
     }
 
-    //Necesito desactivar inputs de todos los jugadores
     private void EndMatch()
     {
         DisablePlayersInputs();
-        scoreTally.DeterminePlacements(players);
+        
+        List<ScoreResult> results = scoreTally.DeterminePlacements(players);
+        
+        UI_MatchResults ui = FindObjectOfType<UI_MatchResults>(true);
+        if (ui != null)
+            ui.ShowResults(results);
+
         hasPrintResults = true;
     }
 }

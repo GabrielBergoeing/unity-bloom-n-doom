@@ -67,7 +67,7 @@ MonoBehaviour:
   mapSeeds: []
   mapTools: []
   mapRarities: []
-  spawnPoints: []
+  landTilemap: {fileID: 0}
   seedSpawnInterval: 10
   toolSpawnInterval: 18
   raritySpawnInterval: 45

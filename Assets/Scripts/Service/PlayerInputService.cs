@@ -127,7 +127,12 @@ public class PlayerInputService : MonoBehaviour
     // ======================================================
     public void StoreLobbyPlayers(PlayerInput[] lobbyPlayers)
     {
+        // Stop duplicate join events
+        if (PlayerInputManager.instance != null)
+            PlayerInputManager.instance.onPlayerJoined -= HandlePlayerJoined;
+
         configs.Clear();
+        players.Clear();
 
         foreach (var p in lobbyPlayers)
         {
@@ -136,7 +141,8 @@ public class PlayerInputService : MonoBehaviour
             configs.Add(new PlayerConfiguration
             {
                 device = p.devices[0],
-                controlScheme = p.currentControlScheme
+                controlScheme = p.currentControlScheme,
+                selectedCharacter = p.GetComponent<UI_CharacterSelector>()?.SelectedCharacter
             });
 
             Destroy(p.gameObject);
@@ -185,6 +191,11 @@ public class PlayerInputService : MonoBehaviour
         return null;
     }
 
+    public void ResetForGameplay()
+    {
+        players.Clear();
+    }
+
     // ======================================================
     //  GAMEPLAY PLAYER SPAWNING (PlayerManager)
     // ======================================================
@@ -198,7 +209,13 @@ public class PlayerInputService : MonoBehaviour
             dev
         );
 
-        players.Add(pi);
+        // Insert exactly in its slot
+        if (index >= players.Count)
+            players.Add(pi);
+        else
+            players.Insert(index, pi);
+
         return pi;
     }
+
 }

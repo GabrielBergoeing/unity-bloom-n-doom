@@ -5,16 +5,19 @@ using UnityEngine.InputSystem;
 
 public class ScoreTally : MonoBehaviour
 {
-    private Dictionary<int, int> playerScores = new();
+   private Dictionary<int, int> playerScores = new();
 
-    public void DeterminePlacements(List<PlayerInput> players)
-    {
+   public List<ScoreResult> DeterminePlacements(List<PlayerInput> players)
+   {
       playerScores.Clear();
+
+      // Gather all plants on the map
       Plant[] allPlants = FindObjectsByType<Plant>(FindObjectsSortMode.None);
 
       foreach (var plant in allPlants)
       {
-         if (plant.ownerPlayerIndex < 0) continue;
+         if (plant.ownerPlayerIndex < 0)
+               continue; // skip unowned plants
 
          int points = plant.GetScoring();
 
@@ -24,17 +27,23 @@ public class ScoreTally : MonoBehaviour
          playerScores[plant.ownerPlayerIndex] += points;
       }
 
-      // Sort by score descending
-      var placements = playerScores.OrderByDescending(p => p.Value).ToList();
+      // Sort highest score first
+      var placements = playerScores.OrderByDescending(p => p.Value);
 
-      Debug.Log("=== Final Scores ===");
-      foreach (var p in placements)
+      // Convert into serializable result objects
+      List<ScoreResult> results = new();
+      foreach (var pair in placements)
       {
-         var player = players.FirstOrDefault(x => x.playerIndex == p.Key);
-         Debug.Log($"Player {p.Key} ({player?.name ?? "?"}) → {p.Value} points");
+         var player = players.FirstOrDefault(x => x.playerIndex == pair.Key);
+
+         results.Add(new ScoreResult
+         {
+               playerIndex = pair.Key,
+               playerName = player != null ? player.name : $"Player {pair.Key}",
+               score = pair.Value
+         });
       }
 
-      var winner = placements.FirstOrDefault();
-      Debug.Log($"Winner: Player {winner.Key} with {winner.Value} points!");
-    }
+      return results;
+   }
 }
