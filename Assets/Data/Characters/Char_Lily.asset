@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7831dff6a97be488756027369dfe4b, type: 3}
-  m_Name: Char_Dave
+  m_Name: Char_Lily
   m_EditorClassIdentifier: 
-  characterName: Dave
-  portrait: {fileID: -7888902146871769836, guid: 7e6f01c398d36a94cbd198b4e587e52e, type: 3}
-  prefab: {fileID: 165571438480114262, guid: 091358c6c976a3f4bb3149a18b507b75, type: 3}
-  overrideTheme: {fileID: 11400000, guid: eef8c398c9ba75f49ac1e1024afd776b, type: 2}
+  characterName: Lily
+  portrait: {fileID: -1250542065175253887, guid: ef9dcc9446f3c3348abbffef4f0977aa, type: 3}
+  prefab: {fileID: 165571438480114262, guid: c6255ba2fa7d7144a90e7e277536ea01, type: 3}
+  overrideTheme: {fileID: 11400000, guid: 1093b63a9024315408709b589b57e05b, type: 2}
