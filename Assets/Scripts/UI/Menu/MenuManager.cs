@@ -23,6 +23,7 @@ public class MenuManager : MonoBehaviour
     private void Start()
     {
         // Main Menu is visible by default
+        AudioManager.instance.StartBGM("bgm_menu");
         mainMenuPanel.SetActive(true);
         settingsPanel.SetActive(false);
     }

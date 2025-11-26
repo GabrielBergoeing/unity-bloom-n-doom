@@ -12,7 +12,9 @@ public class UI_MapSelector : MonoBehaviour
 
     private void SelectLevel(string levelFile)
     {
+        AudioManager.instance.StopBGM();
         UI.sfx.PlayOnConfirm();
         GameManager.instance.ChangeSceneWithLevel("LevelScene", levelFile);
+        AudioManager.instance.StartBGM("bgm_level1");
     }
 }

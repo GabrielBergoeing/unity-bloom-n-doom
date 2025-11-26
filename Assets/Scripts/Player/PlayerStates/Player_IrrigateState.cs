@@ -19,6 +19,7 @@ public class Player_IrrigateState : Player_ActionState
         // 1 second irrigation time, no cooldown
         player.StartCoroutine(ExecuteAction(player.irrigateFrame, player.irrigateCooldown, cell =>
         {
+            sfx.PlayOnIrrigate();
             player.waterSupply -= player.irrigateCost;
 
             // Rotate and play VFX

@@ -201,6 +201,7 @@ public class Player : Entity
     #region First To Be Refactor
     public void DropCurrentItem(bool consume = false, bool thrown = false)
     {
+        sfx.PlayOnRemove();
         var item = inventory.GetCurrentItem();
         if (item == null) return;
 

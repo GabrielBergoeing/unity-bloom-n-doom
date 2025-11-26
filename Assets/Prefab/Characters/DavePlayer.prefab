@@ -112,12 +112,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   move: player_movement
-  irrigate: 
-  pick: 
-  plant: 
-  prepareGround: 
-  remove: 
-  sabotage: 
+  irrigate: player_irrigate
+  pick: player_pick
+  plant: player_plant
+  prepareGround: player_prepare
+  remove: player_remove
+  sabotage: player_sabotage
+  refill: player_refill
 --- !u!50 &5709191765789113511
 Rigidbody2D:
   serializedVersion: 5
