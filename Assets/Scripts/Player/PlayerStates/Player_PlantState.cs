@@ -14,7 +14,11 @@ public class Player_PlantState : Player_ActionState
         }
 
         player.StartCoroutine(
-            ExecuteAction(player.plantFrame, player.plantCooldown, cell => seed.Use(cell, player))
+            ExecuteAction(player.plantFrame, player.plantCooldown, cell =>
+            {
+                sfx.PlayOnPlant();
+                seed.Use(cell, player);
+            })
         );
     }
 }

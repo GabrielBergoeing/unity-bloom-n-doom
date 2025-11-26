@@ -17,7 +17,10 @@ public class Player_PrepareGroundState : Player_ActionState
             ExecuteAction(player.prepareGroundFrame, player.prepareGroundCooldown, cell => //Define cooldowns in player?
             {
                 if (!FarmManager.instance.IsPrepared(cell) || !FarmManager.instance.IsOccupied(cell))
+                {
                     FarmManager.instance.PrepareTile(cell); //Change to callable fuction
+                    sfx.PlayOnPrepareGround();
+                }
             })
         );
     }
