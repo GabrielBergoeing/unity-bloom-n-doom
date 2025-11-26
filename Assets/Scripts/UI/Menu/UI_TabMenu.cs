@@ -114,9 +114,17 @@ public class UI_TabMenu : MonoBehaviour
 
     private void SelectFirstElement()
     {
-        var first = pages[pageIndex].GetComponentInChildren<Selectable>(true);
-        if (first != null && EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(first.gameObject);
+        if (EventSystem.current == null) return;
+
+        foreach (var selectable in pages[pageIndex].GetComponentsInChildren<Selectable>(true))
+        {
+            // Ignore sliders when auto-selecting
+            if (selectable is Slider) 
+                continue;
+
+            EventSystem.current.SetSelectedGameObject(selectable.gameObject);
+            return;
+        }
     }
 
     private void EnsureRange(int index)

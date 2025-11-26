@@ -20,33 +20,20 @@ public class UI_SettingsMenu : MonoBehaviour
         tabMenu != null && tabMenu.CurrentPageIndex == controlsPageIndex;
     #endregion
 
-    private void Start()
-    {
-        Debug.Log("[SettingsMenu] Start → Listening for tab change");
-        tabMenu.OnPageIndexChanged.AddListener(TabChanged);
-    }
+    private void Start() => tabMenu.OnPageIndexChanged.AddListener(TabChanged);
 
-    private void OnDestroy()
-    {
-        Debug.Log("[SettingsMenu] Destroy → Removing listener");
-        tabMenu.OnPageIndexChanged.RemoveListener(TabChanged);
-    }
+    private void OnDestroy() => tabMenu.OnPageIndexChanged.RemoveListener(TabChanged);
 
     #region Control Management
     private void TabChanged(int index)
     {
-        Debug.Log($"[SettingsMenu] Tab changed → {index}");
         UIService.instance.sfx.PlayOnToggle();
         if (index == controlsPageIndex)
-        {
-            Debug.Log("[SettingsMenu] Controls tab opened → regenerating controls");
             RegenerateControlsImmediate();
-        }
     }
 
     public void RefreshIfActiveAndOnControlsTab()
     {
-        Debug.Log($"[SettingsMenu] Refresh check | active={gameObject.activeInHierarchy}, onControls={IsControlsTabOpen}");
         if (gameObject.activeInHierarchy && IsControlsTabOpen)
             StartCoroutine(DelayedRefresh());
     }
@@ -60,12 +47,8 @@ public class UI_SettingsMenu : MonoBehaviour
     public void RegenerateControlsImmediate()
     {
         if (isRegenerating)
-        {
-            Debug.LogWarning("[SettingsMenu] Regeneration blocked (already regenerating)");
             return;
-        }
 
-        Debug.Log("[SettingsMenu] Regenerating Control Bindings");
         isRegenerating = true;
 
         inputFactory.Clear();
@@ -79,7 +62,6 @@ public class UI_SettingsMenu : MonoBehaviour
     #region Bindings Rebinding
     private void GenerateBindings()
     {
-        Debug.Log("[SettingsMenu] Generating bindings...");
         var svc = PlayerInputService.instance;
         var cfgs = svc.Configs;
 
@@ -88,31 +70,21 @@ public class UI_SettingsMenu : MonoBehaviour
             for (int i = 0; i < cfgs.Count; i++)
             {
                 var player = svc.GetPlayerByDevice(cfgs[i].device);
-                Debug.Log($"[SettingsMenu] Checking player config index={i} device={cfgs[i].device}");
 
                 var map = player?.actions.FindActionMap("Player") ??
                           inputActions.FindActionMap("Player");
 
                 if (map != null)
-                {
-                    Debug.Log($"[SettingsMenu] Generating map for player {i} → {map.name}");
                     inputFactory.Generate(map, i);
-                }
                 else
-                {
                     Debug.LogError($"[SettingsMenu] Could NOT find 'Player' Action Map for index={i}");
-                }
             }
         }
         else
         {
-            Debug.Log("[SettingsMenu] No player configs → default map");
             var map = inputActions.FindActionMap("Player");
             if (map != null)
-            {
-                Debug.Log($"[SettingsMenu] Default map → {map.name}");
                 inputFactory.Generate(map, 0);
-            }
         }
     }
 
@@ -124,7 +96,7 @@ public class UI_SettingsMenu : MonoBehaviour
     private IEnumerator RestoreSelectionDelayed()
     {
         // wait one frame so the factory can fully populate
-        yield return null; 
+        yield return new WaitForEndOfFrame(); 
 
         if (!IsControlsTabOpen) yield break;
         if (EventSystem.current == null) yield break;
@@ -132,17 +104,13 @@ public class UI_SettingsMenu : MonoBehaviour
         var first = tabMenu.GetCurrentPageObject()?.GetComponentInChildren<Selectable>(true);
 
         if (first != null)
-        {
-            Debug.Log($"[SettingsMenu] Selecting {first.gameObject.name}");
             EventSystem.current.SetSelectedGameObject(first.gameObject);
-        }
     }
     #endregion
 
     #region Buttons
     public void ReturnBTN()
     {
-        Debug.Log("[SettingsMenu] Returning to main menu...");
         UIService.instance.sfx.PlayOnToggle();
         UIService.instance.menu.HideSettingsOverlay();
 
@@ -151,10 +119,7 @@ public class UI_SettingsMenu : MonoBehaviour
         var selectable = menuObj.GetComponentInChildren<Selectable>(true);
 
         if (selectable != null)
-        {
-            Debug.Log($"[SettingsMenu] Selected Main Menu UI Element → {selectable.gameObject.name}");
             ev?.SetSelectedGameObject(selectable.gameObject);
-        }
     }
     #endregion
 }
