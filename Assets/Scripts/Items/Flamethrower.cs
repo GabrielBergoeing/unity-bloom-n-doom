@@ -21,6 +21,13 @@ public class Flamethrower : MonoBehaviour
 
     private Player owner; // who currently holds it
 
+    public Items_SFX sfx { get; private set; }
+
+    private void Awake()
+    {
+        sfx = GetComponent<Items_SFX>();
+    }
+
     private void Start()
     {
         pickup = GetComponent<Pickup>();
@@ -65,6 +72,8 @@ public class Flamethrower : MonoBehaviour
 
     private void Shoot()
     {
+        sfx.PlayOnUse();
+
         float angleStep = spreadAngle / (projectilesPerShot - 1);
         float startAngle = -spreadAngle / 2;
 
