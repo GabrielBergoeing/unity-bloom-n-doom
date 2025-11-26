@@ -546,6 +546,17 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""5d19c062-6a7c-4ea0-b7eb-771ce955817c"",
+                    ""path"": ""<Gamepad>/dpad"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""f9826912-b1cd-4885-b14c-d25a36755cdf"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
