@@ -125,6 +125,7 @@ public class MatchManager : MonoBehaviour
         PauseMatch(true); // freeze match
 
         List<ScoreResult> results = scoreTally.DeterminePlacements(players);
+        Debug.Log(results);
         
         UI_MatchResults ui = FindObjectOfType<UI_MatchResults>(true);
         if (ui != null)
