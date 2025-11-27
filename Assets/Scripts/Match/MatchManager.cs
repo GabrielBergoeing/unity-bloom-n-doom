@@ -10,9 +10,11 @@ public class MatchManager : MonoBehaviour
     private LevelData currentLevel;
     private bool hasPrintResults = false;
 
+    public bool isMatchRunning => isPlayingMatch && !hasPrintResults;
+
     [Header("Match Time (in seconds)")]
     [SerializeField] private float matchTime;
-    private bool isPlayingMatch = false; //Indicates when to start counting down timer
+    private bool isPlayingMatch = false;
     public float timer { get; private set; }
 
     [Header("Player Spawn Locations")]
@@ -27,18 +29,21 @@ public class MatchManager : MonoBehaviour
         currentLevel = GameManager.instance.currentLevel;
         timer = currentLevel.matchDuration;
 
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
             playerSpawns[i] = currentLevel.playerSpawnPositions[i];
     }
 
     private void Update()
     {
+        HandlePauseInput();
+
         if (isPlayingMatch)
             timer -= Time.deltaTime;
 
         if (timer <= 0 && !hasPrintResults)
             EndMatch();
     }
+
     public void InitializePlayers(List<PlayerInput> _players)
     {
         players = _players;
@@ -58,33 +63,67 @@ public class MatchManager : MonoBehaviour
         {
             var p = players[i];
             p.transform.position = GetSpawnPosition(i);
-            Debug.Log($"Player {i} positioned at {p.transform.position}");
         }
     }
 
     private Vector3 GetSpawnPosition(int index)
     {
-        if (playerSpawns[index] == null)
-            return new Vector3(index * 2f, 0f, 0f);
-        return playerSpawns[index];
+        return playerSpawns[index] == null
+            ? new Vector3(index * 2f, 0f, 0f)
+            : playerSpawns[index];
     }
 
-    private void DisablePlayersInputs()
+    // --------------------------- PAUSE LOGIC --------------------------- //
+
+    private void HandlePauseInput()
     {
+        if (!isMatchRunning) return;
+
         foreach (var p in players)
         {
-            if (p != null)
+            if (p.actions["Pause"].triggered)
             {
-                p.DeactivateInput();
-                p.SwitchCurrentActionMap("UI");
+                TogglePauseUI();
+                return;
             }
         }
     }
 
+    private void TogglePauseUI()
+    {
+        UI_PauseMenu pauseUI = FindObjectOfType<UI_PauseMenu>(true);
+        if (pauseUI != null)
+            pauseUI.TogglePause();
+    }
+
+    public void PauseMatch(bool pause)
+    {
+        isPlayingMatch = !pause;
+
+        foreach (var p in players)
+        {
+            if (pause)
+            {
+                p.DeactivateInput();
+                p.SwitchCurrentActionMap("UI");
+            }
+            else
+            {
+                p.ActivateInput();
+                p.SwitchCurrentActionMap("Player");
+            }
+        }
+    }
+
+    public void PauseMatch() => PauseMatch(true);
+    public void UnpauseMatch() => PauseMatch(false);
+
+    // --------------------------- END MATCH --------------------------- //
+
     private void EndMatch()
     {
-        DisablePlayersInputs();
-        
+        PauseMatch(true); // freeze match
+
         List<ScoreResult> results = scoreTally.DeterminePlacements(players);
         
         UI_MatchResults ui = FindObjectOfType<UI_MatchResults>(true);
