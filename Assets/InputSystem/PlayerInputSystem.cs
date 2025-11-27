@@ -728,6 +728,76 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Global"",
+            ""id"": ""8c8c9f66-7afb-45d8-8bf7-9e5494739d19"",
+            ""actions"": [
+                {
+                    ""name"": ""ExitGame"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""104e93a4-8129-4aab-863b-768ebefa51fd"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BackToMainMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""5324547c-0547-4100-838a-5c12b642eb57"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""0d4086c6-0a76-4f93-a001-cb34441f91b6"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""ExitGame"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a9e03c39-af06-4cc2-902d-2b73e256f5e6"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""ExitGame"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6c44a687-d3db-430a-bffc-8c1bc7004fbb"",
+                    ""path"": ""<Keyboard>/backspace"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""BackToMainMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""278984ea-50d0-4f97-8864-291a0ea04062"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""BackToMainMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -776,12 +846,17 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_UI_Join = m_UI.FindAction("Join", throwIfNotFound: true);
         m_UI_PreviousTab = m_UI.FindAction("Previous Tab", throwIfNotFound: true);
         m_UI_NextTab = m_UI.FindAction("Next Tab", throwIfNotFound: true);
+        // Global
+        m_Global = asset.FindActionMap("Global", throwIfNotFound: true);
+        m_Global_ExitGame = m_Global.FindAction("ExitGame", throwIfNotFound: true);
+        m_Global_BackToMainMenu = m_Global.FindAction("BackToMainMenu", throwIfNotFound: true);
     }
 
     ~@PlayerInputSet()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, PlayerInputSet.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, PlayerInputSet.UI.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Global.enabled, "This will cause a leak and performance issues, PlayerInputSet.Global.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1210,6 +1285,113 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="UIActions" /> instance referencing this action map.
     /// </summary>
     public UIActions @UI => new UIActions(this);
+
+    // Global
+    private readonly InputActionMap m_Global;
+    private List<IGlobalActions> m_GlobalActionsCallbackInterfaces = new List<IGlobalActions>();
+    private readonly InputAction m_Global_ExitGame;
+    private readonly InputAction m_Global_BackToMainMenu;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Global".
+    /// </summary>
+    public struct GlobalActions
+    {
+        private @PlayerInputSet m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public GlobalActions(@PlayerInputSet wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Global/ExitGame".
+        /// </summary>
+        public InputAction @ExitGame => m_Wrapper.m_Global_ExitGame;
+        /// <summary>
+        /// Provides access to the underlying input action "Global/BackToMainMenu".
+        /// </summary>
+        public InputAction @BackToMainMenu => m_Wrapper.m_Global_BackToMainMenu;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Global; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="GlobalActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(GlobalActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="GlobalActions" />
+        public void AddCallbacks(IGlobalActions instance)
+        {
+            if (instance == null || m_Wrapper.m_GlobalActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GlobalActionsCallbackInterfaces.Add(instance);
+            @ExitGame.started += instance.OnExitGame;
+            @ExitGame.performed += instance.OnExitGame;
+            @ExitGame.canceled += instance.OnExitGame;
+            @BackToMainMenu.started += instance.OnBackToMainMenu;
+            @BackToMainMenu.performed += instance.OnBackToMainMenu;
+            @BackToMainMenu.canceled += instance.OnBackToMainMenu;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="GlobalActions" />
+        private void UnregisterCallbacks(IGlobalActions instance)
+        {
+            @ExitGame.started -= instance.OnExitGame;
+            @ExitGame.performed -= instance.OnExitGame;
+            @ExitGame.canceled -= instance.OnExitGame;
+            @BackToMainMenu.started -= instance.OnBackToMainMenu;
+            @BackToMainMenu.performed -= instance.OnBackToMainMenu;
+            @BackToMainMenu.canceled -= instance.OnBackToMainMenu;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="GlobalActions.UnregisterCallbacks(IGlobalActions)" />.
+        /// </summary>
+        /// <seealso cref="GlobalActions.UnregisterCallbacks(IGlobalActions)" />
+        public void RemoveCallbacks(IGlobalActions instance)
+        {
+            if (m_Wrapper.m_GlobalActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="GlobalActions.AddCallbacks(IGlobalActions)" />
+        /// <seealso cref="GlobalActions.RemoveCallbacks(IGlobalActions)" />
+        /// <seealso cref="GlobalActions.UnregisterCallbacks(IGlobalActions)" />
+        public void SetCallbacks(IGlobalActions instance)
+        {
+            foreach (var item in m_Wrapper.m_GlobalActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_GlobalActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="GlobalActions" /> instance referencing this action map.
+    /// </summary>
+    public GlobalActions @Global => new GlobalActions(this);
     private int m_KeyboardSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -1370,5 +1552,27 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnNextTab(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Global" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="GlobalActions.AddCallbacks(IGlobalActions)" />
+    /// <seealso cref="GlobalActions.RemoveCallbacks(IGlobalActions)" />
+    public interface IGlobalActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "ExitGame" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnExitGame(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "BackToMainMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBackToMainMenu(InputAction.CallbackContext context);
     }
 }

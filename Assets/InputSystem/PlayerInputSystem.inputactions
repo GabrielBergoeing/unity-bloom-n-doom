@@ -642,6 +642,76 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Global",
+            "id": "8c8c9f66-7afb-45d8-8bf7-9e5494739d19",
+            "actions": [
+                {
+                    "name": "ExitGame",
+                    "type": "PassThrough",
+                    "id": "104e93a4-8129-4aab-863b-768ebefa51fd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BackToMainMenu",
+                    "type": "Button",
+                    "id": "5324547c-0547-4100-838a-5c12b642eb57",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "0d4086c6-0a76-4f93-a001-cb34441f91b6",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "ExitGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a9e03c39-af06-4cc2-902d-2b73e256f5e6",
+                    "path": "<Gamepad>/select",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": ";Controller",
+                    "action": "ExitGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6c44a687-d3db-430a-bffc-8c1bc7004fbb",
+                    "path": "<Keyboard>/backspace",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "BackToMainMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "278984ea-50d0-4f97-8864-291a0ea04062",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": ";Controller",
+                    "action": "BackToMainMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
