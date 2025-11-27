@@ -27,8 +27,8 @@ public class Cockroach : MonoBehaviour
     public float damageRange = 0.3f;
     
     [Header("Death System")]
-    public GameObject deathEffect; // Opcional: efecto de partículas al morir
-    public AudioClip deathSound;   // Opcional: sonido al morir
+    public GameObject deathEffect;
+    public AudioClip deathSound;
     
     [Header("Wander Behavior")]
     public float wanderRadius = 5f;
@@ -57,7 +57,6 @@ public class Cockroach : MonoBehaviour
     
     private void Update()
     {
-        // Si está muerta, no hacer nada
         if (isDead) return;
         
         UpdateWorldContext();
@@ -155,8 +154,6 @@ public class Cockroach : MonoBehaviour
         Vector3 randomDirection = Random.insideUnitCircle.normalized * wanderRadius;
         wanderTarget = transform.position + randomDirection;
         wanderTimer = 0f;
-        
-        // Clear current path to force recalculation
         currentPath.Clear();
         currentWaypointIndex = 0;
     }
@@ -196,30 +193,25 @@ public class Cockroach : MonoBehaviour
     
     private void MoveToTarget(Vector3 target)
     {
-        // Update path if needed
         if (Time.time - lastPathUpdate > pathUpdateInterval || currentPath.Count == 0)
         {
             UpdatePathTo(target);
         }
         
-        // Follow current path
         if (currentPath.Count > 0 && currentWaypointIndex < currentPath.Count)
         {
             Vector3 currentWaypoint = currentPath[currentWaypointIndex];
             Vector3 direction = (currentWaypoint - transform.position).normalized;
             
-            // Check if we reached the current waypoint
             if (Vector3.Distance(transform.position, currentWaypoint) < waypointTolerance)
             {
                 currentWaypointIndex++;
             }
             
-            // Move towards waypoint
             if (currentWaypointIndex < currentPath.Count)
             {
                 transform.position += direction * velocity * Time.deltaTime;
-                
-                // Rotate towards movement direction
+
                 if (direction != Vector3.zero)
                 {
                     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -242,32 +234,18 @@ public class Cockroach : MonoBehaviour
     
     private void DamagePlant(GameObject plantObject)
     {
-        // Verificar que haya pasado suficiente tiempo desde el último daño
         if (Time.time - lastDamageTime < damageInterval) return;
         
-        // Intentar obtener el componente Plant
         Plant plant = plantObject.GetComponent<Plant>();
         if (plant != null)
         {
-            // Hacer daño a la planta
             plant.TakeDamage(damageAmount);
             lastDamageTime = Time.time;
-            
-            // Debug para ver que está funcionando
-            Debug.Log($"Cockroach dealing {damageAmount} damage to {plant.name}");
-        }
-        else
-        {
-            // Si no tiene componente Plant, intentar con otros componentes
-            // Puedes agregar aquí otros tipos de plantas o componentes de salud
-            Debug.LogWarning($"Plant {plantObject.name} doesn't have Plant component!");
         }
     }
     
-    // Métodos para detectar cuando el jugador pisa la cucaracha
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Verificar si el que entró es el jugador
         if (other.CompareTag("Player") && !isDead)
         {
             Die();
@@ -276,7 +254,6 @@ public class Cockroach : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Verificar si el que colisionó es el jugador
         if (collision.gameObject.CompareTag("Player") && !isDead)
         {
             Die();
@@ -285,30 +262,20 @@ public class Cockroach : MonoBehaviour
     
     private void Die()
     {
-        if (isDead) return; // Evitar morir dos veces
+        if (isDead) return;
         
         isDead = true;
-        
-        // Efectos de muerte
         if (deathEffect != null)
         {
             Instantiate(deathEffect, transform.position, transform.rotation);
         }
-        
-        // Sonido de muerte
         if (deathSound != null)
         {
             AudioSource.PlayClipAtPoint(deathSound, transform.position);
         }
-        
-        // Debug para confirmar que murió
-        Debug.Log("Cockroach has been squished!");
-        
-        // Destruir la cucaracha después de un pequeño delay para que se vean los efectos
         Destroy(gameObject, 0.1f);
     }
     
-    // Gizmos for debugging
     private void OnDrawGizmosSelected()
     {
         // Draw detection ranges

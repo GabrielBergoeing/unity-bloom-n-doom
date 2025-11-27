@@ -25,8 +25,6 @@ public class AStarPathfinder : MonoBehaviour, IPathfinder
         GraphNode start = graph.GetNodeFromWorld(startWorld);
         GraphNode goal  = graph.GetNodeFromWorld(goalWorld);
         if (start == null || goal == null || !start.Walkable || !goal.Walkable) return emptyPath;
-
-        // Reset A*
         for (int x = 0; x < graph.width; x++)
         for (int y = 0; y < graph.height; y++)
         {

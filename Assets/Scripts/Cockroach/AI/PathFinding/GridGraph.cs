@@ -16,7 +16,6 @@ public class GridGraph : MonoBehaviour
     public float cellSize { get; private set; }
     public Vector3 originWorld { get; private set; }
 
-    // Internos
     private GraphNode[,] nodes;
     private BoundsInt bounds;
     private bool built = false;
@@ -118,7 +117,6 @@ public class GridGraph : MonoBehaviour
     {
         List<Tilemap> foundTilemaps = new List<Tilemap>();
         
-        // Buscar todos los tilemaps en la escena
         Tilemap[] allTilemaps = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
         
         foreach (var tilemap in allTilemaps)
@@ -134,8 +132,6 @@ public class GridGraph : MonoBehaviour
                 }
             }
         }
-        
-        // Asignar los tilemaps encontrados
         if (foundTilemaps.Count > 0)
         {
             obstacleTilemaps = foundTilemaps.ToArray();

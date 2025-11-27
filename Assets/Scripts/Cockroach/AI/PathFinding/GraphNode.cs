@@ -6,8 +6,6 @@ public class GraphNode
     public int Y;
     public Vector3 WorldPos;
     public bool Walkable;
-
-    // A*
     public float GValue;
     public float HValue;
     public GraphNode CameFrom;
