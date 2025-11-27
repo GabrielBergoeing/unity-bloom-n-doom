@@ -22,9 +22,10 @@ MonoBehaviour:
   bgmTrackName: bgm_level1
   seedPrefabs:
   - {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
-  - {fileID: 6445088790610930207, guid: efb202bd4dead634c9fdfefa8dc37831, type: 3}
+  - {fileID: 2558169981995761550, guid: 0ce7159f44e6bf9b8aff0a44881b4133, type: 3}
   toolPrefabs:
   - {fileID: 3485547710261962795, guid: a9dd71347878ab242836d22b98d90c79, type: 3}
-  rarePrefabs:
   - {fileID: 7554891935492345296, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
+  rarePrefabs:
+  - {fileID: 5840447366612253708, guid: 5b4babd5aadc080479127448fa28cefc, type: 3}
   - {fileID: 2558169981995761550, guid: e940a3d33077a8c4e9a2cb3b65cdb2dd, type: 3}

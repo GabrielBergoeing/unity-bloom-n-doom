@@ -190,7 +190,7 @@ public class Plant : MonoBehaviour
 
     public virtual void TakeDamage(float damage) => health -= damage;
 
-    public int GetScoring()
+    public virtual int GetScoring()
     {
         return stage switch
         {

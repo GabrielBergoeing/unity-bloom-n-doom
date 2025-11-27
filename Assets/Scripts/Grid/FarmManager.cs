@@ -189,6 +189,12 @@ public class FarmManager : MonoBehaviour
         RemovePlant(cell);
         return true;
     }
+
+    public Plant TryGetPlant(Vector3Int cell)
+    {
+        plantsByCell.TryGetValue(cell, out var plant);
+        return plant;
+    }
     #endregion
 
     #region Player Plant Root

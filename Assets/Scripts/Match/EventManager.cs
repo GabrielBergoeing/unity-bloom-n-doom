@@ -16,9 +16,9 @@ public class EventManager : MonoBehaviour
     [SerializeField] private Tilemap landTilemap;
 
     [Header("Spawn Rates (seconds)")]
-    [SerializeField] private float seedSpawnInterval = 10f;
-    [SerializeField] private float toolSpawnInterval = 18f;
-    [SerializeField] private float raritySpawnInterval = 45f;
+    [SerializeField] private float seedSpawnInterval = 8f;
+    [SerializeField] private float toolSpawnInterval = 15f;
+    [SerializeField] private float raritySpawnInterval = 50f;
 
     private float seedTimer;
     private float toolTimer;
