@@ -1698,8 +1698,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   confirm: ui_submit
-  toggle: 
-  hover: 
+  toggle: ui_toggle
+  hover: ui_hover
 --- !u!114 &1956980092
 MonoBehaviour:
   m_ObjectHideFlags: 0

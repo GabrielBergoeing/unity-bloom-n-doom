@@ -41,7 +41,7 @@ public class Flamethrower : MonoBehaviour
     {
         if (owner == null) return; // not held by player
 
-        bool isFiring = owner.input.actions["Sabotage"].ReadValue<float>() > 0f;
+        bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 
         if (isFiring && currentAmmo > 0f)
         {

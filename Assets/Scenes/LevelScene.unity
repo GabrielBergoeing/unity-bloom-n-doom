@@ -21810,6 +21810,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: __PLAYER MANAGER__
       objectReference: {fileID: 0}
+    - target: {fileID: 6105835779098049776, guid: 42f6bbe908cfc6d4580ca42a131189f7, type: 3}
+      propertyPath: basicSeedPrefab
+      value: 
+      objectReference: {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

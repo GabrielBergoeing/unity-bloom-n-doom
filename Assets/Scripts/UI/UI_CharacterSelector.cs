@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class UI_CharacterSelector : MonoBehaviour
 {
+    private UIService UI => UIService.instance;
+
     [Header("Visual References")]
     [SerializeField] private Image portraitImage;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -97,12 +99,14 @@ public class UI_CharacterSelector : MonoBehaviour
         index = (index + (y > 0 ? 1 : -1) + count) % count;
 
         cooldown = Time.time + navCooldown;
+        UI.sfx.PlayOnToggle();
         UpdateDisplay();
     }
 
     private void OnConfirm(InputAction.CallbackContext ctx)
     {
         if (!IsOccupied || IsLocked) return;
+        UI.sfx.PlayOnConfirm();
 
         IsLocked = true;
         UpdateDisplay();
@@ -118,6 +122,7 @@ public class UI_CharacterSelector : MonoBehaviour
             UpdateDisplay();
             return;
         }
+        UI.sfx.PlayOnHover();
 
         // Not locked → leave slot entirely
         ClearAssignment();

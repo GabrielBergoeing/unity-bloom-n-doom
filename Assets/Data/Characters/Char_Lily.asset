@@ -15,4 +15,4 @@ MonoBehaviour:
   characterName: Lily
   portrait: {fileID: -1250542065175253887, guid: ef9dcc9446f3c3348abbffef4f0977aa, type: 3}
   prefab: {fileID: 165571438480114262, guid: c6255ba2fa7d7144a90e7e277536ea01, type: 3}
-  overrideTheme: {fileID: 11400000, guid: 1093b63a9024315408709b589b57e05b, type: 2}
+  overrideTheme: {fileID: 11400000, guid: aa4591f03b42c4746b3d6e67b19478c4, type: 2}

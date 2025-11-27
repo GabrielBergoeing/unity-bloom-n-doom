@@ -15,4 +15,4 @@ MonoBehaviour:
   characterName: Jose
   portrait: {fileID: -1332074009876070553, guid: 4c490a50169ccb742a2b8a8beb20b59b, type: 3}
   prefab: {fileID: 165571438480114262, guid: a2585420cfeadd04a80550f3b451a7de, type: 3}
-  overrideTheme: {fileID: 11400000, guid: 1093b63a9024315408709b589b57e05b, type: 2}
+  overrideTheme: {fileID: 11400000, guid: e76884ac821982f42a01e6df591895a8, type: 2}
