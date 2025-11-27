@@ -189,6 +189,33 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CheatFlamethrower"",
+                    ""type"": ""Button"",
+                    ""id"": ""b57a4ae8-763f-4e1e-aeb0-9d75525d4b8a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CheatScissors"",
+                    ""type"": ""Button"",
+                    ""id"": ""51cae132-f5f8-494e-a49f-e07513e8ced3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CheatRefill"",
+                    ""type"": ""Button"",
+                    ""id"": ""65bb701a-7459-4077-8641-7888789575c2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -475,6 +502,72 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Controller"",
                     ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cb570590-7f44-4045-bf3c-c196fad1272b"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CheatFlamethrower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0356cd64-23ba-4ab6-b6a0-2ddfccdd65e5"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""CheatFlamethrower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6ef1e0f4-e724-4c24-9ed1-996e1b5d7e0f"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CheatScissors"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""08c6bac8-1a63-45a6-8107-24ff8d57e6a9"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""CheatScissors"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""26437200-a079-4c62-ae77-769c1ff33d0f"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CheatRefill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2f9cde51-8dc7-4591-b63c-11d710f45b0d"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Controller"",
+                    ""action"": ""CheatRefill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -789,7 +882,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""278984ea-50d0-4f97-8864-291a0ea04062"",
-                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""path"": ""<Gamepad>/start"",
                     ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": "";Controller"",
@@ -838,6 +931,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_Player_Sabotage = m_Player.FindAction("Sabotage", throwIfNotFound: true);
         m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+        m_Player_CheatFlamethrower = m_Player.FindAction("CheatFlamethrower", throwIfNotFound: true);
+        m_Player_CheatScissors = m_Player.FindAction("CheatScissors", throwIfNotFound: true);
+        m_Player_CheatRefill = m_Player.FindAction("CheatRefill", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -943,6 +1039,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sabotage;
     private readonly InputAction m_Player_Shoot;
     private readonly InputAction m_Player_Pause;
+    private readonly InputAction m_Player_CheatFlamethrower;
+    private readonly InputAction m_Player_CheatScissors;
+    private readonly InputAction m_Player_CheatRefill;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -998,6 +1097,18 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Pause".
         /// </summary>
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CheatFlamethrower".
+        /// </summary>
+        public InputAction @CheatFlamethrower => m_Wrapper.m_Player_CheatFlamethrower;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CheatScissors".
+        /// </summary>
+        public InputAction @CheatScissors => m_Wrapper.m_Player_CheatScissors;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CheatRefill".
+        /// </summary>
+        public InputAction @CheatRefill => m_Wrapper.m_Player_CheatRefill;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1057,6 +1168,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @CheatFlamethrower.started += instance.OnCheatFlamethrower;
+            @CheatFlamethrower.performed += instance.OnCheatFlamethrower;
+            @CheatFlamethrower.canceled += instance.OnCheatFlamethrower;
+            @CheatScissors.started += instance.OnCheatScissors;
+            @CheatScissors.performed += instance.OnCheatScissors;
+            @CheatScissors.canceled += instance.OnCheatScissors;
+            @CheatRefill.started += instance.OnCheatRefill;
+            @CheatRefill.performed += instance.OnCheatRefill;
+            @CheatRefill.canceled += instance.OnCheatRefill;
         }
 
         /// <summary>
@@ -1101,6 +1221,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @CheatFlamethrower.started -= instance.OnCheatFlamethrower;
+            @CheatFlamethrower.performed -= instance.OnCheatFlamethrower;
+            @CheatFlamethrower.canceled -= instance.OnCheatFlamethrower;
+            @CheatScissors.started -= instance.OnCheatScissors;
+            @CheatScissors.performed -= instance.OnCheatScissors;
+            @CheatScissors.canceled -= instance.OnCheatScissors;
+            @CheatRefill.started -= instance.OnCheatRefill;
+            @CheatRefill.performed -= instance.OnCheatRefill;
+            @CheatRefill.canceled -= instance.OnCheatRefill;
         }
 
         /// <summary>
@@ -1502,6 +1631,27 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CheatFlamethrower" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCheatFlamethrower(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CheatScissors" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCheatScissors(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CheatRefill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCheatRefill(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
