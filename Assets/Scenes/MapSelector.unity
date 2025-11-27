@@ -215,11 +215,11 @@ MonoBehaviour:
   - {fileID: 1206434232}
   - {fileID: 1831885954}
   descriptions:
-  - aaaa
-  - bbbb
-  - cccc
-  - dddd
-  - eeee
+  - 'Blooming Entrance: the grand gateway to the garden.'
+  - 'The Ring: the smallest plot, high above the garden''s tower.'
+  - 'Laken it Easy: islands spread across the rain-filled lake.'
+  - 'Crossroads Sanctuary: the heart of the garden.'
+  - 'Skirmish Corridor: within the indoors of the gardenhouse walls.'
 --- !u!1 &460029720
 GameObject:
   m_ObjectHideFlags: 0
@@ -709,8 +709,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 50}
+  m_AnchoredPosition: {x: 0, y: 30}
+  m_SizeDelta: {x: 700, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1116580360
 MonoBehaviour:
@@ -759,8 +759,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
