@@ -38,6 +38,15 @@ public class Player_NeutralState : PlayerState
 
         if (input.actions["Drop"].triggered)
             player.DropCurrentItem();
+        
+        if (input.actions["CheatRefill"].triggered)
+            player.waterSupply = 100;
+        
+        if (input.actions["CheatScissors"].triggered)
+            player.SpawnScissors();
+        
+        if (input.actions["CheatFlamethrower"].triggered)
+            player.SpawnFlamethrower();
     }
 
     private PlayerState DetermineInteractionState()

@@ -23,6 +23,11 @@ public class Player : Entity
     public Player_SabotageState sabotageState { get; private set; }
     #endregion
 
+    #region Cheat Variables
+    [SerializeField] private GameObject scissors;
+    [SerializeField] private GameObject flamethrower;
+    #endregion
+
     #region Interface Variables
     [Header("Movement variables")]
     public float moveSpeed = 8;
@@ -214,6 +219,24 @@ public class Player : Entity
 
         item.transform.parent = null;
         item.transform.position = transform.position;
+    }
+    #endregion
+
+    #region Cheat Functions
+    public void SpawnScissors()
+    {
+        if (scissors != null)
+        {
+            Instantiate(scissors, transform.position, Quaternion.identity);
+        }
+    }
+
+    public void SpawnFlamethrower()
+    {
+        if (flamethrower != null)
+        {
+            Instantiate(flamethrower, transform.position, Quaternion.identity);
+        }
     }
     #endregion
 
