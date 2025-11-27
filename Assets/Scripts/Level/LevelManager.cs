@@ -17,8 +17,9 @@ public class LevelManager : MonoBehaviour
         currentLevel = GameManager.instance.currentLevel;
         string levelFileToLoad = currentLevel.jsonFileName ?? fileName;
 
+        // Use Resources folder for build compatibility
         dataHandler = new FileDataHandler(
-            Path.Combine(Application.dataPath, "Levels"),
+            Path.Combine(Application.streamingAssetsPath, "Levels"),
             levelFileToLoad,
             encryptData: encryptData
         );
