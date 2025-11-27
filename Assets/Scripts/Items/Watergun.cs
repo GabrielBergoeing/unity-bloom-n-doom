@@ -20,18 +20,24 @@ public class Watergun : MonoBehaviour
     [SerializeField] private Pickup pickup;
 
     private Rigidbody2D rb;
+    private Vector2 inheritedVelocity = Vector2.zero;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         Destroy(gameObject, lifetime);
     }
+
+    public void SetInheritedVelocity(Vector2 velocity)
+    {
+        inheritedVelocity = velocity;
+    }
+
     private void FixedUpdate()
     {
-
         float randomSpread = Random.Range(-spreadAngle, spreadAngle);
         Vector2 direction = Quaternion.Euler(0, 0, randomSpread) * transform.up;
-        rb.linearVelocity = direction * speed;
+        rb.linearVelocity = (direction * speed) + inheritedVelocity;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -39,7 +45,6 @@ public class Watergun : MonoBehaviour
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {
-            Debug.Log("¡Planta apagada!");
             plant.ExtinguishFire();
             plant.WaterPlant();
         }

@@ -72,7 +72,11 @@ public class Flamethrower : MonoBehaviour
 
     private void Shoot()
     {
-        sfx.PlayOnUse();
+        if (sfx != null)
+        {
+            sfx.PlayOnUse();
+        }
+        
 
         float angleStep = spreadAngle / (projectilesPerShot - 1);
         float startAngle = -spreadAngle / 2;
@@ -82,8 +86,24 @@ public class Flamethrower : MonoBehaviour
             float currentAngle = startAngle + (angleStep * i);
             Quaternion rotation =
                 fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
-
-            Instantiate(firePrefab, fireSpawnPoint.position, rotation);
+            Vector2 ownerVelocity = Vector2.zero;
+            if (owner != null)
+            {
+                ownerVelocity = owner.rb.linearVelocity;
+            }   
+            GameObject fireInstance = Instantiate(firePrefab, fireSpawnPoint.position, rotation);
+            
+            //Esto es feito pero funciona
+            Fire fireScript = fireInstance.GetComponent<Fire>();
+            if (fireScript != null)
+            {
+                fireScript.SetInheritedVelocity(ownerVelocity);
+            }
+            Watergun watergunScript = fireInstance.GetComponent<Watergun>();
+            if (watergunScript != null)
+            {
+                watergunScript.SetInheritedVelocity(ownerVelocity);
+            }
         }
     }
 }

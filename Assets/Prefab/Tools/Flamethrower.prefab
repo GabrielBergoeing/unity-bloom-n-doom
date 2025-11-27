@@ -278,7 +278,7 @@ MonoBehaviour:
   pickup: {fileID: 8509811695705940979}
   firePrefab: {fileID: 187991493021349217, guid: fb48b5dc270d65b429391925ed90d613, type: 3}
   fireSpawnPoint: {fileID: 369885534356091158}
-  fireRate: 0.2
+  fireRate: 0.001
   projectilesPerShot: 5
   spreadAngle: 30
   maxAmmoSeconds: 10
