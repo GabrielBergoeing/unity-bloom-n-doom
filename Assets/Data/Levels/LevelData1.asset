@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData1
   m_EditorClassIdentifier: 
   jsonFileName: FirstLevel.json
-  matchDuration: 8
+  matchDuration: 50
   playerSpawnPositions:
   - {x: 14, y: 14}
   - {x: 14, y: 25}

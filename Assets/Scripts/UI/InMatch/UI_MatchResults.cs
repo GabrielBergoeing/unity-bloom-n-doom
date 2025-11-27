@@ -11,11 +11,12 @@ public class UI_MatchResults : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject resultsPanel;
     [SerializeField] private EventSystem eventSystem;
-    [SerializeField] private Transform resultsContainer;
     [SerializeField] private CharacterDatabase characterDB;
 
-    [Header("Row Template (Disabled)")]
-    [SerializeField] private GameObject resultRowTemplate;
+    [Header("Winner UI")]
+    [SerializeField] private Image imgPortrait;
+    [SerializeField] private TextMeshProUGUI txtScore;
+    [SerializeField] private TextMeshProUGUI txtPlayer;
 
     [Header("Menu Buttons")]
     [SerializeField] private Button btnReturnCharacter;
@@ -27,8 +28,6 @@ public class UI_MatchResults : MonoBehaviour
     private void Awake()
     {
         resultsPanel.SetActive(false);
-        resultRowTemplate.SetActive(false);
-
         if (eventSystem != null) eventSystem.enabled = false;
 
         ValidateButton(btnReturnCharacter, "Character Select");
@@ -48,38 +47,34 @@ public class UI_MatchResults : MonoBehaviour
         if (initialized) return;
         initialized = true;
 
-        // Sort by score DESC (Higher wins)
-        results.Sort((a, b) => b.score.CompareTo(a.score));
-
-        // Clear old
-        foreach (Transform child in resultsContainer)
-            if (child != resultRowTemplate.transform)
-                Destroy(child.gameObject);
-
-        // Build rows
-        foreach (var r in results)
+        if (results == null || results.Count == 0)
         {
-            CharacterData data = characterDB.characters[r.playerIndex];
-            var entry = CreateResultRow(data, r.score);
-            entry.SetActive(true);
+            Debug.LogError("[UI_MatchResults] Tried to show results with an empty score list!");
+            return;
         }
 
-        // Show panel
+        // Sort
+        results.Sort((a, b) => b.score.CompareTo(a.score));
+        var winner = results[0];
+
+        // Validate player index
+        if (winner.playerIndex < 0 || winner.playerIndex >= characterDB.characters.Length)
+        {
+            Debug.LogError($"[UI_MatchResults] Invalid winner index {winner.playerIndex}, CharacterDB has {characterDB.characters.Length} characters!");
+            return;
+        }
+
+        // Safe to use
+        CharacterData data = characterDB.characters[winner.playerIndex];
+
+        imgPortrait.sprite = data.portrait;
+        txtScore.text = winner.score + " pts";
+        txtPlayer.text = $"Player {winner.playerIndex + 1}";
+
         resultsPanel.SetActive(true);
         if (eventSystem != null) eventSystem.enabled = true;
 
         btnReturnCharacter?.Select();
-    }
-
-    private GameObject CreateResultRow(CharacterData data, int score)
-    {
-        var row = Instantiate(resultRowTemplate, resultsContainer);
-
-        row.transform.Find("CharacterPortrait").GetComponent<Image>().sprite = data.portrait;
-        row.transform.Find("CharacterName").GetComponent<TextMeshProUGUI>().text = data.characterName;
-        row.transform.Find("ScoreLabel").GetComponent<TextMeshProUGUI>().text = score + " pts";
-
-        return row;
     }
     #endregion
 
@@ -87,18 +82,21 @@ public class UI_MatchResults : MonoBehaviour
     public void GoToCharacterSelect()
     {
         UI.sfx.PlayOnConfirm();
+        AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MatchMenu");
     }
 
     public void GoToStageSelect()
     {
         UI.sfx.PlayOnConfirm();
+        AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MapSelector");
     }
 
     public void GoToMainMenu()
     {
         UI.sfx.PlayOnConfirm();
+        AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MainMenu");
     }
     #endregion

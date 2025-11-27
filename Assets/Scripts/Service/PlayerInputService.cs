@@ -92,12 +92,21 @@ public class PlayerInputService : MonoBehaviour
     // ======================================================
     private void HandlePlayerJoined(PlayerInput pi)
     {
+        if (MatchManager.instance != null && MatchManager.instance.isMatchRunning)
+        {
+            Debug.Log("[PlayerInputService] Player join blocked (match is running).");
+            Destroy(pi.gameObject);
+            return;
+        }
+
+        // Normal logic:
         if (!players.Contains(pi))
         {
             players.Add(pi);
             pi.onControlsChanged += OnControlsChanged;
         }
     }
+
 
     private void HandlePlayerLeft(PlayerInput pi)
     {
