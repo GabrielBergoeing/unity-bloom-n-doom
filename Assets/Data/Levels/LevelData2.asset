@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData2
   m_EditorClassIdentifier: 
   jsonFileName: SecondLevel.json
-  matchDuration: 900
+  matchDuration: 300
   playerSpawnPositions:
   - {x: -4, y: 42}
   - {x: 2, y: 48}
