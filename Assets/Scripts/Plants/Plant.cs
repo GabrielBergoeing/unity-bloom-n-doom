@@ -176,6 +176,18 @@ public class Plant : MonoBehaviour
             SetStage(GrowthStage.Growing);
     }
 
+    public void FertilizePlant()
+    {        
+        if (stage == GrowthStage.Mature) 
+        {
+            return;
+        }
+        
+        currentInteractions = interactionsToMature;
+        SetStage(GrowthStage.Mature);
+        timer = witheringTime;
+    }
+
     public virtual void TakeDamage(float damage) => health -= damage;
 
     public int GetScoring()

@@ -123,6 +123,16 @@ public class FarmManager : MonoBehaviour
         }
         return false;
     }
+
+    public bool TryFertilizePlant(Vector3Int cell)
+    {
+        if (plantsByCell.TryGetValue(cell, out var plant))
+        {
+            plant.FertilizePlant();
+            return true;
+        }
+        return false;
+    }
     #endregion
 
     #region Internal Spawn & Remove

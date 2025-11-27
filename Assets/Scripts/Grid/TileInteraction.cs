@@ -71,5 +71,6 @@ public class TileInteraction : MonoBehaviour
 
 
     public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
+    public void FertilizeInCell() => farmManager.TryFertilizePlant(currentCell);
     public void RemoveInCell() => farmManager.TryRemovePlant(currentCell, input.playerIndex);
 }
