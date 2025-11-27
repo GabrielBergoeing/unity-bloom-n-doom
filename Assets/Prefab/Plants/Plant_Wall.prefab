@@ -80,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
-  m_Sprite: {fileID: 1293287195, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
+  m_Sprite: {fileID: -7869611347050248297, guid: f1697036f064db9488a5daade481907f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.17, y: 0.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -109,9 +109,9 @@ MonoBehaviour:
   currentInteractions: 0
   stage: 0
   spriteRenderer: {fileID: 4486954698785084318}
-  seedSprite: {fileID: -1343021246, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
-  growingSprite: {fileID: -1345110006, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
-  matureSprite: {fileID: 1293287195, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
+  seedSprite: {fileID: -3200850943440068997, guid: f1697036f064db9488a5daade481907f, type: 3}
+  growingSprite: {fileID: 2292940995249346710, guid: f1697036f064db9488a5daade481907f, type: 3}
+  matureSprite: {fileID: -7869611347050248297, guid: f1697036f064db9488a5daade481907f, type: 3}
   maxHealth: 20
   witheringTime: 60
   fireDamagePerSecond: 2

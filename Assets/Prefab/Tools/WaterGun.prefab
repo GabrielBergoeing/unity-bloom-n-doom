@@ -48,17 +48,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canPickup: 0
-  isPickedUp: 0
   stackable: 0
   maxStackCount: 5
   itemId: 7
-  playerInput: {fileID: 0}
-  currentPlayer: {fileID: 0}
-  hotbarSystem: {fileID: 0}
-  unpickupableUntil: 0
-  throwCooldown: 10
-  thrownFadeDuration: 10
+  canPickup: 0
+  isPickedUp: 0
+  pickupDelay: 0.25
+  playerInRange: {fileID: 0}
 --- !u!61 &8369506290277097944
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -200,7 +196,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2086568001, guid: b8197602cff9b824dba1b396bc94b6ed, type: 3}
+  m_Sprite: {fileID: 7183113807138523763, guid: f1697036f064db9488a5daade481907f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
