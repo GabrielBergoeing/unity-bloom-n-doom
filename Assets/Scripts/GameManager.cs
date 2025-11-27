@@ -28,6 +28,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // For testing scene changes
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            Debug.Log("[GameManager] Scene Change to MainMenu!");
+            ChangeScene("MainMenu");
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("[GameManager] App Closed!");
+            Application.Quit();
+        }
+    }
+
     private IEnumerator ChangeSceneCo(string sceneName)
     {
         UI_FadeScreen fadeScreen = FindFadeScreenUI();
