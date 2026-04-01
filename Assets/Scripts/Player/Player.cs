@@ -169,8 +169,20 @@ public class Player : Entity
     {
         base.OnStartLocalPlayer();
 
+        // 1. Activamos la entrada de controles
         input.enabled = true;
         CmdSetControl(true);
+
+        // 2. Buscamos la cámara que está desactivada y la encendemos SOLO para nosotros
+        Camera miCamara = GetComponentInChildren<Camera>(true); // El 'true' sirve para buscar objetos desactivados
+        if (miCamara != null)
+        {
+            miCamara.enabled = true;
+
+            // También activamos el AudioListener para escuchar solo desde nuestra posición
+            AudioListener listener = miCamara.GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = true;
+        }
     }
 
     [Command]
