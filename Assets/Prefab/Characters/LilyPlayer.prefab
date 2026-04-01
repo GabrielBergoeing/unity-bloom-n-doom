@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5709191765789113511}
   - component: {fileID: 1618419494059639732}
   - component: {fileID: 4213318453253227017}
+  - component: {fileID: 7468877822939832216}
   m_Layer: 9
   m_Name: LilyPlayer
   m_TagString: Player
@@ -56,6 +57,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31f1c7df02993b74abc3c4dd9a34dfae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   scissors: {fileID: 3485547710261962795, guid: a9dd71347878ab242836d22b98d90c79, type: 3}
   flamethrower: {fileID: 7554891935492345296, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
   moveSpeed: 8
@@ -230,6 +234,23 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.24
+--- !u!114 &7468877822939832216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 2448791811
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0
@@ -5809,6 +5830,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

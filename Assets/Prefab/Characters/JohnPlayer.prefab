@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5709191765789113511}
   - component: {fileID: 1618419494059639732}
   - component: {fileID: 4213318453253227017}
+  - component: {fileID: -7928697207847555143}
   m_Layer: 9
   m_Name: JohnPlayer
   m_TagString: Player
@@ -230,6 +231,23 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.24
+--- !u!114 &-7928697207847555143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 2538322417
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0
@@ -5809,6 +5827,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

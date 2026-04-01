@@ -56,11 +56,11 @@ public class Player : Entity
 
     #region In-House Variables
     // Handles values to display anim facing dir
-    [SyncVar] public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
-    [SyncVar] public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
+    [SyncVar] public int xFacingDir  = 1; // 1 : Right, -1 : Left, 0 : horizontal
+    [SyncVar] public int yFacingDir  = 1; // 1 : Up, -1 : Down, 0 : vertical
 
     // Boolean flag that inidicates if player character can be controled
-    [SyncVar] public bool canControl { get; private set; } = false;
+    [SyncVar] public bool canControl  = false;
 
     public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
     #endregion
