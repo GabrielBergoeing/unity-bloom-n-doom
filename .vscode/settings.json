@@ -56,7 +56,7 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "unity-bloom-n-doom.sln",
+    "dotnet.defaultSolution": "unity-bloom-n-doom.slnx",
     "files.associations": {
         "*.embeddedhtml": "html",
         "plyconfig.json": "jsonc"
