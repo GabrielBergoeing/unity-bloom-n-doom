@@ -1,6 +1,9 @@
+using Mirror;
+using System;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public class Entity : NetworkBehaviour
 {
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -21,9 +24,27 @@ public class Entity : MonoBehaviour
 
     protected virtual void Update()
     {
-        //HandleCollisionDetection(); -> necesarry to add additional collision detectors? to discuss
-        stateMachine.UpdateActiveState();
+        if (!isServer && !isClient) return;
+
+        if (isServer)
+        {
+            stateMachine.UpdateActiveState();
+        }
+
+        if (isClient)
+        {
+            UpdateClient();
+        }
+
+        if (isLocalPlayer)
+        {
+            UpdateLocalPlayer();
+        }
     }
+
+    protected virtual void UpdateClient() { }
+
+    protected virtual void UpdateLocalPlayer() { }
 
     public void CurrentStateAnimationTrigger()
     {
@@ -31,5 +52,10 @@ public class Entity : MonoBehaviour
     }
 
     //Classical arcade-like movement, has no acceleration or force
-    public void SetVelocity(float xVelocity, float yVelocity) => rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+    public void SetVelocity(float xVelocity, float yVelocity)
+    {
+        if (!isServer) return;
+
+        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
+    }
 }

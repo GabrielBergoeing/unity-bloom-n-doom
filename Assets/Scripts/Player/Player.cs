@@ -1,3 +1,5 @@
+using Mirror;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -54,11 +56,11 @@ public class Player : Entity
 
     #region In-House Variables
     // Handles values to display anim facing dir
-    public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
-    public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
+    [SyncVar] public int xFacingDir { get; private set; } = 1; // 1 : Right, -1 : Left, 0 : horizontal
+    [SyncVar] public int yFacingDir { get; private set; } = 1; // 1 : Up, -1 : Down, 0 : vertical
 
     // Boolean flag that inidicates if player character can be controled
-    public bool canControl { get; private set; } = false;
+    [SyncVar] public bool canControl { get; private set; } = false;
 
     public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
     #endregion
@@ -68,6 +70,8 @@ public class Player : Entity
     {
         base.Awake();
         input = GetComponent<PlayerInput>();
+        input.enabled = false;
+
         vfx = GetComponentInChildren<Player_VFX>();
         tile = GetComponentInChildren<TileInteraction>();
         sfx = GetComponent<Player_SFX>();
@@ -115,25 +119,64 @@ public class Player : Entity
     }
 
     #region Public Functions
-    public void OnEnable() // Enable player control after spawn
+    //public void OnEnable() // Enable player control after spawn
+    //{
+    //    if (canControl) return;
+    //    FlipPlayerControlFlag();
+    //}
+
+    //public void OnDisable() // Disable player control
+    //{
+    //    if (!canControl) return;
+    //    FlipPlayerControlFlag();
+    //}
+
+    public void EnableControl()
     {
-        if (canControl) return;
-        FlipPlayerControlFlag();
+        if (isServer)
+            canControl = true;
     }
 
-    public void OnDisable() // Disable player control
+    public void DisableControl()
     {
-        if (!canControl) return;
-        FlipPlayerControlFlag();
+        if (isServer)
+            canControl = false;
     }
 
-    public void OnMovement(InputValue input)
+    public void OnMovement(InputValue inputValue)
     {
-        if (!canControl) 
-            moveInput = Vector2.zero;
-        moveInput = input.Get<Vector2>();
+        if (!isLocalPlayer) return;
 
+        Vector2 input = inputValue.Get<Vector2>();
+
+        if (!canControl)
+            input = Vector2.zero;
+
+        CmdSendMovement(input);
+    }
+
+    [Command]
+    void CmdSendMovement(Vector2 input)
+    {
+        if (!canControl)
+            input = Vector2.zero;
+
+        moveInput = input;
         DetermineFacingDir();
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+
+        input.enabled = true;
+        CmdSetControl(true);
+    }
+
+    [Command]
+    void CmdSetControl(bool value)
+    {
+        canControl = value;
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;
@@ -158,6 +201,8 @@ public class Player : Entity
 
     public void ApplyPushForce(Vector2 direction, float force)
     {
+        if (!isServer) return;
+
         if (rb != null)
         {
             RigidbodyType2D originalType = rb.bodyType;
@@ -173,6 +218,8 @@ public class Player : Entity
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!isServer) return;
+
         if (collision.gameObject == this.gameObject) return;
         
         Player otherPlayer = collision.gameObject.GetComponent<Player>();
@@ -206,6 +253,8 @@ public class Player : Entity
     #region First To Be Refactor
     public void DropCurrentItem(bool consume = false, bool thrown = false)
     {
+        if (!isServer) return;
+
         sfx.PlayOnRemove();
         var item = inventory.GetCurrentItem();
         if (item == null) return;
