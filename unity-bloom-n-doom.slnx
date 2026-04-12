@@ -15,6 +15,7 @@
   <Project Path="EncryptionTransportEditor.csproj" />
   <Project Path="com.rlabrecque.steamworks.net.editor.csproj" />
   <Project Path="Telepathy.csproj" />
+  <Project Path="ParrelSync.csproj" />
   <Project Path="Unity.InputSystem.RebindingUI.csproj" />
   <Project Path="Mirror.CompilerSymbols.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
