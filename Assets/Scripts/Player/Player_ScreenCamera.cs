@@ -42,7 +42,18 @@ public class Player_ScreenCamera : MonoBehaviour
     private void HandlePlayerJoined(PlayerInput obj)
     {
         totalPlayers = PlayerInput.all.Count;
-        SetupCamera();
+        bool isOnlineSession = NetworkServer.active || NetworkClient.active;
+
+        if (isOnlineSession)
+        {
+            // Online — each client sees only their own player fullscreen
+            cam.rect = new Rect(0, 0, 1, 1);
+        }
+        else
+        {
+            // Local — split screen based on player count
+            SetupCamera();
+        }
     }
 
     private void SetupCamera()
