@@ -5,7 +5,7 @@ using Steamworks;
 public class SteamLobby : MonoBehaviour
 {
     [Header("UI")]
-    public GameObject hostButton = null;
+    //public GameObject hostButton = null;
 
     private NetworkManager networkManager;
     private bool isClone = false;
@@ -21,30 +21,31 @@ public class SteamLobby : MonoBehaviour
     {
         networkManager = GetComponent<NetworkManager>();
 
-#if UNITY_EDITOR
-        // En el editor usamos KCP directamente, sin Steam
-        if (Application.dataPath.Contains("clone"))
-        {
-            isClone = true;
-            Debug.Log("--- MODO CLON ACTIVO: Conectando a localhost ---");
-            hostButton.SetActive(false);
-            Invoke(nameof(ConnectAsLocalClient), 1.5f);
-        }
-        else
-        {
-            Debug.Log("--- MODO EDITOR: Hosting con KCP ---");
-            // hostButton sigue activo para iniciar host manualmente
-        }
-#else
-        // BUILD: Usa Steam
-        if (!SteamManager.Initialized)
-        {
-            Debug.LogError("SteamManager no inicializado. Asegúrate de tener Steam abierto.");
-            return;
-        }
+    #if UNITY_EDITOR
+            // En el editor usamos KCP directamente, sin Steam
+            if (Application.dataPath.Contains("clone"))
+            {
+                isClone = true;
+                Debug.Log("--- MODO CLON ACTIVO: Conectando a localhost ---");
+                //hostButton.SetActive(false);
+                Invoke(nameof(ConnectAsLocalClient), 1.5f);
+            }
+            else
+            {
+                Debug.Log("--- MODO EDITOR: Hosting con KCP ---");
+                HostLobby();
+                // hostButton sigue activo para iniciar host manualmente
+            }
+    #else
+            // BUILD: Usa Steam
+            if (!SteamManager.Initialized)
+            {
+                Debug.LogError("SteamManager no inicializado. Asegúrate de tener Steam abierto.");
+                return;
+            }
 
-        InitSteamCallbacks();
-#endif
+            InitSteamCallbacks();
+    #endif
     }
 
     private void InitSteamCallbacks()
@@ -66,16 +67,16 @@ public class SteamLobby : MonoBehaviour
     {
         if (isClone) return;
 
-        hostButton.SetActive(false);
+        //hostButton.SetActive(false);
 
-#if UNITY_EDITOR
-        // En el editor solo iniciamos host con KCP
-        networkManager.StartHost();
-        Debug.Log("Host iniciado con KCP (editor).");
-#else
-        // BUILD: Creamos lobby en Steam
-        SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, networkManager.maxConnections);
-#endif
+    #if UNITY_EDITOR
+            // En el editor solo iniciamos host con KCP
+            networkManager.StartHost();
+            Debug.Log("Host iniciado con KCP (editor).");
+    #else
+            // BUILD: Creamos lobby en Steam
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, networkManager.maxConnections);
+    #endif
     }
 
     // --- CALLBACKS DE STEAM (Solo se ejecutan en la instancia principal) ---
@@ -84,7 +85,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (callback.m_eResult != EResult.k_EResultOK)
         {
-            hostButton.SetActive(true);
+            //hostButton.SetActive(true);
             return; 
         }
 
@@ -111,6 +112,6 @@ public class SteamLobby : MonoBehaviour
         
         networkManager.networkAddress = hostAddress;
         networkManager.StartClient();
-        hostButton.SetActive(false);
+        //hostButton.SetActive(false);
     }
 }

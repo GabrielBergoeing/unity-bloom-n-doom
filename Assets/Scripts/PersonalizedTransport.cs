@@ -72,6 +72,7 @@ public class PersonalizedTransport : Transport
         if (endpointToRemove != null)
         {
             connectedClients.Remove(endpointToRemove);
+            lastSeenTime.Remove(connectionId);
             OnServerDisconnected?.Invoke(connectionId);
             Debug.Log($"[Servidor] Cliente {connectionId} desconectado.");
         }
@@ -278,6 +279,12 @@ public class PersonalizedTransport : Transport
         }
         catch (SocketException ex)
         {
+
+            if (ex.NativeErrorCode == 10054)
+            {
+                // No imprimimos Warning para no spamear, el sistema de Timeout
+                return; 
+            }
             Debug.LogWarning($"[Servidor] Error de lectura: {ex.Message}");
         }
     }
