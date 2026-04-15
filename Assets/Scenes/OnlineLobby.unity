@@ -330,6 +330,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: __FARM MANAGER__
       objectReference: {fileID: 0}
+    - target: {fileID: 7950738963709284094, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -404,8 +408,9 @@ GameObject:
   - component: {fileID: 804933536}
   - component: {fileID: 804933538}
   - component: {fileID: 804933535}
-  - component: {fileID: 804933534}
   - component: {fileID: 804933539}
+  - component: {fileID: 804933541}
+  - component: {fileID: 804933534}
   - component: {fileID: 804933540}
   m_Layer: 0
   m_Name: Network Manager
@@ -556,8 +561,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cac4deab1ca38f448a6a3987af786eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorTransport: {fileID: 804933539}
+  editorTransport: {fileID: 804933541}
   buildTransport: {fileID: 804933534}
+--- !u!114 &804933541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804933533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 284b6b76deca8ff4dac1fa829e3a95b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 7777
+  timeoutDuration: 5
 --- !u!1 &925542017
 GameObject:
   m_ObjectHideFlags: 0
