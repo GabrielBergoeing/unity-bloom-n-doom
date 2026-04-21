@@ -37,8 +37,15 @@ public class Player_ActionState : PlayerState
     ){
         player.FlipPlayerControlFlag();
 
-        // The actual action performed (cut/plant/prepare/etc)
-        applyAction(tile.CurrentCell);
+        // Seguridad: si no tenemos tile o la acción es null no intentamos acceder y usamos Vector3Int.zero
+        Vector3Int cell = Vector3Int.zero;
+        if (tile != null)
+        {
+            cell = tile.CurrentCell;
+        }
+
+        if (applyAction != null)
+            applyAction(cell);
 
         // Animation time
         yield return new WaitForSeconds(duration);

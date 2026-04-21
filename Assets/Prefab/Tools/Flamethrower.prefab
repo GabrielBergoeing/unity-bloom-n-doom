@@ -173,6 +173,8 @@ GameObject:
   - component: {fileID: 4850354406917675611}
   - component: {fileID: 3627837808076152064}
   - component: {fileID: -1784246348449706347}
+  - component: {fileID: 2737277436737317538}
+  - component: {fileID: 1919431973951136032}
   m_Layer: 0
   m_Name: Flamethrower
   m_TagString: Untagged
@@ -210,6 +212,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   stackable: 0
   maxStackCount: 5
   itemId: 5
@@ -275,13 +280,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d94a98f5616d0d043ab657cecd73806d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickup: {fileID: 8509811695705940979}
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   firePrefab: {fileID: 187991493021349217, guid: fb48b5dc270d65b429391925ed90d613, type: 3}
   fireSpawnPoint: {fileID: 369885534356091158}
   fireRate: 0.001
   projectilesPerShot: 5
   spreadAngle: 30
-  maxAmmoSeconds: 10
 --- !u!114 &-1784246348449706347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +302,69 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   move: 
   useSound: tool_flamethrower
+--- !u!114 &2737277436737317538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7554891935492345296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 1911930576
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
+--- !u!114 &1919431973951136032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7554891935492345296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &9190479657412195208
 GameObject:
   m_ObjectHideFlags: 0

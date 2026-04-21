@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 41053308417357634}
   - component: {fileID: 4097611347718253741}
   - component: {fileID: -2447311335791371925}
+  - component: {fileID: 2119212259030821481}
   m_Layer: 0
   m_Name: Scissors
   m_TagString: Untagged
@@ -49,6 +50,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   stackable: 0
   maxStackCount: 5
   itemId: 6
@@ -120,6 +124,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   move: 
   useSound: tool_scissors
+--- !u!114 &2119212259030821481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3485547710261962795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 1344792316
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &7827267360818868134
 GameObject:
   m_ObjectHideFlags: 0

@@ -62,6 +62,9 @@ public class Player : Entity
     // Boolean flag that inidicates if player character can be controled
     [SyncVar] public bool canControl  = false;
 
+    [SyncVar(hook = nameof(OnItemChanged))]
+    public GameObject currentItem;
+
     public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
     #endregion
 
@@ -74,6 +77,10 @@ public class Player : Entity
 
         vfx = GetComponentInChildren<Player_VFX>();
         tile = GetComponentInChildren<TileInteraction>();
+        if (tile != null)
+        {
+            tile.player = this;
+        }
         sfx = GetComponent<Player_SFX>();
         inventory = GetComponent<HotbarSystem>();
 
@@ -155,14 +162,22 @@ public class Player : Entity
         CmdSendMovement(input);
     }
 
-    [Command]
-    void CmdSendMovement(Vector2 input)
+    public void OnShoot(UnityEngine.InputSystem.InputValue inputValue)
     {
-        if (!canControl)
-            input = Vector2.zero;
+        if (!isLocalPlayer) return;
 
-        moveInput = input;
-        DetermineFacingDir();
+        bool pressed = false;
+        try
+        {
+            pressed = inputValue.Get<float>() > 0f;
+        }
+        catch
+        {
+            try { pressed = inputValue.Get<bool>(); } catch { pressed = true; }
+        }
+
+        if (pressed)
+            TryShoot();
     }
 
     public override void OnStartLocalPlayer()
@@ -170,12 +185,6 @@ public class Player : Entity
         base.OnStartLocalPlayer();
         input.enabled = true;
         CmdSetControl(true);
-    }
-
-    [Command]
-    void CmdSetControl(bool value)
-    {
-        canControl = value;
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;
@@ -267,25 +276,125 @@ public class Player : Entity
 
         item.transform.parent = null;
         item.transform.position = transform.position;
+
+        currentItem = null;
     }
     #endregion
 
     #region Cheat Functions
     public void SpawnScissors()
     {
-        if (scissors != null)
-        {
-            Instantiate(scissors, transform.position, Quaternion.identity);
-        }
+        if (!isLocalPlayer) return;
+
+        CmdSpawnScissors();
     }
 
     public void SpawnFlamethrower()
     {
+        if (!isLocalPlayer) return;
+
+        CmdSpawnFlamethrower();
+    }
+
+    #endregion
+    void OnItemChanged(GameObject oldItem, GameObject newItem)
+    {
+        Transform hand = GetComponentInChildren<WeaponRotation>().transform;
+
+        if (oldItem != null)
+        {
+            oldItem.transform.SetParent(null);
+        }
+
+        if (newItem != null)
+        {
+            // El cliente propietario actualiza su hotbar localmente.
+            if (isLocalPlayer)
+            {
+                // HotbarSystem se encargará de parentear/activar el item en la ranura correcta
+                inventory.AddItem(newItem);
+            }
+            else
+            {
+                // Para visualización remota, sólo parentear al "hand" del jugador remoto
+                newItem.transform.SetParent(hand);
+                newItem.transform.localPosition = Vector3.zero;
+                newItem.transform.localRotation = Quaternion.identity;
+            }
+        }
+    }
+
+    public void TryShoot()
+    {
+        if (!isLocalPlayer) return;
+        CmdShootFlamethrower();
+    }
+
+    #region Commands
+    [Command]
+    void CmdSendMovement(Vector2 input)
+    {
+        if (!canControl)
+            input = Vector2.zero;
+
+        moveInput = input;
+        DetermineFacingDir();
+    }
+
+    [Command]
+    void CmdSetControl(bool value)
+    {
+        canControl = value;
+    }
+
+    [Command]
+    public void CmdPickItem(Pickup pickup)
+    {
+        if (pickup == null) return;
+
+        float dist = Vector2.Distance(transform.position, pickup.transform.position);
+        if (dist > 2f) return;
+
+        pickup.Pick(this);
+        currentItem = pickup.gameObject;
+    }
+
+    [Command]
+    public void CmdSetItem(GameObject item)
+    {
+        currentItem = item;
+    }
+
+    [Command]
+    public void CmdShootFlamethrower()
+    {
+        if (currentItem == null) return;
+
+        var flamethrower = currentItem.GetComponent<Flamethrower>();
         if (flamethrower != null)
         {
-            Instantiate(flamethrower, transform.position, Quaternion.identity);
+            flamethrower.ServerShoot();
+        }
+    }
+
+    [Command]
+    void CmdSpawnScissors()
+    {
+        if (scissors != null)
+        {
+            var obj = Instantiate(scissors, transform.position, Quaternion.identity);
+            NetworkServer.Spawn(obj);
+        }
+    }
+
+    [Command]
+    void CmdSpawnFlamethrower()
+    {
+        if (flamethrower != null)
+        {
+            var obj = Instantiate(flamethrower, transform.position, Quaternion.identity);
+            NetworkServer.Spawn(obj);
         }
     }
     #endregion
-
 }

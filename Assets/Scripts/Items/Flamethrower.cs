@@ -1,9 +1,10 @@
+using Mirror;
 using UnityEngine;
 
-public class Flamethrower : MonoBehaviour
+public class Flamethrower : NetworkBehaviour
 {
-    [SerializeField] private Pickup pickup;
-    [SerializeField] private GameObject firePrefab;
+    [SerializeField] private GameObject firePrefab;          // Prefab de gameplay (debe tener NetworkIdentity para spawnear)
+    [SerializeField] private GameObject fireVfxPrefab;       // Opcional: VFX solo visual (sin NetworkIdentity)
     [SerializeField] private Transform fireSpawnPoint;
 
     [Range(0.001f, 5f)]
@@ -15,11 +16,8 @@ public class Flamethrower : MonoBehaviour
     [Range(0f, 360f)]
     [SerializeField] private float spreadAngle = 30f;
 
-    [SerializeField] private float maxAmmoSeconds = 10f;
-    private float currentAmmo;
     private float nextFireTime;
-
-    private Player owner; // who currently holds it
+    private Player owner;
 
     public Items_SFX sfx { get; private set; }
 
@@ -30,80 +28,74 @@ public class Flamethrower : MonoBehaviour
 
     private void Start()
     {
-        pickup = GetComponent<Pickup>();
-        currentAmmo = maxAmmoSeconds;
-
-        pickup.OnPickup += (player) => owner = player;
-        pickup.OnDrop += (_) => owner = null;
+        var pickup = GetComponent<Pickup>();
+        if (pickup != null)
+        {
+            pickup.OnPickup += (p) => owner = p;
+            pickup.OnDrop += (_) => owner = null;
+        }
     }
 
-    private void Update()
+    [Server]
+    public void ServerShoot()
     {
-        if (owner == null) return; // not held by player
+        if (Time.time < nextFireTime) return;
 
-        bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
-
-        if (isFiring && currentAmmo > 0f)
+        // Seguridad: asegurarse de que tenemos lo necesario
+        if (firePrefab == null)
         {
-            currentAmmo -= Time.deltaTime;
-            if (currentAmmo < 0f) currentAmmo = 0f;
-
-            if (nextFireTime <= 0f)
-            {
-                Shoot();
-                nextFireTime = fireRate;
-            }
-            else
-            {
-                nextFireTime -= Time.deltaTime;
-            }
+            Debug.LogWarning("[Flamethrower] firePrefab no asignado. Abortando disparo.", this);
+            return;
         }
-        else
+        if (fireSpawnPoint == null)
         {
-            nextFireTime -= Time.deltaTime;
+            Debug.LogWarning("[Flamethrower] fireSpawnPoint no asignado. Abortando disparo.", this);
+            return;
         }
 
-        // Out of fuel — drop
-        if (currentAmmo <= 0f)
-        {
-            pickup.Consume(owner); 
-        }
+        nextFireTime = Time.time + fireRate;
+        Shoot();
     }
 
+    [Server]
     private void Shoot()
     {
-        if (sfx != null)
-        {
-            sfx.PlayOnUse();
-        }
-        
+        if (owner == null) return;
 
-        float angleStep = spreadAngle / (projectilesPerShot - 1);
-        float startAngle = -spreadAngle / 2;
+        if (sfx != null)
+            sfx.PlayOnUse();
+
+        if (projectilesPerShot <= 0) projectilesPerShot = 1;
+
+        float angleStep = (projectilesPerShot > 1) ? spreadAngle / (projectilesPerShot - 1) : 0f;
+        float startAngle = -spreadAngle / 2f;
 
         for (int i = 0; i < projectilesPerShot; i++)
         {
-            float currentAngle = startAngle + (angleStep * i);
-            Quaternion rotation =
-                fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
-            Vector2 ownerVelocity = Vector2.zero;
-            if (owner != null)
+            float angle = startAngle + angleStep * i;
+
+            // rot calculada correctamente
+            Quaternion rot = fireSpawnPoint.rotation * Quaternion.Euler(0f, 0f, angle);
+
+            GameObject fire = Instantiate(firePrefab, fireSpawnPoint.position, rot);
+            NetworkServer.Spawn(fire);
+
+            var fireScript = fire.GetComponent<Fire>();
+            if (fireScript != null && owner != null)
             {
-                ownerVelocity = owner.rb.linearVelocity;
-            }   
-            GameObject fireInstance = Instantiate(firePrefab, fireSpawnPoint.position, rotation);
-            
-            //Esto es feito pero funciona
-            Fire fireScript = fireInstance.GetComponent<Fire>();
-            if (fireScript != null)
-            {
-                fireScript.SetInheritedVelocity(ownerVelocity);
-            }
-            Watergun watergunScript = fireInstance.GetComponent<Watergun>();
-            if (watergunScript != null)
-            {
-                watergunScript.SetInheritedVelocity(ownerVelocity);
+                fireScript.SetInheritedVelocity(owner.rb != null ? owner.rb.linearVelocity : Vector2.zero);
             }
         }
+
+        // Aviso visual a clientes (si hay prefab VFX no networked)
+        if (fireVfxPrefab != null)
+            RpcPlayVfx(fireSpawnPoint.position, fireSpawnPoint.rotation);
+    }
+
+    [ClientRpc]
+    void RpcPlayVfx(Vector3 pos, Quaternion rot)
+    {
+        if (fireVfxPrefab == null) return;
+        Instantiate(fireVfxPrefab, pos, rot);
     }
 }
