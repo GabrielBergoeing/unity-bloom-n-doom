@@ -28,19 +28,32 @@ public class UI_CharacterSelector : MonoBehaviour
 
     // Internal
     private PlayerInput player;
+    private bool remoteOccupied;
     public PlayerInput AssignedPlayer => player;
     private int index = 0;
     private float cooldown;
     private System.Action<UI_CharacterSelector> notify;
 
-    public bool IsOccupied => player != null;
+    public bool IsOccupied => player != null || remoteOccupied;
     public bool IsLocked { get; private set; }
-    public CharacterData SelectedCharacter => IsLocked ? characterDB.characters[index] : null;
+    public int CurrentIndex => index;
+    public int CharacterCount => characterDB != null && characterDB.characters != null ? characterDB.characters.Length : 0;
+    public CharacterData SelectedCharacter
+    {
+        get
+        {
+            if (!IsLocked || characterDB == null || characterDB.characters == null || characterDB.characters.Length == 0)
+                return null;
+
+            return characterDB.characters[Mathf.Clamp(index, 0, characterDB.characters.Length - 1)];
+        }
+    }
 
     // ========================= ASSIGNMENT =========================
 
     public void AssignPlayer(PlayerInput input, System.Action<UI_CharacterSelector> callback)
     {
+        remoteOccupied = false;
         player = input;
         player.SwitchCurrentActionMap("UI");
 
@@ -56,11 +69,53 @@ public class UI_CharacterSelector : MonoBehaviour
     {
         UnregisterControls();
         player = null;
+        remoteOccupied = false;
         IsLocked = false;
         notify = null;
         index = 0; // reset character cycling
 
         SetEmptyVisuals();
+    }
+
+    public void SetRemoteSelection(int selectedIndex, bool locked)
+    {
+        if (characterDB == null || characterDB.characters == null || characterDB.characters.Length == 0)
+        {
+            SetEmptyVisuals();
+            return;
+        }
+
+        UnregisterControls();
+        player = null;
+        remoteOccupied = true;
+        IsLocked = locked;
+
+        int count = characterDB.characters.Length;
+        index = (selectedIndex % count + count) % count;
+
+        SetActiveVisuals();
+        UpdateDisplay(true);
+    }
+
+    public void ClearRemoteSelection()
+    {
+        if (player != null)
+            return;
+
+        remoteOccupied = false;
+        IsLocked = false;
+        index = 0;
+        SetEmptyVisuals();
+    }
+
+    public CharacterData GetCharacterAtIndex(int selectedIndex)
+    {
+        if (characterDB == null || characterDB.characters == null || characterDB.characters.Length == 0)
+            return null;
+
+        int count = characterDB.characters.Length;
+        int safeIndex = (selectedIndex % count + count) % count;
+        return characterDB.characters[safeIndex];
     }
 
     // ========================= INPUT =========================

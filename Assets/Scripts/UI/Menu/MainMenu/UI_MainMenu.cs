@@ -9,6 +9,12 @@ public class UI_MainMenu : MonoBehaviour
         GameManager.instance.ChangeScene("PlayMenu");
     }
 
+    public void PlayOfflineBTN()
+    {
+        UI.sfx.PlayOnConfirm();
+        GameManager.instance.ChangeScene("MatchMenu");
+    }
+
     public void SettingsBTN()
     {
         UI.sfx.PlayOnToggle();

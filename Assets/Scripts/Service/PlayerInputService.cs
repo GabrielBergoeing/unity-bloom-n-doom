@@ -15,6 +15,10 @@ public class PlayerInputService : MonoBehaviour
     private readonly List<PlayerConfiguration> configs = new();
     public IReadOnlyList<PlayerConfiguration> Configs => configs;
 
+    // Online character selection snapshot (slot order)
+    private readonly List<CharacterData> onlineSelectedCharacters = new();
+    public IReadOnlyList<CharacterData> OnlineSelectedCharacters => onlineSelectedCharacters;
+
     public InputDevice LastUsedDevice { get; private set; }
 
     private void Awake()
@@ -203,6 +207,19 @@ public class PlayerInputService : MonoBehaviour
     public void ResetForGameplay()
     {
         players.Clear();
+    }
+
+    public void StoreOnlineSelections(IReadOnlyList<CharacterData> selectedCharacters)
+    {
+        onlineSelectedCharacters.Clear();
+
+        if (selectedCharacters == null)
+            return;
+
+        for (int i = 0; i < selectedCharacters.Count; i++)
+            onlineSelectedCharacters.Add(selectedCharacters[i]);
+
+        Debug.Log($"[PlayerInputService] Stored {onlineSelectedCharacters.Count} online character selections.");
     }
 
     // ======================================================
