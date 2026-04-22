@@ -4,6 +4,14 @@ using Steamworks;
 
 public class SteamLobby : MonoBehaviour
 {
+    private enum EditorStartMode
+    {
+        AutoByClone,
+        Host,
+        Join,
+        Manual
+    }
+
     [Header("UI")]
     //public GameObject hostButton = null;
 
@@ -13,6 +21,8 @@ public class SteamLobby : MonoBehaviour
     [SerializeField] private Transport personalizedTransport;
     [Tooltip("IP address of the host when running as client in editor. Leave as 127.0.0.1 for localhost.")]
     [SerializeField] private string remoteHostAddress = "127.0.0.1";
+    [Tooltip("How this instance starts when running in editor.")]
+    [SerializeField] private EditorStartMode editorStartMode = EditorStartMode.AutoByClone;
 
     private NetworkManager networkManager;
     private bool isClone = false;
@@ -36,19 +46,37 @@ public class SteamLobby : MonoBehaviour
                 Debug.Log("[SteamLobby] Using PersonalizedTransport for editor online test.");
             }
 
-            // En el editor usamos KCP directamente, sin Steam
-            if (Application.dataPath.Contains("clone"))
+            if (editorStartMode == EditorStartMode.Host)
             {
-                isClone = true;
-                Debug.Log("--- MODO CLON ACTIVO: Conectando a " + remoteHostAddress + " ---");
-                //hostButton.SetActive(false);
+                Debug.Log("--- MODO EDITOR: HOST FORZADO ---");
+                HostLobby();
+            }
+            else if (editorStartMode == EditorStartMode.Join)
+            {
+                isClone = true; // evita que HostLobby inicie por accidente en esta instancia
+                Debug.Log("--- MODO EDITOR: JOIN FORZADO a " + remoteHostAddress + " ---");
                 Invoke(nameof(ConnectAsLocalClient), 1.5f);
             }
-            else
+            else if (editorStartMode == EditorStartMode.Manual)
             {
-                Debug.Log("--- MODO EDITOR: Hosting ---");
-                HostLobby();
-                // hostButton sigue activo para iniciar host manualmente
+                Debug.Log("--- MODO EDITOR: MANUAL (sin auto host/join) ---");
+            }
+            else // AutoByClone
+            {
+                // En el editor usamos KCP directamente, sin Steam
+                if (Application.dataPath.Contains("clone"))
+                {
+                    isClone = true;
+                    Debug.Log("--- MODO CLON ACTIVO: Conectando a " + remoteHostAddress + " ---");
+                    //hostButton.SetActive(false);
+                    Invoke(nameof(ConnectAsLocalClient), 1.5f);
+                }
+                else
+                {
+                    Debug.Log("--- MODO EDITOR: Hosting ---");
+                    HostLobby();
+                    // hostButton sigue activo para iniciar host manualmente
+                }
             }
     #else
             // BUILD: Usa Steam
