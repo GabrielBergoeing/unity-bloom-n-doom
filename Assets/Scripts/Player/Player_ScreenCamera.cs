@@ -1,5 +1,4 @@
 using Mirror;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +6,7 @@ using UnityEngine.InputSystem;
 public class Player_ScreenCamera : MonoBehaviour
 {
     private Camera cam;
+    private Player ownerPlayer;
     private PlayerInput player;  // Now stored
     private int index;
     private int totalPlayers;
@@ -15,6 +15,7 @@ public class Player_ScreenCamera : MonoBehaviour
     private void Awake()
     {
         cam = GetComponent<Camera>();
+        ownerPlayer = GetComponentInParent<Player>();
 
         // Wait for PlayerInput to exist
         StartCoroutine(WaitForPlayerInput());
@@ -58,14 +59,45 @@ public class Player_ScreenCamera : MonoBehaviour
 
         index = player.playerIndex;
         totalPlayers = PlayerInput.all.Count;
-        cam.depth = index;
+
+        if (cam != null)
+            cam.depth = index;
 
         SetupCamera();
+    }
+
+    private void Update()
+    {
+        RefreshOnlineCameraOwnership();
+    }
+
+    private void RefreshOnlineCameraOwnership()
+    {
+        if (cam == null)
+            return;
+
+        bool isOnlineSession = NetworkClient.active || NetworkServer.active;
+        if (!isOnlineSession)
+        {
+            if (!cam.enabled)
+                cam.enabled = true;
+            return;
+        }
+
+        bool shouldEnable = ownerPlayer != null && ownerPlayer.isLocalPlayer;
+        if (cam.enabled != shouldEnable)
+            cam.enabled = shouldEnable;
+
+        if (shouldEnable)
+            cam.rect = new Rect(0, 0, 1, 1);
     }
 
     private void HandlePlayerJoined(PlayerInput obj)
     {
         if (this == null || cam == null)
+            return;
+
+        if (!cam.enabled)
             return;
 
         totalPlayers = PlayerInput.all.Count;
