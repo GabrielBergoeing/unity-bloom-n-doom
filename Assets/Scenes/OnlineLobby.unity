@@ -6309,6 +6309,10 @@ PrefabInstance:
       value: Network Manager
       objectReference: {fileID: 0}
     - target: {fileID: 8716989671445582707, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+      propertyPath: editorStartMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716989671445582707, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: remoteHostAddress
       value: 
       objectReference: {fileID: 0}
