@@ -10,6 +10,7 @@ public class Player_ScreenCamera : MonoBehaviour
     private PlayerInput player;  // Now stored
     private int index;
     private int totalPlayers;
+    private bool isSubscribed;
 
     private void Awake()
     {
@@ -20,7 +21,30 @@ public class Player_ScreenCamera : MonoBehaviour
 
         // Update camera layout when new players join
         if (PlayerInputManager.instance != null)
+        {
             PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
+            isSubscribed = true;
+        }
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromPlayerJoined();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromPlayerJoined();
+    }
+
+    private void UnsubscribeFromPlayerJoined()
+    {
+        if (!isSubscribed) return;
+
+        if (PlayerInputManager.instance != null)
+            PlayerInputManager.instance.onPlayerJoined -= HandlePlayerJoined;
+
+        isSubscribed = false;
     }
 
     private System.Collections.IEnumerator WaitForPlayerInput()
@@ -41,6 +65,9 @@ public class Player_ScreenCamera : MonoBehaviour
 
     private void HandlePlayerJoined(PlayerInput obj)
     {
+        if (this == null || cam == null)
+            return;
+
         totalPlayers = PlayerInput.all.Count;
         bool isOnlineSession = NetworkServer.active || NetworkClient.active;
 

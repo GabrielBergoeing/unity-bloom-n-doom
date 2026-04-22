@@ -51,6 +51,21 @@ public class PlayerInputService : MonoBehaviour
         InputSystem.onEvent -= OnAnyInputEvent;
     }
 
+    private void OnDestroy()
+    {
+        if (PlayerInputManager.instance != null)
+        {
+            PlayerInputManager.instance.onPlayerJoined -= HandlePlayerJoined;
+            PlayerInputManager.instance.onPlayerLeft -= HandlePlayerLeft;
+        }
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i] != null)
+                players[i].onControlsChanged -= OnControlsChanged;
+        }
+    }
+
     // ======================================================
     //  GLOBAL DEVICE TRACKING
     // ======================================================
