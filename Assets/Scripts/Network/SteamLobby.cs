@@ -7,6 +7,13 @@ public class SteamLobby : MonoBehaviour
     [Header("UI")]
     //public GameObject hostButton = null;
 
+    [Header("Editor Online Test (PersonalizedTransport)")]
+    [Tooltip("Enable to bypass KCP/Steam and use PersonalizedTransport for real internet testing in the editor.")]
+    [SerializeField] private bool usePersonalizedTransport = false;
+    [SerializeField] private Transport personalizedTransport;
+    [Tooltip("IP address of the host when running as client in editor. Leave as 127.0.0.1 for localhost.")]
+    [SerializeField] private string remoteHostAddress = "127.0.0.1";
+
     private NetworkManager networkManager;
     private bool isClone = false;
 
@@ -22,17 +29,24 @@ public class SteamLobby : MonoBehaviour
         networkManager = GetComponent<NetworkManager>();
 
     #if UNITY_EDITOR
+            if (usePersonalizedTransport && personalizedTransport != null)
+            {
+                Transport.active = personalizedTransport;
+                networkManager.transport = personalizedTransport;
+                Debug.Log("[SteamLobby] Using PersonalizedTransport for editor online test.");
+            }
+
             // En el editor usamos KCP directamente, sin Steam
             if (Application.dataPath.Contains("clone"))
             {
                 isClone = true;
-                Debug.Log("--- MODO CLON ACTIVO: Conectando a localhost ---");
+                Debug.Log("--- MODO CLON ACTIVO: Conectando a " + remoteHostAddress + " ---");
                 //hostButton.SetActive(false);
                 Invoke(nameof(ConnectAsLocalClient), 1.5f);
             }
             else
             {
-                Debug.Log("--- MODO EDITOR: Hosting con KCP ---");
+                Debug.Log("--- MODO EDITOR: Hosting ---");
                 HostLobby();
                 // hostButton sigue activo para iniciar host manualmente
             }
@@ -58,8 +72,9 @@ public class SteamLobby : MonoBehaviour
 
     private void ConnectAsLocalClient()
     {
-        Debug.Log("Clon intentando conectar a localhost via KCP...");
-        networkManager.networkAddress = "localhost";
+        string address = usePersonalizedTransport ? remoteHostAddress : "localhost";
+        Debug.Log($"Clon intentando conectar a {address}...");
+        networkManager.networkAddress = address;
         networkManager.StartClient();
     }
 
