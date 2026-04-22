@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &18318841 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2733686564342138484, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+  m_PrefabInstance: {fileID: 7903998423662226760}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 284b6b76deca8ff4dac1fa829e3a95b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &175749717
 GameObject:
   m_ObjectHideFlags: 0
@@ -6296,6 +6307,18 @@ PrefabInstance:
     - target: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: m_Name
       value: Network Manager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716989671445582707, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+      propertyPath: remoteHostAddress
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716989671445582707, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+      propertyPath: personalizedTransport
+      value: 
+      objectReference: {fileID: 18318841}
+    - target: {fileID: 8716989671445582707, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+      propertyPath: usePersonalizedTransport
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8733165570888992146, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: m_LocalPosition.x
