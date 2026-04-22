@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: -7928697207847555143}
   - component: {fileID: -7833472512301466212}
   - component: {fileID: 7041601999168958533}
+  - component: {fileID: -113070877952115539}
   m_Layer: 9
   m_Name: JohnPlayer
   m_TagString: Player
@@ -80,6 +81,7 @@ MonoBehaviour:
   xFacingDir: 1
   yFacingDir: 1
   canControl: 0
+  currentItem: {fileID: 0}
   pickupsInRange: []
 --- !u!114 &5361350347888594117
 MonoBehaviour:
@@ -93,6 +95,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae79373ed263a2409823bf7a5dfebd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   holdingDistance: 0.1
 --- !u!114 &8825632466125325945
 MonoBehaviour:
@@ -307,6 +312,24 @@ MonoBehaviour:
   syncInterval: 0
   clientAuthority: 0
   animator: {fileID: 7778674772011878361}
+--- !u!114 &-113070877952115539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f12e607fabde10488cd32c4dd28924a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  pingInterval: 0.5
+  maxWindow: 50
+  showHUD: 1
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0
