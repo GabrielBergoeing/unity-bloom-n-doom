@@ -1,15 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 
 /// <summary>
-/// Monitor de métricas de red (RTT / jitter / pérdida aproximada) y HUD en pantalla.
+/// Monitor de mï¿½tricas de red (RTT / jitter / pï¿½rdida aproximada) y HUD en pantalla.
 /// - Colocar este componente en el prefab del `Player` (tiene que ser un NetworkBehaviour con autoridad del cliente).
-/// - Sólo se inicia para el `localPlayer`.
-/// - Mide RTT enviando pings al servidor vía [Command] y recibiendo la respuesta por [TargetRpc].
+/// - Sï¿½lo se inicia para el `localPlayer`.
+/// - Mide RTT enviando pings al servidor vï¿½a [Command] y recibiendo la respuesta por [TargetRpc].
 /// </summary>
 public class NetworkMetrics : NetworkBehaviour
 {
@@ -17,11 +19,24 @@ public class NetworkMetrics : NetworkBehaviour
     [Tooltip("Intervalo entre pings (segundos)")]
     public float pingInterval = 0.5f;
 
-    [Tooltip("Número máximo de pings a mantener en la ventana de cálculo")]
+    [Tooltip("Nï¿½mero mï¿½ximo de pings a mantener en la ventana de cï¿½lculo")]
     public int maxWindow = 50;
 
     [Tooltip("Mostrar HUD al iniciar (puedes ocultarlo con ToggleHUD)")]
     public bool showHUD = true;
+
+    [Header("CSV Export")]
+    [Tooltip("Exportar automÃ¡ticamente al desconectar")]
+    public bool autoExportOnStop = true;
+
+    [Tooltip("Tecla para exportar CSV manualmente")]
+    public KeyCode exportKey = KeyCode.F8;
+
+    [Tooltip("Tecla para iniciar/detener la captura de mÃ©tricas")]
+    public KeyCode toggleKey = KeyCode.F7;
+
+    [Tooltip("Iniciar captura automÃ¡ticamente al conectar (si false, usa la tecla para empezar)")]
+    public bool autoStart = false;
 
     // UI
     private GameObject canvasGO;
@@ -37,7 +52,24 @@ public class NetworkMetrics : NetworkBehaviour
 
     private readonly Queue<PingEntry> window = new();
 
+    // CSV sample buffer
+    private struct MetricSample
+    {
+        public DateTime timestamp;
+        public double rttLastMs;
+        public double rttAvgMs;
+        public double jitterMs;
+        public double lossPercent;
+        public int windowSize;
+        public string mode;
+        public string serverAddress;
+    }
+
+    private readonly List<MetricSample> csvBuffer = new();
+    private string lastExportPath = null;
+
     private Coroutine pingCoroutine;
+    private bool isRecording = false;
 
     // stats cached
     private double lastRtt = 0;
@@ -55,7 +87,10 @@ public class NetworkMetrics : NetworkBehaviour
         base.OnStartLocalPlayer();
 
         CreateHud();
-        pingCoroutine = StartCoroutine(PingLoop());
+        if (autoStart)
+            StartRecording();
+        else
+            UpdateHud(); // show initial state
     }
 
     public override void OnStopClient()
@@ -69,6 +104,28 @@ public class NetworkMetrics : NetworkBehaviour
         StopAndCleanup();
     }
 
+    public void StartRecording()
+    {
+        if (isRecording) return;
+        isRecording = true;
+        pingCoroutine = StartCoroutine(PingLoop());
+        Debug.Log("[NetworkMetrics] Recording started.");
+        UpdateHud();
+    }
+
+    public void StopRecording()
+    {
+        if (!isRecording) return;
+        isRecording = false;
+        if (pingCoroutine != null)
+        {
+            StopCoroutine(pingCoroutine);
+            pingCoroutine = null;
+        }
+        Debug.Log("[NetworkMetrics] Recording stopped.");
+        UpdateHud();
+    }
+
     void StopAndCleanup()
     {
         if (pingCoroutine != null)
@@ -76,6 +133,10 @@ public class NetworkMetrics : NetworkBehaviour
             StopCoroutine(pingCoroutine);
             pingCoroutine = null;
         }
+        isRecording = false;
+
+        if (autoExportOnStop && csvBuffer.Count > 0)
+            ExportToCsv();
 
         if (canvasGO != null)
         {
@@ -83,6 +144,18 @@ public class NetworkMetrics : NetworkBehaviour
             canvasGO = null;
             infoText = null;
         }
+    }
+
+    void Update()
+    {
+        if (!isLocalPlayer) return;
+        if (Input.GetKeyDown(toggleKey))
+        {
+            if (isRecording) StopRecording();
+            else StartRecording();
+        }
+        if (Input.GetKeyDown(exportKey))
+            ExportToCsv();
     }
 
     void CreateHud()
@@ -107,7 +180,7 @@ public class NetworkMetrics : NetworkBehaviour
         Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         if (font == null)
         {
-            // Fallback: crear una fuente dinámica a partir de fuentes del sistema.
+            // Fallback: crear una fuente dinï¿½mica a partir de fuentes del sistema.
             font = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Segoe UI", "Roboto", "Sans Serif" }, 14);
         }
 
@@ -180,6 +253,7 @@ public class NetworkMetrics : NetworkBehaviour
         }
 
         ComputeStats();
+        RecordSample();
         UpdateHud();
     }
 
@@ -230,6 +304,81 @@ public class NetworkMetrics : NetworkBehaviour
         lossPercent = total > 0 ? ((double)(total - recv) / total) * 100.0 : 0;
     }
 
+    void RecordSample()
+    {
+        string addr = NetworkManager.singleton != null && !string.IsNullOrWhiteSpace(NetworkManager.singleton.networkAddress)
+            ? NetworkManager.singleton.networkAddress
+            : "(no address)";
+        string mode = NetworkServer.active ? "Host/Server" : (NetworkClient.isConnected ? "Client" : "Offline");
+
+        csvBuffer.Add(new MetricSample
+        {
+            timestamp    = DateTime.Now,
+            rttLastMs    = lastRtt,
+            rttAvgMs     = avgRtt,
+            jitterMs     = jitterMs,
+            lossPercent  = lossPercent,
+            windowSize   = window.Count,
+            mode         = mode,
+            serverAddress = addr
+        });
+    }
+
+    /// <summary>
+    /// Exports all buffered samples to a CSV file in Application.persistentDataPath.
+    /// Can also be called from editor scripts or tests.
+    /// </summary>
+    public string ExportToCsv()
+    {
+        if (csvBuffer.Count == 0)
+        {
+            Debug.LogWarning("[NetworkMetrics] No samples to export.");
+            return null;
+        }
+
+        string dir = Application.persistentDataPath;
+        string fileName = $"NetworkMetrics_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        string path = Path.Combine(dir, fileName);
+
+        try
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Timestamp,Mode,ServerAddress,RTT_Last_ms,RTT_Avg_ms,Jitter_ms,Loss_pct,WindowSize");
+
+            foreach (var s in csvBuffer)
+            {
+                sb.AppendLine(string.Join(",",
+                    s.timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    EscapeCsv(s.mode),
+                    EscapeCsv(s.serverAddress),
+                    s.rttLastMs.ToString("F2"),
+                    s.rttAvgMs.ToString("F2"),
+                    s.jitterMs.ToString("F2"),
+                    s.lossPercent.ToString("F2"),
+                    s.windowSize.ToString()));
+            }
+
+            File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+            lastExportPath = path;
+            Debug.Log($"[NetworkMetrics] Exported {csvBuffer.Count} samples -> {path}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[NetworkMetrics] CSV export failed: {ex.Message}");
+            return null;
+        }
+
+        return path;
+    }
+
+    private static string EscapeCsv(string value)
+    {
+        if (value == null) return "";
+        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
+    }
+
     void UpdateHud()
     {
         if (infoText == null) return;
@@ -239,33 +388,37 @@ public class NetworkMetrics : NetworkBehaviour
             ? NetworkManager.singleton.networkAddress
             : "(no address)";
 
-        // También mostrar el id de conexión si está disponible
-        // Mirror no expone connectionId públicamente en NetworkConnectionToServer.
+        // Tambiï¿½n mostrar el id de conexiï¿½n si estï¿½ disponible
+        // Mirror no expone connectionId pï¿½blicamente en NetworkConnectionToServer.
         // Usamos NetworkConnection.LocalConnectionId si es local, o mostramos "(no disponible)".
         string connIdStr = "(no disponible)";
         if (NetworkClient.connection != null)
         {
-            // Si es una conexión local, usamos el valor constante.
+            // Si es una conexiï¿½n local, usamos el valor constante.
             if (NetworkClient.connection is NetworkConnectionToServer)
                 connIdStr = NetworkConnection.LocalConnectionId.ToString();
         }
 
         string mode = NetworkServer.active ? "Host/Server" : (NetworkClient.isConnected ? "Client" : "Offline");
 
+        string recStatus = isRecording ? "RECORDING" : "STOPPED";
+
         infoText.text =
-            $"Network metrics ({mode})\n" +
+            $"Network metrics ({mode})  [{recStatus}]\n" +
             $"Server: {addr} (connId: {connIdStr})\n\n" +
             $"RTT last: {lastRtt:F1} ms\n" +
             $"RTT avg:  {avgRtt:F1} ms\n" +
             $"Jitter:   {jitterMs:F1} ms\n" +
             $"Loss:     {lossPercent:F1} %\n" +
-            $"Window:   {window.Count} samples\n\n" +
+            $"Window:   {window.Count} samples  |  Recorded: {csvBuffer.Count}\n\n" +
             $"Ping interval: {pingInterval:F2}s\n" +
             $"SentRate (NM): {NetworkManager.singleton?.sendRate ?? 0} Hz\n" +
-            $"Time: {DateTime.Now:HH:mm:ss}";
+            $"Time: {DateTime.Now:HH:mm:ss}\n" +
+            $"[{toggleKey}] {(isRecording ? "Stop" : "Start")} recording  |  [{exportKey}] Export CSV" +
+            (lastExportPath != null ? $"\nLast export: {Path.GetFileName(lastExportPath)}" : "");
     }
 
-    // utilidad pública para alternar HUD en runtime
+    // utilidad pï¿½blica para alternar HUD en runtime
     public void ToggleHUD(bool enabled)
     {
         showHUD = enabled;
