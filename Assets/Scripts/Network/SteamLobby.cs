@@ -7,15 +7,13 @@ public class SteamLobby : MonoBehaviour
     public enum NetworkMode
     {
         Steam,          // Usa FizzySteamworks + lobbies de Steam
-        DirectHost,     // Host directo con el transporte elegido (sin Steam)
-        DirectJoin,     // Join directo a remoteHostAddress con el transporte elegido
-        AutoByClone,    // Host si es la instancia principal, Join si es clone de ParrelSync
-        Manual          // No hace nada al Start; HostLobby() se llama desde otro script/botón
+        Host,     // Host directo con el transporte elegido (sin Steam)
+        Join     // Join directo a remoteHostAddress con el transporte elegido
     }
 
     [Header("Modo de red")]
     [Tooltip("Elige cómo se comporta esta escena al entrar. Funciona igual en editor y en build.")]
-    [SerializeField] private NetworkMode networkMode = NetworkMode.AutoByClone;
+    [SerializeField] private NetworkMode networkMode = NetworkMode.Host;
 
     [Header("Transporte")]
     [Tooltip("Transporte que se activará al iniciar. Si es null, no se toca el transporte activo.")]
@@ -50,33 +48,15 @@ public class SteamLobby : MonoBehaviour
                 StartSteam();
                 break;
 
-            case NetworkMode.DirectHost:
-                Debug.Log("[SteamLobby] Modo DirectHost.");
+            case NetworkMode.Host:
+                Debug.Log("[SteamLobby] Modo Host.");
                 HostDirect();
                 break;
 
-            case NetworkMode.DirectJoin:
+            case NetworkMode.Join:
                 preventHosting = true;
-                Debug.Log($"[SteamLobby] Modo DirectJoin → {remoteHostAddress}");
+                Debug.Log($"[SteamLobby] Modo Join → {remoteHostAddress}");
                 Invoke(nameof(JoinDirect), joinDelay);
-                break;
-
-            case NetworkMode.AutoByClone:
-                if (Application.dataPath.Contains("clone"))
-                {
-                    preventHosting = true;
-                    Debug.Log($"[SteamLobby] AutoByClone: clone detectado → Join a {remoteHostAddress}");
-                    Invoke(nameof(JoinDirect), joinDelay);
-                }
-                else
-                {
-                    Debug.Log("[SteamLobby] AutoByClone: instancia principal → Host.");
-                    HostDirect();
-                }
-                break;
-
-            case NetworkMode.Manual:
-                Debug.Log("[SteamLobby] Modo Manual: esperando llamada externa a HostLobby().");
                 break;
         }
     }

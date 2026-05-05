@@ -9,9 +9,17 @@ public class PersonalizedTransport : Transport
 {
     public ushort port = 7777;
 
+    private static readonly byte[] ConnectHelloPacket = { (byte)'B', (byte)'N', (byte)'D', 1 };
+    private static readonly byte[] ConnectAckPacket = { (byte)'B', (byte)'N', (byte)'D', 2 };
+
     // --- VARIABLES DEL CLIENTE ---
     private UdpClient client; 
     private IPEndPoint serverEndPoint; 
+    private bool clientHandshakeComplete;
+    private float nextHandshakeAttemptTime;
+
+    [SerializeField]
+    private float handshakeRetryInterval = 0.5f;
 
     // --- VARIABLES DEL SERVIDOR ---
     private UdpClient server; 
@@ -24,8 +32,6 @@ public class PersonalizedTransport : Transport
     private float timeoutDuration = 5f; // Tiempo en segundos para considerar a un cliente desconectado por inactividad
 
     private int nextConnectionId = 1; 
-
-    private bool connectionPending = false;
 
     // Indica a Mirror que este transporte está disponible para usarse
     public override bool Available() => true;
@@ -95,6 +101,7 @@ public class PersonalizedTransport : Transport
             server.Close();
             server = null;
             connectedClients.Clear();
+            lastSeenTime.Clear();
             Debug.Log("[Servidor] Apagado.");
         }
     }
@@ -112,7 +119,7 @@ public class PersonalizedTransport : Transport
     // LÓGICA DEL CLIENTE
     // ========================================================================
 
-    public override bool ClientConnected() => client != null;
+    public override bool ClientConnected() => client != null && clientHandshakeComplete;
 
     public override void ClientConnect(string address) 
     {
@@ -137,15 +144,10 @@ public class PersonalizedTransport : Transport
         // 2. Inicializamos y VINCULAMOS el socket directamente
         client = new UdpClient();
         client.Connect(serverEndPoint); // <--- ESTO ES NUEVO Y CRUCIAL
+        clientHandshakeComplete = false;
+        nextHandshakeAttemptTime = Time.unscaledTime;
         
         Debug.Log($"[Cliente] Socket vinculado a {serverEndPoint.Address}:{port}...");
-        
-        // 3. Avisamos a Mirror
-
-        connectionPending = true; // Esto es ante de hacer el invoke, por temas de tiempos de ejecución
-
-        //OnClientConnected?.Invoke();
-        //Debug.Log("[Cliente] Conectado. Aviso enviado a Mirror.");
     }
 
     
@@ -164,6 +166,7 @@ public class PersonalizedTransport : Transport
         {
             client.Close();
             client = null;
+            clientHandshakeComplete = false;
             OnClientDisconnected?.Invoke();
             Debug.Log("[Cliente] Desconectado.");
         }
@@ -195,13 +198,12 @@ public class PersonalizedTransport : Transport
         // Si el cliente no está conectado, no hacemos nada
         if (client == null) return;
 
-
-        if (connectionPending) //Conexiones pendientes
+        if (!clientHandshakeComplete && Time.unscaledTime >= nextHandshakeAttemptTime)
         {
-            connectionPending = false;
-            OnClientConnected?.Invoke();
-            Debug.Log("[Cliente] Conexión notificada a Mirror en un nuevo frame.");
+            SendRaw(client, ConnectHelloPacket);
+            nextHandshakeAttemptTime = Time.unscaledTime + handshakeRetryInterval;
         }
+
         try
         {
             // Mientras haya mensajes esperando en el buzón...
@@ -213,6 +215,24 @@ public class PersonalizedTransport : Transport
                 
                 // ¡Leemos los bytes crudos de internet!
                 byte[] data = client.Receive(ref sender);
+
+                if (IsControlPacket(data, ConnectAckPacket))
+                {
+                    if (!clientHandshakeComplete)
+                    {
+                        clientHandshakeComplete = true;
+                        OnClientConnected?.Invoke();
+                        Debug.Log("[Cliente] Conexión confirmada por el servidor.");
+                    }
+
+                    continue;
+                }
+
+                if (!clientHandshakeComplete)
+                {
+                    Debug.LogWarning("[Cliente] Paquete recibido antes del handshake; ignorando.");
+                    continue;
+                }
 
                 // Convertimos el byte[] al ArraySegment que Mirror entiende
                 ArraySegment<byte> segment = new ArraySegment<byte>(data);
@@ -256,21 +276,34 @@ public class PersonalizedTransport : Transport
                 IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = server.Receive(ref sender);
 
+                int connectionId;
+                bool isNewClient = false;
+
                 // ¿Es un cliente nuevo?
-                if (!connectedClients.ContainsKey(sender))
+                if (!connectedClients.TryGetValue(sender, out connectionId))
                 {
-                    int newId = nextConnectionId++;
-                    connectedClients.Add(sender, newId);
-                    
-                    Debug.Log($"[Servidor] Nuevo cliente: {sender}. ID: {newId}");
-                    OnServerConnectedWithAddress?.Invoke(newId, sender.Address.ToString());
+                    connectionId = nextConnectionId++;
+                    connectedClients.Add(sender, connectionId);
+                    isNewClient = true;
+
+                    Debug.Log($"[Servidor] Nuevo cliente: {sender}. ID: {connectionId}");
+                    OnServerConnectedWithAddress?.Invoke(connectionId, sender.Address.ToString());
                 }
 
-                // Ahora sí tenemos el ID seguro
-                int connectionId = connectedClients[sender];
-                
                 // ¡MAGIA! Actualizamos el último momento en que lo vimos
                 lastSeenTime[connectionId] = Time.time;
+
+                if (IsControlPacket(data, ConnectHelloPacket))
+                {
+                    SendRaw(server, ConnectAckPacket, sender);
+
+                    if (!isNewClient)
+                    {
+                        Debug.Log($"[Servidor] Handshake renovado para cliente {connectionId}.");
+                    }
+
+                    continue;
+                }
 
                 // Entregar datos a Mirror
                 ArraySegment<byte> segment = new ArraySegment<byte>(data);
@@ -287,5 +320,38 @@ public class PersonalizedTransport : Transport
             }
             Debug.LogWarning($"[Servidor] Error de lectura: {ex.Message}");
         }
+    }
+
+    private static bool IsControlPacket(byte[] data, byte[] expected)
+    {
+        if (data == null || data.Length != expected.Length)
+            return false;
+
+        for (int i = 0; i < expected.Length; i++)
+        {
+            if (data[i] != expected[i])
+                return false;
+        }
+
+        return true;
+    }
+
+    private static void SendRaw(UdpClient socket, byte[] data)
+    {
+        if (socket == null || data == null)
+            return;
+
+        socket.Send(data, data.Length);
+    }
+
+    private static void SendRaw(UdpClient socket, byte[] data, IPEndPoint endPoint)
+    {
+        if (socket == null || data == null)
+            return;
+
+        if (endPoint == null)
+            socket.Send(data, data.Length);
+        else
+            socket.Send(data, data.Length, endPoint);
     }
 }

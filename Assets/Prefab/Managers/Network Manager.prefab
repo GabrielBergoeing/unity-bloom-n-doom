@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 2733686564342138484}
   - component: {fileID: 4465545400555557883}
   - component: {fileID: 5017050767482582897}
-  - component: {fileID: 1480040136115310664}
   m_Layer: 0
   m_Name: Network Manager
   m_TagString: Untagged
@@ -95,6 +94,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098b8d72cb9442343bd1abbe94f23037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkMode: 1
+  overrideTransport: {fileID: 0}
+  remoteHostAddress: 127.0.0.1
+  joinDelay: 1.5
 --- !u!114 &8845827539202538087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,6 +123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 7777
+  handshakeRetryInterval: 0.5
   timeoutDuration: 5
 --- !u!114 &4465545400555557883
 MonoBehaviour:
@@ -166,17 +170,3 @@ MonoBehaviour:
   Timeout: 25
   AllowSteamRelay: 1
   UseNextGenSteamNetworking: 1
---- !u!114 &1480040136115310664
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1863548995357367420}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cac4deab1ca38f448a6a3987af786eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  editorTransport: {fileID: 2733686564342138484}
-  buildTransport: {fileID: 5017050767482582897}
