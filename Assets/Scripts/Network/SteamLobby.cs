@@ -39,8 +39,15 @@ public class SteamLobby : MonoBehaviour
     void Start()
     {
         networkManager = GetComponent<NetworkManager>();
+        if (networkManager == null)
+        {
+            Debug.LogError("[SteamLobby] No se encontró NetworkManager en el mismo GameObject.");
+            return;
+        }
 
         ApplyTransportOverride();
+
+        Debug.Log($"[SteamLobby] Start - mode={networkMode}, transport={Transport.active?.GetType().Name ?? "null"}");
 
         switch (networkMode)
         {
@@ -81,6 +88,22 @@ public class SteamLobby : MonoBehaviour
         if (!SteamManager.Initialized)
         {
             Debug.LogError("[SteamLobby] SteamManager no inicializado. ¿Está Steam abierto?");
+
+            // En editor puede ser útil caer a DirectHost/DirectJoin para debug.
+            if (Application.isEditor)
+            {
+                Debug.LogWarning("[SteamLobby] Fallback en Editor: Steam no está inicializado. Se aplicará comportamiento directo para debug.");
+                // Imitamos AutoByClone aquí: si es clone hacemos join, si no host.
+                if (Application.dataPath.ToLower().Contains("clone"))
+                {
+                    preventHosting = true;
+                    Invoke(nameof(JoinDirect), joinDelay);
+                }
+                else
+                {
+                    HostDirect();
+                }
+            }
             return;
         }
 
@@ -96,12 +119,14 @@ public class SteamLobby : MonoBehaviour
     private void HostDirect()
     {
         if (preventHosting) return;
+        Debug.Log($"[SteamLobby] Iniciando Host directo. transport={Transport.active?.GetType().Name ?? "null"}");
         networkManager.StartHost();
         Debug.Log("[SteamLobby] Host iniciado.");
     }
 
     private void JoinDirect()
     {
+        Debug.Log($"[SteamLobby] Intentando Join directo a {remoteHostAddress} (transport={Transport.active?.GetType().Name ?? "null"})");
         networkManager.networkAddress = remoteHostAddress;
         networkManager.StartClient();
         Debug.Log($"[SteamLobby] Cliente conectando a {remoteHostAddress}...");
@@ -138,32 +163,58 @@ public class SteamLobby : MonoBehaviour
     // -------------------------------------------------------
     private void OnLobbyCreated(LobbyCreated_t callback)
     {
-        if (callback.m_eResult != EResult.k_EResultOK) return;
+        if (callback.m_eResult != EResult.k_EResultOK)
+        {
+            Debug.LogError($"[SteamLobby] Error creando lobby: {callback.m_eResult}");
+            return;
+        }
 
+        Debug.Log("[SteamLobby] Lobby creado correctamente. Iniciando host...");
         networkManager.StartHost();
 
-        SteamMatchmaking.SetLobbyData(
-            new CSteamID(callback.m_ulSteamIDLobby),
-            HostAddressKey,
-            SteamUser.GetSteamID().ToString()
-        );
-        Debug.Log("[SteamLobby] Lobby de Steam creado, host iniciado.");
+        // Guardamos el steam id del host para que otros lo utilicen.
+        string hostSteamId = SteamUser.GetSteamID().ToString();
+        SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey, hostSteamId);
+
+        Debug.Log($"[SteamLobby] Lobby de Steam creado, host iniciado. HostSteamId={hostSteamId}");
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)
     {
+        Debug.Log("[SteamLobby] GameLobbyJoinRequested recibido. Intentando unirse al lobby.");
         SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
     }
 
     private void OnLobbyEntered(LobbyEnter_t callback)
     {
-        if (NetworkServer.active) return;
+        Debug.Log("[SteamLobby] OnLobbyEntered callback recibido.");
 
-        string hostAddress = SteamMatchmaking.GetLobbyData(
-            new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey);
+        if (NetworkServer.active)
+        {
+            Debug.Log("[SteamLobby] Esta instancia es servidor. Ignorando OnLobbyEntered.");
+            return;
+        }
+
+        string hostAddress = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey);
+        Debug.Log($"[SteamLobby] HostAddress (raw) desde lobby: '{hostAddress}'");
+
+        if (string.IsNullOrWhiteSpace(hostAddress))
+        {
+            Debug.LogError("[SteamLobby] HostAddress vacío en lobby. Abortando conexión.");
+            return;
+        }
+
+        string transportName = Transport.active?.GetType().Name ?? "null";
+        Debug.Log($"[SteamLobby] Transporte activo: {transportName}");
+
+        // Si el transporte activo NO es uno basado en Steam, advertimos y no intentamos usar SteamID como IP.
+        if (!transportName.ToLower().Contains("steam") && !transportName.ToLower().Contains("fizzy") && !transportName.ToLower().Contains("p2p"))
+        {
+            Debug.LogWarning("[SteamLobby] Transporte activo no parece ser Steam. El HostAddress podría no ser una IP válida. Intentando conexión directa usando el valor recibido.");
+        }
 
         networkManager.networkAddress = hostAddress;
         networkManager.StartClient();
-        Debug.Log($"[SteamLobby] Lobby de Steam entrado, conectando a {hostAddress}.");
+        Debug.Log($"[SteamLobby] Cliente conectando a {hostAddress} (transport={transportName})");
     }
 }
