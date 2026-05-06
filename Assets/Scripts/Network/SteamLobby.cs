@@ -1,12 +1,14 @@
 using UnityEngine;
 using Mirror;
 using Steamworks;
+using System;
+using System.Reflection;
 
 public class SteamLobby : MonoBehaviour
 {
     public enum NetworkMode
     {
-        Steam,          // Usa FizzySteamworks + lobbies de Steam
+        Steam,      // Usa FizzySteamworks + lobbies de Steam
         Host,     // Host directo con el transporte elegido (sin Steam)
         Join     // Join directo a remoteHostAddress con el transporte elegido
     }
@@ -46,6 +48,7 @@ public class SteamLobby : MonoBehaviour
         }
 
         ApplyTransportOverride();
+        ApplyRuntimeLaunchRequest();
 
         Debug.Log($"[SteamLobby] Start - mode={networkMode}, transport={Transport.active?.GetType().Name ?? "null"}");
 
@@ -66,6 +69,88 @@ public class SteamLobby : MonoBehaviour
                 Invoke(nameof(JoinDirect), joinDelay);
                 break;
         }
+    }
+
+    private void ApplyRuntimeLaunchRequest()
+    {
+        if (!NetworkLaunchRequest.TryConsume(out NetworkLaunchRequest.LaunchData launchData))
+            return;
+
+        switch (launchData.mode)
+        {
+            case NetworkLaunchRequest.LaunchMode.Host:
+                networkMode = NetworkMode.Host;
+                break;
+
+            case NetworkLaunchRequest.LaunchMode.Join:
+                networkMode = NetworkMode.Join;
+                remoteHostAddress = string.IsNullOrWhiteSpace(launchData.address) ? remoteHostAddress : launchData.address;
+                break;
+
+            default:
+                return;
+        }
+
+        bool portSet = TrySetPortOnTransport(Transport.active, launchData.port);
+        if (networkManager != null)
+        {
+            if (networkManager.transport != null && networkManager.transport != Transport.active)
+                portSet |= TrySetPortOnTransport(networkManager.transport, launchData.port);
+        }
+
+        Debug.Log($"[SteamLobby] LaunchRequest aplicado. mode={networkMode}, host={remoteHostAddress}, port={launchData.port}, portSet={portSet}");
+    }
+
+    private static bool TrySetPortOnTransport(Transport transport, ushort port)
+    {
+        if (transport == null)
+            return false;
+
+        Type transportType = transport.GetType();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        string[] propertyNames = { "Port", "port" };
+        foreach (string propertyName in propertyNames)
+        {
+            PropertyInfo property = transportType.GetProperty(propertyName, flags);
+            if (property == null || !property.CanWrite)
+                continue;
+
+            if (property.PropertyType == typeof(ushort))
+            {
+                property.SetValue(transport, port);
+                return true;
+            }
+
+            if (property.PropertyType == typeof(int))
+            {
+                property.SetValue(transport, (int)port);
+                return true;
+            }
+        }
+
+        string[] fieldNames = { "Port", "port" };
+        foreach (string fieldName in fieldNames)
+        {
+            FieldInfo field = transportType.GetField(fieldName, flags);
+            if (field == null)
+                continue;
+
+            if (field.FieldType == typeof(ushort))
+            {
+                field.SetValue(transport, port);
+                return true;
+            }
+
+            if (field.FieldType == typeof(int))
+            {
+                field.SetValue(transport, (int)port);
+                return true;
+            }
+        }
+
+        Debug.LogWarning($"[SteamLobby] No se encontró campo/propiedad de puerto en transporte {transportType.Name}.");
+        return false;
     }
 
     // -------------------------------------------------------

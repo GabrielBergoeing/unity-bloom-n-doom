@@ -631,6 +631,15 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Mouse"",
+                    ""type"": ""Button"",
+                    ""id"": ""8c3dfce2-c1ea-4b19-9f57-41f9fcc77e83"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -820,6 +829,17 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Next Tab"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d6e9108-d3d5-4247-9612-2b61a49154a8"",
+                    ""path"": ""<Pointer>/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -943,6 +963,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_UI_Join = m_UI.FindAction("Join", throwIfNotFound: true);
         m_UI_PreviousTab = m_UI.FindAction("Previous Tab", throwIfNotFound: true);
         m_UI_NextTab = m_UI.FindAction("Next Tab", throwIfNotFound: true);
+        m_UI_Mouse = m_UI.FindAction("Mouse", throwIfNotFound: true);
         // Global
         m_Global = asset.FindActionMap("Global", throwIfNotFound: true);
         m_Global_ExitGame = m_Global.FindAction("ExitGame", throwIfNotFound: true);
@@ -1274,6 +1295,7 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Join;
     private readonly InputAction m_UI_PreviousTab;
     private readonly InputAction m_UI_NextTab;
+    private readonly InputAction m_UI_Mouse;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1309,6 +1331,10 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/NextTab".
         /// </summary>
         public InputAction @NextTab => m_Wrapper.m_UI_NextTab;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Mouse".
+        /// </summary>
+        public InputAction @Mouse => m_Wrapper.m_UI_Mouse;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1353,6 +1379,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @NextTab.started += instance.OnNextTab;
             @NextTab.performed += instance.OnNextTab;
             @NextTab.canceled += instance.OnNextTab;
+            @Mouse.started += instance.OnMouse;
+            @Mouse.performed += instance.OnMouse;
+            @Mouse.canceled += instance.OnMouse;
         }
 
         /// <summary>
@@ -1382,6 +1411,9 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @NextTab.started -= instance.OnNextTab;
             @NextTab.performed -= instance.OnNextTab;
             @NextTab.canceled -= instance.OnNextTab;
+            @Mouse.started -= instance.OnMouse;
+            @Mouse.performed -= instance.OnMouse;
+            @Mouse.canceled -= instance.OnMouse;
         }
 
         /// <summary>
@@ -1703,6 +1735,13 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnNextTab(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Mouse" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMouse(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Global" which allows adding and removing callbacks.
