@@ -62,6 +62,12 @@ public class Player : Entity
     // Boolean flag that inidicates if player character can be controled
     [SyncVar] public bool canControl  = false;
 
+    // Client action intents are sent through Commands and consumed by server-side states.
+    private bool pickupRequested;
+    private bool interactRequested;
+    private bool dropRequested;
+    private bool sabotageRequested;
+
     public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
     #endregion
 
@@ -96,6 +102,32 @@ public class Player : Entity
     protected override void Update()
     {
         base.Update();
+    }
+
+    protected override void UpdateLocalPlayer()
+    {
+        if (input == null || !input.enabled) return;
+
+        if (input.actions["Pickup"].triggered)
+            CmdRequestPickup();
+
+        if (input.actions["Interact"].triggered)
+            CmdRequestInteract();
+
+        if (input.actions["Drop"].triggered)
+            CmdRequestDrop();
+
+        if (input.actions["Sabotage"].triggered)
+            CmdRequestSabotage();
+
+        if (input.actions["CheatRefill"].triggered)
+            CmdCheatRefill();
+
+        if (input.actions["CheatScissors"].triggered)
+            CmdCheatSpawnScissors();
+
+        if (input.actions["CheatFlamethrower"].triggered)
+            CmdCheatSpawnFlamethrower();
     }
     #endregion
 
@@ -176,6 +208,84 @@ public class Player : Entity
     void CmdSetControl(bool value)
     {
         canControl = value;
+    }
+
+    [Command]
+    private void CmdRequestPickup()
+    {
+        if (!canControl) return;
+        pickupRequested = true;
+    }
+
+    [Command]
+    private void CmdRequestInteract()
+    {
+        if (!canControl) return;
+        interactRequested = true;
+    }
+
+    [Command]
+    private void CmdRequestDrop()
+    {
+        if (!canControl) return;
+        dropRequested = true;
+    }
+
+    [Command]
+    private void CmdRequestSabotage()
+    {
+        if (!canControl) return;
+        sabotageRequested = true;
+    }
+
+    [Command]
+    private void CmdCheatRefill()
+    {
+        waterSupply = 100;
+    }
+
+    [Command]
+    private void CmdCheatSpawnScissors()
+    {
+        SpawnScissors();
+    }
+
+    [Command]
+    private void CmdCheatSpawnFlamethrower()
+    {
+        SpawnFlamethrower();
+    }
+
+    [Server]
+    public bool ConsumePickupRequest()
+    {
+        if (!pickupRequested) return false;
+        pickupRequested = false;
+        return true;
+    }
+
+    [Server]
+    public bool ConsumeInteractRequest()
+    {
+        if (!interactRequested) return false;
+        interactRequested = false;
+        return true;
+    }
+
+    [Server]
+    public bool ConsumeDropRequest()
+    {
+        if (!dropRequested) return false;
+        dropRequested = false;
+        return true;
+    }
+
+    [Server]
+    public bool ConsumeSabotageRequest()
+    {
+        if (!sabotageRequested) return false;
+        sabotageRequested = false;
+        return true;
     }
 
     public bool IsPlayerMoving() => moveInput.x != 0 || moveInput.y != 0;

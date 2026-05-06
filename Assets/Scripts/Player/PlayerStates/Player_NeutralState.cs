@@ -16,7 +16,7 @@ public class Player_NeutralState : PlayerState
         //if (player.moveInput.x == player.facingDir && player.wallDetected)
         //return;
 
-        if (input.actions["Sabotage"].triggered)
+        if (player.ConsumeSabotageRequest())
         {
             var state = DetermineDisruptionState();
 
@@ -24,10 +24,10 @@ public class Player_NeutralState : PlayerState
                 stateMachine.ChangeState(state);
         }
 
-        if (input.actions["Pickup"].triggered)
+        if (player.ConsumePickupRequest())
             stateMachine.ChangeState(player.pickState);
 
-        if (input.actions["Interact"].triggered && !hasIneteraction)
+        if (player.ConsumeInteractRequest() && !hasIneteraction)
         {
             hasIneteraction = true;
             var state = DetermineInteractionState();
@@ -36,17 +36,8 @@ public class Player_NeutralState : PlayerState
                 stateMachine.ChangeState(state);
         }
 
-        if (input.actions["Drop"].triggered)
+        if (player.ConsumeDropRequest())
             player.DropCurrentItem();
-        
-        if (input.actions["CheatRefill"].triggered)
-            player.waterSupply = 100;
-        
-        if (input.actions["CheatScissors"].triggered)
-            player.SpawnScissors();
-        
-        if (input.actions["CheatFlamethrower"].triggered)
-            player.SpawnFlamethrower();
     }
 
     private PlayerState DetermineInteractionState()

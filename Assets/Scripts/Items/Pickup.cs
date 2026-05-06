@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Pickup : MonoBehaviour
+public class Pickup : NetworkBehaviour
 {
     [Header("Item Settings")]
     public bool stackable;
@@ -8,10 +9,10 @@ public class Pickup : MonoBehaviour
     public int itemId;
 
     [Header("Pickup Control")]
-    public bool canPickup = false;
-    public bool isPickedUp = false;
+    [SyncVar] public bool canPickup = false;
+    [SyncVar(hook = nameof(OnPickedUpChanged))] public bool isPickedUp = false;
     public float pickupDelay = 0.25f; 
-    private float pickupReadyTime;
+    [SyncVar] private double pickupReadyTime;
 
     public System.Action<Player> OnPickup;
     public System.Action<Player> OnDrop;
@@ -26,26 +27,59 @@ public class Pickup : MonoBehaviour
 
     private void OnEnable()
     {
-        pickupReadyTime = Time.time + pickupDelay;
-        canPickup = false;
-        isPickedUp = false;
-        col.enabled = true;
+        if (isServer)
+        {
+            ResetPickupState();
+        }
+
+        UpdateColliderState();
     }
 
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        ResetPickupState();
+    }
+
+    [Server]
+    private void ResetPickupState()
+    {
+        pickupReadyTime = NetworkTime.time + pickupDelay;
+        canPickup = false;
+        isPickedUp = false;
+        playerInRange = null;
+    }
+
+    private void OnPickedUpChanged(bool _, bool __)
+    {
+        UpdateColliderState();
+    }
+
+    private void UpdateColliderState()
+    {
+        if (col != null)
+            col.enabled = !isPickedUp;
+    }
+
+    [ServerCallback]
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (Time.time < pickupReadyTime) return;
+        if (isPickedUp) return;
+        if (NetworkTime.time < pickupReadyTime) return;
         if (!other.CompareTag("Player")) return;
 
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            player.pickupsInRange.Add(this);
+            if (!player.pickupsInRange.Contains(this))
+                player.pickupsInRange.Add(this);
+
             playerInRange = player;
             canPickup = true;
         }
     }
 
+    [ServerCallback]
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
@@ -62,24 +96,31 @@ public class Pickup : MonoBehaviour
             }
         }
     }
-    
+
+    [Server]
     public void Pick(Player player)
     {
-        if (!canPickup) return;
+        if (player == null) return;
+        if (!canPickup || isPickedUp) return;
 
         isPickedUp = true;
         canPickup = false;
-        col.enabled = false;
+        player.pickupsInRange.Remove(this);
+        playerInRange = null;
         OnPickup?.Invoke(player);
     }
 
+    [Server]
     public void Drop(Player player, bool consume = false)
     {
         isPickedUp = false;
-        col.enabled = true;
+        canPickup = false;
+        pickupReadyTime = NetworkTime.time + pickupDelay;
+        playerInRange = null;
         OnDrop?.Invoke(player);
     }
 
+    [Server]
     public void Consume(Player player)
     {
         if (player == null)

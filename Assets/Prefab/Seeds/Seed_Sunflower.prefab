@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1434435754104446993}
   - component: {fileID: 3608451157103802395}
   - component: {fileID: -3761267209003963865}
+  - component: {fileID: -5973198782972823012}
   m_Layer: 0
   m_Name: Seed_Sunflower
   m_TagString: Untagged
@@ -103,6 +104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   stackable: 1
   maxStackCount: 2
   itemId: 13
@@ -160,6 +164,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plantPrefab: {fileID: 391816432929291485, guid: 157cfe018ef02506191fce66d3e1bc73, type: 3}
   pickup: {fileID: 1434435754104446993}
+--- !u!114 &-5973198782972823012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2558169981995761550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3635330214
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &4823677795522932424
 GameObject:
   m_ObjectHideFlags: 0

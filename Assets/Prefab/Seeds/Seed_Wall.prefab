@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 4025202865081710481}
   - component: {fileID: 4621139825573572193}
   - component: {fileID: 6058709115687241275}
+  - component: {fileID: 4588274472588505499}
   m_Layer: 0
   m_Name: Seed_Wall
   m_TagString: Untagged
@@ -182,6 +183,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44c799a6c16ade44a4a76f79b62a03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   stackable: 1
   maxStackCount: 2
   itemId: 14
@@ -239,3 +243,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plantPrefab: {fileID: 5654476984458142201, guid: a6096c3c1d986e24e8cdec191e0a45d0, type: 3}
   pickup: {fileID: 4025202865081710481}
+--- !u!114 &4588274472588505499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6445088790610930207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 4060115219
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0

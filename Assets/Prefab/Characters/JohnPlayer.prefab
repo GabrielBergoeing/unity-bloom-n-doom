@@ -81,7 +81,6 @@ MonoBehaviour:
   xFacingDir: 1
   yFacingDir: 1
   canControl: 0
-  currentItem: {fileID: 0}
   pickupsInRange: []
 --- !u!114 &5361350347888594117
 MonoBehaviour:
@@ -95,9 +94,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae79373ed263a2409823bf7a5dfebd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
   holdingDistance: 0.1
 --- !u!114 &8825632466125325945
 MonoBehaviour:
@@ -111,6 +107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255ad9fefb06aff498aee057089f4b0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   slots: []
   stackCounts: 
   currentSlot: 0
@@ -330,6 +329,10 @@ MonoBehaviour:
   pingInterval: 0.5
   maxWindow: 50
   showHUD: 1
+  autoExportOnStop: 1
+  exportKey: 289
+  toggleKey: 288
+  autoStart: 0
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0
@@ -648,6 +651,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5748083793856068319}
   - component: {fileID: 597518308617065870}
+  - component: {fileID: 779796850528802882}
   m_Layer: 6
   m_Name: OnHand
   m_TagString: Untagged
@@ -682,6 +686,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f64f18753eda548acb0372ad8ecb38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &779796850528802882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2822436173951245100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 5748083793856068319}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  timelineOffset: 1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  useFixedUpdate: 0
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!1 &3668116460574452065
 GameObject:
   m_ObjectHideFlags: 0
