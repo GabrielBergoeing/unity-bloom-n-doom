@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Fire : MonoBehaviour
+public class Fire : NetworkBehaviour
 {
     [Range(0.1f, 100f)]
     [SerializeField] private float speed = 10f;
@@ -12,7 +13,13 @@ public class Fire : MonoBehaviour
     [SerializeField] private float spreadAngle = 15f;
 
     private Rigidbody2D rb;
-    private Vector2 inheritedVelocity = Vector2.zero;
+
+    // Local copy used for physics simulation on both server and client.
+    private Vector2 inheritedVelocityLocal = Vector2.zero;
+
+    // Sync the inherited velocity so clients know the initial velocity.
+    [SyncVar(hook = nameof(OnInheritedVelocityChanged))]
+    private Vector2 inheritedVelocitySync = Vector2.zero;
 
     private void Start()
     {
@@ -20,16 +27,50 @@ public class Fire : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    public void SetInheritedVelocity(Vector2 velocity)
+    // Called on server before NetworkServer.Spawn to set initial velocity.
+    [Server]
+    public void SetInheritedVelocityServer(Vector2 velocity)
     {
-        inheritedVelocity = velocity;
+        inheritedVelocitySync = velocity;
+        inheritedVelocityLocal = velocity;
+    }
+
+    // Hook runs on clients (and server) when SyncVar changes.
+    void OnInheritedVelocityChanged(Vector2 oldVal, Vector2 newVal)
+    {
+        inheritedVelocityLocal = newVal;
+    }
+
+    // Ensure particle systems play on clients when object spawns.
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        PlayAllParticleSystems();
+    }
+
+    // Also play on server so host sees VFX immediately.
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        PlayAllParticleSystems();
+    }
+
+    private void PlayAllParticleSystems()
+    {
+        var systems = GetComponentsInChildren<ParticleSystem>(true);
+        foreach (var ps in systems)
+        {
+            // safe: Play will start system both in editor and builds
+            ps.Play();
+        }
     }
 
     private void FixedUpdate()
     {
         float randomSpread = Random.Range(-spreadAngle, spreadAngle);
         Vector2 direction = Quaternion.Euler(0, 0, randomSpread) * transform.up;
-        rb.linearVelocity = (direction * speed) + inheritedVelocity;
+        rb = rb ?? GetComponent<Rigidbody2D>();
+        rb.linearVelocity = (direction * speed) + inheritedVelocityLocal;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -39,6 +80,5 @@ public class Fire : MonoBehaviour
         {
             plant.SetOnFire();
         }
-
     }
 }

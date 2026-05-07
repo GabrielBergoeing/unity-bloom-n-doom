@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Flamethrower : MonoBehaviour
+public class Flamethrower : NetworkBehaviour
 {
     [SerializeField] private Pickup pickup;
     [SerializeField] private GameObject firePrefab;
@@ -33,77 +34,85 @@ public class Flamethrower : MonoBehaviour
         pickup = GetComponent<Pickup>();
         currentAmmo = maxAmmoSeconds;
 
+        // server-side owner assignment (remains useful for server logic)
         pickup.OnPickup += (player) => owner = player;
         pickup.OnDrop += (_) => owner = null;
     }
 
     private void Update()
     {
-        if (owner == null) return; // not held by player
-
-        bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
-
-        if (isFiring && currentAmmo > 0f)
+        // Attempt to resolve owner locally if not set (useful for clients:
+        // HotbarSystem parentea el item bajo "OnHand" transform).
+        if (owner == null)
         {
-            currentAmmo -= Time.deltaTime;
-            if (currentAmmo < 0f) currentAmmo = 0f;
-
-            if (nextFireTime <= 0f)
+            owner = GetComponentInParent<Player>();
+            if (owner == null)
             {
-                Shoot();
-                nextFireTime = fireRate;
-            }
-            else
-            {
-                nextFireTime -= Time.deltaTime;
+                // not held by any player on this client -> nothing to do
+                return;
             }
         }
-        else
+
+        // Only the local player reads inputs and requests the server to shoot.
+        if (owner.isLocalPlayer)
         {
-            nextFireTime -= Time.deltaTime;
+            bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
+
+            if (isFiring && currentAmmo > 0f)
+            {
+                // request server to shoot (Command on Player)
+                owner.CmdRequestShoot();
+            }
+
+            // local cooldown of ammo (visual/UX). Actual ammo consumption enforced on server.
+            if (isFiring && currentAmmo > 0f)
+            {
+                currentAmmo -= Time.deltaTime;
+                if (currentAmmo < 0f) currentAmmo = 0f;
+            }
         }
 
-        // Out of fuel — drop
-        if (currentAmmo <= 0f)
-        {
-            pickup.Consume(owner); 
-        }
+        // On server the ServerShoot method enforces fireRate and ammo consumption.
     }
 
-    private void Shoot()
+    // This method runs on the server to spawn projectiles.
+    // Call from server-side (e.g. Player.CmdRequestShoot -> finds current item and calls this).
+    [Server]
+    public void ServerShoot(Vector2 ownerVelocity)
     {
+        if (nextFireTime > Time.time) return;
+        if (currentAmmo <= 0f) return;
+
+        nextFireTime = Time.time + fireRate;
+        currentAmmo -= fireRate;
+        if (currentAmmo < 0f) currentAmmo = 0f;
+
         if (sfx != null)
         {
             sfx.PlayOnUse();
         }
-        
 
-        float angleStep = spreadAngle / (projectilesPerShot - 1);
+        float angleStep = projectilesPerShot > 1 ? spreadAngle / (projectilesPerShot - 1) : 0f;
         float startAngle = -spreadAngle / 2;
 
         for (int i = 0; i < projectilesPerShot; i++)
         {
             float currentAngle = startAngle + (angleStep * i);
-            Quaternion rotation =
-                fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
-            Vector2 ownerVelocity = Vector2.zero;
-            if (owner != null)
-            {
-                ownerVelocity = owner.rb.linearVelocity;
-            }   
+            Quaternion rotation = fireSpawnPoint.rotation * Quaternion.Euler(0, 0, currentAngle);
+
             GameObject fireInstance = Instantiate(firePrefab, fireSpawnPoint.position, rotation);
-            
-            //Esto es feito pero funciona
-            Fire fireScript = fireInstance.GetComponent<Fire>();
-            if (fireScript != null)
+
+            // Configure networked projectile before spawning
+            var fireNet = fireInstance.GetComponent<Fire>();
+            if (fireNet != null)
             {
-                fireScript.SetInheritedVelocity(ownerVelocity);
+                // Set the SyncVar so clients receive inherited velocity on spawn
+                fireNet.SetInheritedVelocityServer(ownerVelocity);
             }
-            Watergun watergunScript = fireInstance.GetComponent<Watergun>();
-            if (watergunScript != null)
-            {
-                watergunScript.SetInheritedVelocity(ownerVelocity);
-            }
+
+            NetworkServer.Spawn(fireInstance);
+            var nid = fireInstance.GetComponent<NetworkIdentity>()?.netId ?? 0;
+            Debug.Log($"[Flamethrower] Spawned projectile '{firePrefab.name}' netId={nid} at {fireInstance.transform.position}");
         }
     }
 }

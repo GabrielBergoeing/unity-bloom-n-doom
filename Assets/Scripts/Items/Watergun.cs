@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class Watergun : MonoBehaviour
+public class Watergun : NetworkBehaviour
 {
     [Range(0.1f, 100f)]
     [SerializeField] private float speed = 10f;
@@ -20,7 +21,11 @@ public class Watergun : MonoBehaviour
     [SerializeField] private Pickup pickup;
 
     private Rigidbody2D rb;
-    private Vector2 inheritedVelocity = Vector2.zero;
+
+    // server->client inherited velocity
+    [SyncVar(hook = nameof(OnInheritedVelocityChanged))]
+    private Vector2 inheritedVelocitySync = Vector2.zero;
+    private Vector2 inheritedVelocityLocal = Vector2.zero;
 
     private void Start()
     {
@@ -28,16 +33,44 @@ public class Watergun : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    public void SetInheritedVelocity(Vector2 velocity)
+    [Server]
+    public void SetInheritedVelocityServer(Vector2 velocity)
     {
-        inheritedVelocity = velocity;
+        inheritedVelocitySync = velocity;
+        inheritedVelocityLocal = velocity;
+    }
+
+    void OnInheritedVelocityChanged(Vector2 oldVal, Vector2 newVal)
+    {
+        inheritedVelocityLocal = newVal;
+    }
+
+    // Ensure particle systems play on clients when spawned
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        PlayAllParticleSystems();
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        PlayAllParticleSystems();
+    }
+
+    private void PlayAllParticleSystems()
+    {
+        var systems = GetComponentsInChildren<ParticleSystem>(true);
+        foreach (var ps in systems)
+            ps.Play();
     }
 
     private void FixedUpdate()
     {
         float randomSpread = Random.Range(-spreadAngle, spreadAngle);
         Vector2 direction = Quaternion.Euler(0, 0, randomSpread) * transform.up;
-        rb.linearVelocity = (direction * speed) + inheritedVelocity;
+        rb = rb ?? GetComponent<Rigidbody2D>();
+        rb.linearVelocity = (direction * speed) + inheritedVelocityLocal;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

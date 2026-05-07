@@ -238,6 +238,25 @@ public class Player : Entity
         sabotageRequested = true;
     }
 
+    // NOW PUBLIC: command to request shooting from the currently equipped item (Flamethrower)
+    [Command]
+    public void CmdRequestShoot()
+    {
+        if (!canControl) return;
+
+        if (inventory == null) return;
+
+        GameObject currentItem = inventory.GetCurrentItem();
+        if (currentItem == null) return;
+
+        Flamethrower ft = currentItem.GetComponent<Flamethrower>();
+        if (ft != null)
+        {
+            Vector2 ownerVelocity = rb != null ? rb.linearVelocity : Vector2.zero;
+            ft.ServerShoot(ownerVelocity);
+        }
+    }
+
     [Command]
     private void CmdCheatRefill()
     {
