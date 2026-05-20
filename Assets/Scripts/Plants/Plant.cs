@@ -1,20 +1,21 @@
+using Mirror;
 using UnityEngine;
 
-//Para la entrega final habra que hacer la clase planta ser heredado desde Entity
-public class Plant : MonoBehaviour
+// Para la entrega final habra que hacer la clase planta ser heredado desde Entity
+public class Plant : NetworkBehaviour
 {
     public enum GrowthStage { Seed, Growing, Mature }
     protected Rigidbody2D rb;
 
     [Header("Owner / Grid")]
-    public int ownerPlayerIndex = -1;
-    public Vector3Int cellPos;
+    [SyncVar] public int ownerPlayerIndex = -1;
+    [SyncVar] public Vector3Int cellPos = default;
 
     [Header("Growth")]
     [Tooltip("Cuántas interacciones (riegos) necesita para madurar")]
-    public int interactionsToMature = 2;
-    public int currentInteractions = 0;
-    public GrowthStage stage = GrowthStage.Seed;
+    [SerializeField] protected int interactionsToMature = 2;
+    [SyncVar(hook = nameof(OnInteractionsChanged))] public int currentInteractions = 0;
+    [SyncVar(hook = nameof(OnStageChanged))] public GrowthStage stage = GrowthStage.Seed;
 
     [Header("Visual")]
     public SpriteRenderer spriteRenderer;
@@ -25,6 +26,7 @@ public class Plant : MonoBehaviour
     [Header("Health and Withering time (in seconds)")]
     [Range(0, 20)][SerializeField] protected float maxHealth = 10;
     [Range(0f, 60f)][SerializeField] protected float witheringTime = 30f;
+    [SyncVar(hook = nameof(OnTimerChanged))] private float timerSync = 0f; // sincroniza resets de timer
     protected float health;
     protected float timer;
 
@@ -33,15 +35,25 @@ public class Plant : MonoBehaviour
     [Range(0.1f, 30f)][SerializeField] private float fireDuration = float.MaxValue;
     [Range(0.5f, 5f)][SerializeField] private float fireFlickerSpeed = 1f;
     [SerializeField] private bool burnUntilDeath = true;
-    [HideInInspector] public bool isOnFire = false;
+    [SyncVar(hook = nameof(OnFireChanged))] public bool isOnFire = false;
     private float fireTimer = 0f;
     private Color originalColor;
 
     [Header("Scoring")]
     [Range(0, 5)][SerializeField] private int score = 3;
 
-    protected virtual void Awake() => rb = GetComponent<Rigidbody2D>();
-    public void Init(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
+    // small optimization: only push timerSync to clients cada 1s
+    private float lastTimerSyncPush = 0f;
+
+    protected virtual void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    #region Server Initialization & lifecycle
+    // Server-side init
+    [Server]
+    public void InitServer(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
     {
         ownerPlayerIndex = ownerIndex;
         cellPos = gridCell;
@@ -52,18 +64,76 @@ public class Plant : MonoBehaviour
             interactionsToMature = Mathf.Max(1, interactionsToMature); // ensure prefab can't be 0
 
         if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
-        
-        SetStage(GrowthStage.Seed);
+
+        stage = GrowthStage.Seed;
+        currentInteractions = 0;
+        health = maxHealth;
+        timer = witheringTime;
+        timerSync = timer;
+        isOnFire = false;
     }
 
-    private void SetStage(GrowthStage newStage)
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        // ensure server values are set even if InitServer wasn't called (fallback)
+        if (health <= 0) health = maxHealth;
+        if (timer <= 0) timer = witheringTime;
+        timerSync = timer;
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        // register plant on client FarmManager so client-side queries (IsOccupied, HasPlant) work
+        if (FarmManager.instance != null)
+            FarmManager.instance.RegisterClientPlant(this);
+        // update visuals to reflect SyncVar values
+        UpdateStageVisual(stage);
+        UpdateFireVisuals(isOnFire);
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        if (FarmManager.instance != null)
+            FarmManager.instance.UnregisterClientPlant(this);
+    }
+    #endregion
+
+    #region SyncVar hooks -> update visuals on clients
+    void OnStageChanged(GrowthStage oldStage, GrowthStage newStage)
+    {
+        UpdateStageVisual(newStage);
+    }
+
+    void OnInteractionsChanged(int oldVal, int newVal)
+    {
+        // optional: could update UI or play sound
+    }
+
+    void OnFireChanged(bool oldVal, bool newVal)
+    {
+        UpdateFireVisuals(newVal);
+    }
+
+    void OnTimerChanged(float oldVal, float newVal)
+    {
+        // timer sync used for wither visuals; UpdateDarkening reads GetWitherRatio which
+        // on clients uses timerSync now.
+        timerSync = newVal;
+    }
+    #endregion
+
+    #region Visual updates
+    private void UpdateStageVisual(GrowthStage newStage)
     {
         stage = newStage;
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Sprites por etapa
         if (spriteRenderer)
         {
-            var s = stage switch
+            var s = newStage switch
             {
                 GrowthStage.Seed => seedSprite ? seedSprite : spriteRenderer.sprite,
                 GrowthStage.Growing => growingSprite ? growingSprite : spriteRenderer.sprite,
@@ -72,79 +142,61 @@ public class Plant : MonoBehaviour
             };
             spriteRenderer.sprite = s;
         }
-
-        health = maxHealth;
-        timer = witheringTime;
-
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    protected virtual void Update()
+    private void UpdateFireVisuals(bool on)
     {
-        timer -= Time.deltaTime;
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
-        if (isOnFire)
+        if (on)
         {
-            fireTimer -= Time.deltaTime;
-            UpdateFireVisuals();
-            
-            if (Mathf.FloorToInt(Time.time) != Mathf.FloorToInt(Time.time - Time.deltaTime))
-            {
-                Debug.Log($"{gameObject.name} is burning! Fire timer: {fireTimer:F1}, Health: {health:F1}");
-            }
-            
-            TakeDamage(fireDamagePerSecond * Time.deltaTime);
-        
-            if (!burnUntilDeath && fireTimer <= 0f)
-            {
-                Debug.Log($"{gameObject.name} fire extinguished");
-                ExtinguishFire();
-            }
-        }
-
-        if (timer <= 0 || health <= 0)
-            Die();
-    }
-
-    private void UpdateFireVisuals()
-    {
-        if (!spriteRenderer || !isOnFire) return;
-        float time = Time.time * fireFlickerSpeed;
-        float cycle = time % 3f;
-        
-        Color fireColor;
-        
-        if (cycle < 1f)
-        {
-            fireColor = Color.Lerp(originalColor, Color.red, cycle);
-        }
-        else if (cycle < 2f)
-        {
-            float t = cycle - 1f;
-            fireColor = Color.Lerp(Color.red, Color.yellow, t);
+            if (originalColor == Color.clear || originalColor == default(Color))
+                originalColor = spriteRenderer != null ? spriteRenderer.color : Color.white;
+            // VFX handled by Plant_VFX and Particle prefabs if present
         }
         else
         {
-            float t = cycle - 2f;
-            fireColor = Color.Lerp(Color.yellow, originalColor, t);
+            if (spriteRenderer != null && health > 0)
+                spriteRenderer.color = originalColor;
         }
-        
-        spriteRenderer.color = fireColor;
     }
+    #endregion
 
-    private void Die()
+    protected virtual void Update()
     {
-        if (FarmManager.instance != null)
+        // Server executes game logic: timer, fire damage, die
+        if (isServer)
         {
-            FarmManager.instance.NotifyPlantDeath(cellPos);
-        }
+            // decrease timer and sync occasionally
+            timer -= Time.deltaTime;
 
-        Destroy(gameObject);
+            if (isOnFire)
+            {
+                fireTimer -= Time.deltaTime;
+                TakeDamage(fireDamagePerSecond * Time.deltaTime);
+
+                if (!burnUntilDeath && fireTimer <= 0f)
+                {
+                    ExtinguishFire();
+                }
+            }
+
+            // push timerSync every 1s to clients to allow client visuals
+            if (Time.time - lastTimerSyncPush >= 1f)
+            {
+                timerSync = timer;
+                lastTimerSyncPush = Time.time;
+            }
+
+            if (timer <= 0 || health <= 0)
+            {
+                Die();
+            }
+        }
     }
 
-    protected bool IsFullyGrown() => stage == GrowthStage.Mature;
-
+    #region Game actions (server-side)
+    [Server]
     public void Interact()
     {
         if (IsFullyGrown()) return;
@@ -152,43 +204,78 @@ public class Plant : MonoBehaviour
         currentInteractions++;
 
         if (currentInteractions >= interactionsToMature)
-            SetStage(GrowthStage.Mature);
+            stage = GrowthStage.Mature;
         else if (stage == GrowthStage.Seed)
-            SetStage(GrowthStage.Growing);
+            stage = GrowthStage.Growing;
     }
 
+    [Server]
     public void WaterPlant()
     {
-
         if (isOnFire)
         {
             ExtinguishFire();
         }
         timer = witheringTime;
+        timerSync = timer;
 
         if (stage == GrowthStage.Mature) return;
 
         currentInteractions++;
 
         if (currentInteractions >= interactionsToMature)
-            SetStage(GrowthStage.Mature);
+            stage = GrowthStage.Mature;
         else if (stage == GrowthStage.Seed)
-            SetStage(GrowthStage.Growing);
+            stage = GrowthStage.Growing;
     }
 
+    [Server]
     public void FertilizePlant()
-    {        
-        if (stage == GrowthStage.Mature) 
-        {
-            return;
-        }
-        
+    {
+        if (stage == GrowthStage.Mature) return;
+
         currentInteractions = interactionsToMature;
-        SetStage(GrowthStage.Mature);
+        stage = GrowthStage.Mature;
         timer = witheringTime;
+        timerSync = timer;
     }
 
-    public virtual void TakeDamage(float damage) => health -= damage;
+    [Server]
+    public void SetOnFire()
+    {
+        if (isOnFire) return;
+        isOnFire = true;
+        fireTimer = fireDuration;
+    }
+
+    [Server]
+    public void ExtinguishFire()
+    {
+        isOnFire = false;
+        fireTimer = 0f;
+    }
+
+    public virtual void TakeDamage(float damage)
+    {
+        if (!isServer) return;
+        health -= damage;
+    }
+
+    [Server]
+    private void Die()
+    {
+        // notify FarmManager server-side
+        if (FarmManager.instance != null)
+        {
+            // compute cell from position on server if needed - FarmManager server tracks plantsByCell
+            FarmManager.instance.NotifyPlantDeath(FarmManager.instance.farmTilemap.WorldToCell(transform.position));
+        }
+
+        NetworkServer.Destroy(gameObject);
+    }
+    #endregion
+
+    protected bool IsFullyGrown() => stage == GrowthStage.Mature;
 
     public virtual int GetScoring()
     {
@@ -201,31 +288,11 @@ public class Plant : MonoBehaviour
         };
     }
 
-    public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
-
-    public void SetOnFire()
+    // Used by client VFX to compute wither ratio (uses last synced timer)
+    public float GetWitherRatio()
     {
-        
-        if (isOnFire) 
-        {
-            return;
-        }
-        isOnFire = true;
-        fireTimer = fireDuration;
-        
-        if (spriteRenderer)
-        {
-            if (originalColor == Color.clear || originalColor == default(Color))
-                originalColor = spriteRenderer.color;
-        }
-    }
-
-    public void ExtinguishFire()
-    {
-        isOnFire = false;
-        fireTimer = 0f;
-        
-        if (spriteRenderer && health > 0)
-            spriteRenderer.color = originalColor;
+        // use timerSync on clients, server uses timer
+        float t = isServer ? timer : timerSync;
+        return Mathf.Clamp01(t / witheringTime);
     }
 }

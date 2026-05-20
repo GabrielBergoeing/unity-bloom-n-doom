@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Mirror;
 
 public class FarmManager : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class FarmManager : MonoBehaviour
     [SerializeField] private bool startFarm = false;
 
     // --- Tile State Tracking ---
-    private readonly Dictionary<Vector3Int, TileState> tileStates = new();
+    // NOTE: plantsByCell/occupiedCells are maintained on server and also maintained on client via Plant registration
     private readonly Dictionary<Vector3Int, Plant> plantsByCell = new();
     private readonly HashSet<Vector3Int> occupiedCells = new();
 
@@ -45,13 +46,7 @@ public class FarmManager : MonoBehaviour
     public void InitializeTileStates(bool clearBefore = false)
     {
         if (clearBefore)
-            tileStates.Clear();
-
-        foreach (var pos in farmTilemap.cellBounds.allPositionsWithin)
-        {
-            if (farmTilemap.HasTile(pos))
-                tileStates[pos] = TileState.NotPrepared;
-        }
+            ; // keep other structures as clients will populate via Plant.OnStartClient
     }
 
     private void EnsurePlantsRootExists()
@@ -75,7 +70,8 @@ public class FarmManager : MonoBehaviour
 
     #region Tile State Queries
     public bool IsPrepared(Vector3Int cell) =>
-        tileStates.TryGetValue(cell, out var state) && state == TileState.Prepared;
+        // keep existing behaviour if needed; preparedTile logic not networked here
+        farmTilemap != null && farmTilemap.HasTile(cell) && farmTilemap.GetTile(cell) == preparedTile;
 
     public bool IsOccupied(Vector3Int cell) =>
         occupiedCells.Contains(cell);
@@ -95,25 +91,30 @@ public class FarmManager : MonoBehaviour
     #region Actions: Prepare / Plant / Water
     public void PrepareTile(Vector3Int cell)
     {
-        if (!tileStates.TryGetValue(cell, out var state) || state != TileState.NotPrepared)
-            return;
+        if (farmTilemap == null) return;
 
-        farmTilemap.SetTile(cell, preparedTile);
-        farmTilemap.RefreshTile(cell);
-        tileStates[cell] = TileState.Prepared;
+        if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
+        {
+            farmTilemap.SetTile(cell, preparedTile);
+            farmTilemap.RefreshTile(cell);
+        }
     }
 
+    // Server-side spawn plant
+    [Server]
     public void PlantSeed(Vector3Int cell, int playerIndex, GameObject plantPrefab)
     {
-        if (!tileStates.ContainsKey(cell) || !IsPrepared(cell) || IsOccupied(cell))
+        if (!farmTilemap.HasTile(cell) || IsOccupied(cell))
             return;
 
-        tileStates[cell] = TileState.PlantedSeed;
+        // mark tile visually
         farmTilemap.SetTile(cell, seedTile);
 
         SpawnPlant(cell, playerIndex, plantPrefab);
     }
 
+    // server-side wrapper used by gameplay logic - returns true if irrigated
+    [Server]
     public bool TryIrrigatePlant(Vector3Int cell)
     {
         if (plantsByCell.TryGetValue(cell, out var plant))
@@ -124,6 +125,7 @@ public class FarmManager : MonoBehaviour
         return false;
     }
 
+    [Server]
     public bool TryFertilizePlant(Vector3Int cell)
     {
         if (plantsByCell.TryGetValue(cell, out var plant))
@@ -137,33 +139,46 @@ public class FarmManager : MonoBehaviour
 
     #region Internal Spawn & Remove
 
+    [Server]
     private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
     {
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
-        GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
 
-        plantObj.transform.SetParent(GetPlayerPlantRoot(playerIndex));
+        // create parent root for server organization (optional)
+        Transform parentRoot = GetPlayerPlantRoot(playerIndex);
+
+        GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
+        plantObj.transform.SetParent(parentRoot, false);
+
+        // spawn networked object
+        NetworkServer.Spawn(plantObj);
 
         Plant plant = plantObj.GetComponent<Plant>();
-        plant?.Init(playerIndex, cell);
-
-        plantsByCell[cell] = plant;
-        occupiedCells.Add(cell);
+        if (plant != null)
+        {
+            plant.InitServer(playerIndex, cell);
+            plantsByCell[cell] = plant;
+            occupiedCells.Add(cell);
+        }
     }
 
+    [Server]
     public void RemovePlant(Vector3Int cell)
     {
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return;
 
-        Destroy(plant.gameObject);
+        NetworkServer.Destroy(plant.gameObject);
         plantsByCell.Remove(cell);
         occupiedCells.Remove(cell);
 
-        farmTilemap.SetTile(cell, preparedTile);
-        tileStates[cell] = TileState.Prepared;
+        if (farmTilemap != null)
+        {
+            farmTilemap.SetTile(cell, preparedTile);
+        }
     }
 
+    [Server]
     public void NotifyPlantDeath(Vector3Int cell)
     {
         if (!plantsByCell.ContainsKey(cell))
@@ -171,10 +186,11 @@ public class FarmManager : MonoBehaviour
 
         plantsByCell.Remove(cell);
         occupiedCells.Remove(cell);
-        farmTilemap.SetTile(cell, preparedTile);
-        tileStates[cell] = TileState.Prepared;
+        if (farmTilemap != null)
+            farmTilemap.SetTile(cell, preparedTile);
     }
 
+    [Server]
     public bool TryRemovePlant(Vector3Int cell, int requesterPlayerIndex)
     {
         if (!plantsByCell.TryGetValue(cell, out var plant))
@@ -208,6 +224,26 @@ public class FarmManager : MonoBehaviour
             playerPlantRoots[playerIndex] = root;
         }
         return root;
+    }
+    #endregion
+
+    #region Client registration (called by Plant.OnStartClient / OnStopClient)
+    // Called on clients when a plant instance spawns locally
+    public void RegisterClientPlant(Plant plant)
+    {
+        if (plant == null || farmTilemap == null) return;
+        Vector3Int cell = farmTilemap.WorldToCell(plant.transform.position);
+        plantsByCell[cell] = plant;
+        occupiedCells.Add(cell);
+    }
+
+    // Called on clients when a plant instance is destroyed locally
+    public void UnregisterClientPlant(Plant plant)
+    {
+        if (plant == null || farmTilemap == null) return;
+        Vector3Int cell = farmTilemap.WorldToCell(plant.transform.position);
+        plantsByCell.Remove(cell);
+        occupiedCells.Remove(cell);
     }
     #endregion
 

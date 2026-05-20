@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class CrownOfFlowers : Plant
 {
     [Header("Bonus Scoring per Adjacent Mature Plant")]
-    [SerializeField][Range(0, 3)] 
+    [SerializeField][Range(0, 3)]
     private int bonusScorePerPlant = 1;
 
     // Directions to check around the cell (up, down, left, right)
@@ -29,7 +29,7 @@ public class CrownOfFlowers : Plant
 
         foreach (var offset in neighborOffsets)
         {
-            Vector3Int checkCell = cellPos + offset;
+            Vector3Int checkCell = this.cellPos + offset;
 
             if (FarmManager.instance == null) continue;
 

@@ -23,13 +23,18 @@ public class Fertilizer : MonoBehaviour
     {
         if (owner == null) return;
 
+        // only local owner sends the request
+        if (!owner.isLocalPlayer) return;
+
         bool isUsing = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 
         if (isUsing)
         {
             if (TryUseFertilizer())
             {
-                pickup.Consume(owner);
+                // consume locally request server to destroy / handle stacks via HotbarSystem
+                if (pickup != null)
+                    pickup.Consume(owner);
             }
         }
     }
@@ -48,7 +53,9 @@ public class Fertilizer : MonoBehaviour
         {
             return false;
         }
-        tileInteraction.FertilizeInCell();
+
+        // Request server to fertilize via Player command
+        owner.CmdFertilizeCell(targetCell.x, targetCell.y, targetCell.z);
         
         if (sfx != null)
         {

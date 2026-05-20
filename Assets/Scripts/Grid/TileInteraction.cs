@@ -70,7 +70,26 @@ public class TileInteraction : MonoBehaviour
     public bool CanRefillWater() => farmManager.IsWaterTile(currentCell);
 
 
-    public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
-    public void FertilizeInCell() => farmManager.TryFertilizePlant(currentCell);
-    public void RemoveInCell() => farmManager.TryRemovePlant(currentCell, input.playerIndex);
+    // OLD: public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
+    // NEW: request server to irrigate via Player command
+    public void IrrigateInCell()
+    {
+        if (player == null || !player.isLocalPlayer) return;
+        var c = currentCell;
+        player.CmdIrrigateCell(c.x, c.y, c.z);
+    }
+
+    public void FertilizeInCell()
+    {
+        if (player == null || !player.isLocalPlayer) return;
+        var c = currentCell;
+        player.CmdFertilizeCell(c.x, c.y, c.z);
+    }
+
+    public void RemoveInCell()
+    {
+        if (player == null || !player.isLocalPlayer) return;
+        var c = currentCell;
+        player.CmdRemovePlant(c.x, c.y, c.z);
+    }
 }

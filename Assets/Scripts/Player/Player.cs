@@ -275,6 +275,32 @@ public class Player : Entity
         SpawnFlamethrower();
     }
 
+    [Command]
+    public void CmdIrrigateCell(int x, int y, int z)
+    {
+        if (!isServer || FarmManager.instance == null) return;
+        Vector3Int cell = new Vector3Int(x, y, z);
+        FarmManager.instance.TryIrrigatePlant(cell);
+    }
+
+    [Command]
+    public void CmdFertilizeCell(int x, int y, int z)
+    {
+        if (!isServer || FarmManager.instance == null) return;
+        Vector3Int cell = new Vector3Int(x, y, z);
+        FarmManager.instance.TryFertilizePlant(cell);
+    }
+
+    [Command]
+    public void CmdRemovePlant(int x, int y, int z)
+    {
+        if (!isServer || FarmManager.instance == null) return;
+        Vector3Int cell = new Vector3Int(x, y, z);
+        // usa el input.playerIndex del cliente que llamó el Command como comprobación
+        int requesterIndex = input != null ? input.playerIndex : -1;
+        FarmManager.instance.TryRemovePlant(cell, requesterIndex);
+    }
+
     [Server]
     public bool ConsumePickupRequest()
     {

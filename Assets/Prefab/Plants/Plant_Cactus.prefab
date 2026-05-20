@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6263866854795462359}
   - component: {fileID: 6695270640106779132}
   - component: {fileID: 5604063309545410721}
+  - component: {fileID: 8005742964180551150}
   m_Layer: 8
   m_Name: Plant_Cactus
   m_TagString: Plant
@@ -103,6 +104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a7ab2feef7f70447bed13f37bbbc0ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   ownerPlayerIndex: -1
   cellPos: {x: 0, y: 0, z: 0}
   interactionsToMature: 2
@@ -207,3 +211,20 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.3
+--- !u!114 &8005742964180551150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5654476984458142201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3246471235
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
