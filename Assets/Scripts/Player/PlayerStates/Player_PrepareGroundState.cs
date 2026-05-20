@@ -14,12 +14,17 @@ public class Player_PrepareGroundState : Player_ActionState
         }
 
         player.StartCoroutine(
-            ExecuteAction(player.prepareGroundFrame, player.prepareGroundCooldown, cell => //Define cooldowns in player?
+            ExecuteAction(player.prepareGroundFrame, player.prepareGroundCooldown, cell =>
             {
-                if (!FarmManager.instance.IsPrepared(cell) || !FarmManager.instance.IsOccupied(cell))
+                // Preparar sólo si NO está preparado y NO está ocupado (sin planta)
+                if (!FarmManager.instance.IsPrepared(cell) && !FarmManager.instance.IsOccupied(cell))
                 {
-                    FarmManager.instance.PrepareTile(cell); //Change to callable fuction
-                    sfx.PlayOnPrepareGround();
+                    // Solicita al servidor que prepare el tile
+                    if (player != null && player.isLocalPlayer)
+                    {
+                        player.CmdPrepareTile(cell.x, cell.y, cell.z);
+                        sfx.PlayOnPrepareGround();
+                    }
                 }
             })
         );

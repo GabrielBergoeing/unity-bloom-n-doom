@@ -1,7 +1,6 @@
-using Mirror;
 using UnityEngine;
+using Mirror;
 
-// Para la entrega final habra que hacer la clase planta ser heredado desde Entity
 public class Plant : NetworkBehaviour
 {
     public enum GrowthStage { Seed, Growing, Mature }

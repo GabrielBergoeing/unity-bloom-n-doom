@@ -301,6 +301,40 @@ public class Player : Entity
         FarmManager.instance.TryRemovePlant(cell, requesterIndex);
     }
 
+    // Command para que el servidor plante (recibe nombre de prefab y lo carga en servidor)
+    [Command]
+    public void CmdRequestPlant(int x, int y, int z, string plantPrefabName)
+    {
+        Debug.Log($"[Player][CmdRequestPlant] Server received request prefab={plantPrefabName} connection={(connectionToClient!=null?connectionToClient.connectionId:-1)}");
+        if (!isServer || FarmManager.instance == null || !canControl) return;
+
+        GameObject prefab = Resources.Load<GameObject>(plantPrefabName);
+        if (prefab == null)
+        {
+            Debug.LogError($"[Player][CmdRequestPlant] Prefab not found in Resources: {plantPrefabName}. Regístralo en NetworkManager.SpawnablePrefabs o ponlo en Resources/");
+            return;
+        }
+
+        Vector3Int cell = new Vector3Int(x, y, z);
+        int playerIndex = input != null ? input.playerIndex : (connectionToClient != null ? connectionToClient.connectionId : -1);
+        FarmManager.instance.PlantSeed(cell, playerIndex, prefab);
+    }
+
+    // Command para que el servidor prepare el tile
+    [Command]
+    public void CmdPrepareTile(int x, int y, int z)
+    {
+        Debug.Log($"[Player][CmdPrepareTile] Server received prepare request from connection={(connectionToClient!=null?connectionToClient.connectionId:-1)} cell=({x},{y},{z})");
+        if (!isServer || FarmManager.instance == null || !canControl)
+        {
+            Debug.LogWarning("[Player][CmdPrepareTile] Rejected: no server, no FarmManager or can't control.");
+            return;
+        }
+
+        Vector3Int cell = new Vector3Int(x, y, z);
+        FarmManager.instance.PrepareTile(cell);
+    }
+
     [Server]
     public bool ConsumePickupRequest()
     {

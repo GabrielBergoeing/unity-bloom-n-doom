@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6566404593137259064}
   - component: {fileID: 3668829381027802239}
+  - component: {fileID: 1926945268295259053}
   m_Layer: 0
   m_Name: __FARM MANAGER__
   m_TagString: Untagged
@@ -44,10 +45,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6c3ae2af137e6740bf439af1010bb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   farmTilemap: {fileID: 0}
+  waterTilemap: {fileID: 0}
   preparedTile: {fileID: 11400000, guid: 2689b463ac947ea4fa35c007aec73cf5, type: 2}
   seedTile: {fileID: 11400000, guid: edecc9b58eb27b641984024d2156c7d1, type: 2}
   plantsRoot: {fileID: 0}
-  plantPrefabs:
-  - {fileID: 391816432929291485, guid: 584c077ab13c30a4b9e6967e0e4786e0, type: 3}
-  - {fileID: 5654476984458142201, guid: a6096c3c1d986e24e8cdec191e0a45d0, type: 3}
+  startFarm: 0
+--- !u!114 &1926945268295259053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950738963709284094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 1563338631
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0

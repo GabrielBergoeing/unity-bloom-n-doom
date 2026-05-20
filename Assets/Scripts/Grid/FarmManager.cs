@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Mirror;
 
-public class FarmManager : MonoBehaviour
+[RequireComponent(typeof(NetworkIdentity))]
+public class FarmManager : NetworkBehaviour
 {
     public static FarmManager instance;
 
@@ -27,12 +28,12 @@ public class FarmManager : MonoBehaviour
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
+    // Eliminar/ignorar la asignación en Awake; usar OnStartServer/OnStartClient
     private void Awake()
     {
-        instance = this;
-
+        // no establecer 'instance' aquí para evitar referenciar instancias no networked
         if (!startFarm)
-            LevelManager.OnLevelLoaded += () => HandleLevelLoaded(); //Subcribe to LevelManager signal and trigger function when invoked
+            LevelManager.OnLevelLoaded += () => HandleLevelLoaded();
         else
             InitializeTileStates(true);
     }
@@ -40,6 +41,49 @@ public class FarmManager : MonoBehaviour
     private void Start()
     {
         EnsurePlantsRootExists();
+    }
+
+    // Nuevo: confirmación y fallback cuando el objeto se inicializa en el cliente
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        Debug.Log($"[FarmManager][OnStartClient] farmTilemap={(farmTilemap==null?"NULL":"OK")} preparedTile={(preparedTile==null?"NULL":"OK")} seedTile={(seedTile==null?"NULL":"OK")}");
+        if (farmTilemap == null)
+        {
+            // intento de fallback: tomar el primer Tilemap de la escena (útil en debugging)
+            var any = FindObjectOfType<Tilemap>();
+            if (any != null)
+            {
+                farmTilemap = any;
+                Debug.Log($"[FarmManager] Assigned farmTilemap fallback -> {any.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[FarmManager] No Tilemap found in scene during OnStartClient.");
+            }
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        instance = this;
+        Debug.Log($"[FarmManager][OnStartServer] assigned instance on server (netId={netId})");
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        // si esta instancia cliente era la instance global, limpiarla
+        if (instance == this)
+            instance = null;
+    }
+
+    public override void OnStopServer()
+    {
+        base.OnStopServer();
+        if (instance == this)
+            instance = null;
     }
 
     #region Init Helpers
@@ -89,14 +133,18 @@ public class FarmManager : MonoBehaviour
     #endregion
 
     #region Actions: Prepare / Plant / Water
+    // Marcar PrepareTile como [Server] y loggear ejecución
+    [Server]
     public void PrepareTile(Vector3Int cell)
     {
+        Debug.Log($"[FarmManager][PrepareTile] Server preparing tile at {cell} (farmTilemap={(farmTilemap==null?"NULL":"OK")})");
         if (farmTilemap == null) return;
 
         if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
         {
             farmTilemap.SetTile(cell, preparedTile);
             farmTilemap.RefreshTile(cell);
+            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
@@ -104,11 +152,18 @@ public class FarmManager : MonoBehaviour
     [Server]
     public void PlantSeed(Vector3Int cell, int playerIndex, GameObject plantPrefab)
     {
+        Debug.Log($"[FarmManager][Server] PlantSeed request cell={cell} playerIndex={playerIndex} prefab={(plantPrefab!=null?plantPrefab.name:"NULL")}");
         if (!farmTilemap.HasTile(cell) || IsOccupied(cell))
+        {
+            Debug.Log($"[FarmManager] PlantSeed aborted: no tile or occupied. HasTile={farmTilemap.HasTile(cell)} IsOccupied={IsOccupied(cell)}");
             return;
+        }
 
-        // mark tile visually
+        // mark tile visually (server)
         farmTilemap.SetTile(cell, seedTile);
+
+        // Propagar tile change a clientes
+        RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.PlantedSeed);
 
         SpawnPlant(cell, playerIndex, plantPrefab);
     }
@@ -143,8 +198,6 @@ public class FarmManager : MonoBehaviour
     private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
     {
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
-
-        // create parent root for server organization (optional)
         Transform parentRoot = GetPlayerPlantRoot(playerIndex);
 
         GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
@@ -175,6 +228,8 @@ public class FarmManager : MonoBehaviour
         if (farmTilemap != null)
         {
             farmTilemap.SetTile(cell, preparedTile);
+            // propagar a clientes
+            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
@@ -187,7 +242,10 @@ public class FarmManager : MonoBehaviour
         plantsByCell.Remove(cell);
         occupiedCells.Remove(cell);
         if (farmTilemap != null)
+        {
             farmTilemap.SetTile(cell, preparedTile);
+            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+        }
     }
 
     [Server]
@@ -249,6 +307,24 @@ public class FarmManager : MonoBehaviour
 
     #region Water Tile
     public bool IsWaterTile(Vector3Int cell) => waterTilemap.HasTile(cell);
+    #endregion
+
+    #region RPCs
+    // Asegúrate de que RpcSetTileState también loggea su llegada
+    [ClientRpc]
+    private void RpcSetTileState(int x, int y, int z, byte state)
+    {
+        Debug.Log($"[FarmManager][RpcSetTileState] Received state={state} on client. farmTilemap={(farmTilemap==null?"NULL":"OK")}");
+        if (farmTilemap == null) return;
+        var cell = new Vector3Int(x, y, z);
+        Tile tileToSet = null;
+        if (state == (byte)TileState.Prepared)
+            tileToSet = preparedTile;
+        else if (state == (byte)TileState.PlantedSeed)
+            tileToSet = seedTile;
+        farmTilemap.SetTile(cell, tileToSet);
+        farmTilemap.RefreshTile(cell);
+    }
     #endregion
 
 }
