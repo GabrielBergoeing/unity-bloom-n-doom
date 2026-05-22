@@ -16,15 +16,11 @@ public class Player_PrepareGroundState : Player_ActionState
         player.StartCoroutine(
             ExecuteAction(player.prepareGroundFrame, player.prepareGroundCooldown, cell =>
             {
-                // Preparar sólo si NO está preparado y NO está ocupado (sin planta)
-                if (!FarmManager.instance.IsPrepared(cell) && !FarmManager.instance.IsOccupied(cell))
+                // Prepare only if NOT already prepared and NOT occupied (no plant)
+                if (FarmManager.instance != null && !FarmManager.instance.IsPrepared(cell) && !FarmManager.instance.IsOccupied(cell))
                 {
-                    // Solicita al servidor que prepare el tile
-                    if (player != null && player.isLocalPlayer)
-                    {
-                        player.CmdPrepareTile(cell.x, cell.y, cell.z);
-                        sfx.PlayOnPrepareGround();
-                    }
+                    FarmManager.instance.PrepareTile(cell);
+                    if (sfx != null) sfx.PlayOnPrepareGround();
                 }
             })
         );

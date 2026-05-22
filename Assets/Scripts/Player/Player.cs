@@ -296,7 +296,7 @@ public class Player : Entity
     {
         if (!isServer || FarmManager.instance == null) return;
         Vector3Int cell = new Vector3Int(x, y, z);
-        // usa el input.playerIndex del cliente que llamó el Command como comprobación
+        // usa el input.playerIndex del cliente que llamï¿½ el Command como comprobaciï¿½n
         int requesterIndex = input != null ? input.playerIndex : -1;
         FarmManager.instance.TryRemovePlant(cell, requesterIndex);
     }
@@ -311,7 +311,7 @@ public class Player : Entity
         GameObject prefab = Resources.Load<GameObject>(plantPrefabName);
         if (prefab == null)
         {
-            Debug.LogError($"[Player][CmdRequestPlant] Prefab not found in Resources: {plantPrefabName}. Regístralo en NetworkManager.SpawnablePrefabs o ponlo en Resources/");
+            Debug.LogError($"[Player][CmdRequestPlant] Prefab not found in Resources: {plantPrefabName}. Regï¿½stralo en NetworkManager.SpawnablePrefabs o ponlo en Resources/");
             return;
         }
 

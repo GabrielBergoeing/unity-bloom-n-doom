@@ -37,8 +37,16 @@ public class Player_ActionState : PlayerState
     ){
         player.FlipPlayerControlFlag();
 
-        // The actual action performed (cut/plant/prepare/etc)
-        applyAction(tile.CurrentCell);
+        // Safe execution just in case
+        try 
+        {
+            // The actual action performed (cut/plant/prepare/etc)
+            applyAction(tile.CurrentCell);
+        } 
+        catch (System.Exception e) 
+        {
+            Debug.LogError($"[Player_ActionState] Error during action: {e}");
+        }
 
         // Animation time
         yield return new WaitForSeconds(duration);

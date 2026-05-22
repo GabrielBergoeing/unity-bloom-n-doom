@@ -11,20 +11,11 @@ public class Seed : MonoBehaviour
         pickup = GetComponent<Pickup>();
     }
     
+    // Called server-side from Player_PlantState via the state machine.
     public void Use(Vector3Int cell, Player player)
     {
-        if (player != null && player.isLocalPlayer)
-        {
-            // Enviar al servidor la petición. Usamos el nombre del prefab y lo cargamos en servidor.
-            player.CmdRequestPlant(cell.x, cell.y, cell.z, plantPrefab.name);
-            // consumo local de UI/inventario (ideal: autoritativo en servidor en futuro)
-            pickup.Consume(player);
-        }
-        else if (player != null && player.isServer)
-        {
-            // Fallback para host
-            FarmManager.instance.PlantSeed(cell, player.input.playerIndex, plantPrefab);
-            pickup.Consume(player);
-        }
+        if (player == null || FarmManager.instance == null) return;
+        FarmManager.instance.PlantSeed(cell, player.input.playerIndex, plantPrefab);
+        pickup.Consume(player);
     }
 }

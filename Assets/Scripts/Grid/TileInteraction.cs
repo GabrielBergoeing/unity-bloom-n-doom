@@ -13,13 +13,23 @@ public class TileInteraction : MonoBehaviour
     private GameObject currentOutline;
 
     private PlayerInput input;
-    private Vector3Int currentCell;
-    public Vector3Int CurrentCell => currentCell;
+    
+    public Vector3Int CurrentCell
+    {
+        get
+        {
+            if (FarmManager.instance == null || FarmManager.instance.farmTilemap == null) 
+                return Vector3Int.zero;
+                
+            Vector3 playerWorldPos = player.transform.position;
+            Vector3Int playerCell = FarmManager.instance.farmTilemap.WorldToCell(playerWorldPos);
+            return GetCellInFrontOfPlayer(playerCell);
+        }
+    }
 
     private void Awake()
     {
         input = player.input;
-        farmManager = FarmManager.instance;
     }
 
     private void Start()
@@ -29,14 +39,15 @@ public class TileInteraction : MonoBehaviour
 
     private void Update()
     {
-        if (!player.canControl)
+        if (!player.canControl || !player.isLocalPlayer)
             return;
         
-        Vector3 playerWorldPos = player.transform.position;
-        Vector3Int playerCell = farmManager.farmTilemap.WorldToCell(playerWorldPos);
-        Vector3Int frontCell = GetCellInFrontOfPlayer(playerCell);
-        currentCell = frontCell;
-        Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(currentCell);
+        if (FarmManager.instance == null || FarmManager.instance.farmTilemap == null) 
+            return;
+
+        Vector3Int cell = CurrentCell;
+        Vector3 cellCenter = FarmManager.instance.farmTilemap.GetCellCenterWorld(cell);
+        
         if (tileOutlinePrefab != null)
         {
             if (currentOutline == null)
@@ -58,38 +69,34 @@ public class TileInteraction : MonoBehaviour
     public void SetCamera(Camera newCam) => cam = newCam;
 
     // Interface functions so that player does not directly ask FarmManager
-    public bool CellIsPrepared() => farmManager.IsPrepared(currentCell);
-    public bool CellIsOccupied() => farmManager.IsOccupied(currentCell);
-    public bool IsCellOwner(int playerIndex) => playerIndex == farmManager.GetPlantOwner(currentCell);
+    public bool CellIsPrepared() => FarmManager.instance != null && FarmManager.instance.IsPrepared(CurrentCell);
+    public bool CellIsOccupied() => FarmManager.instance != null && FarmManager.instance.IsOccupied(CurrentCell);
+    public bool IsCellOwner(int playerIndex) => FarmManager.instance != null && playerIndex == FarmManager.instance.GetPlantOwner(CurrentCell);
 
     public bool CanPrepare() => !CellIsPrepared() && !CellIsOccupied();
     public bool CanPlant() => CellIsPrepared() && !CellIsOccupied();
     public bool CanIrrigate() => CellIsOccupied();
     public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
     public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(input.playerIndex);
-    public bool CanRefillWater() => farmManager.IsWaterTile(currentCell);
+    public bool CanRefillWater() => FarmManager.instance != null && FarmManager.instance.IsWaterTile(CurrentCell);
 
-
-    // OLD: public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
-    // NEW: request server to irrigate via Player command
+    // These are called server-side from the state machine, so call FarmManager directly.
     public void IrrigateInCell()
     {
-        if (player == null || !player.isLocalPlayer) return;
-        var c = currentCell;
-        player.CmdIrrigateCell(c.x, c.y, c.z);
+        if (FarmManager.instance == null) return;
+        FarmManager.instance.TryIrrigatePlant(CurrentCell);
     }
 
     public void FertilizeInCell()
     {
-        if (player == null || !player.isLocalPlayer) return;
-        var c = currentCell;
-        player.CmdFertilizeCell(c.x, c.y, c.z);
+        if (FarmManager.instance == null) return;
+        FarmManager.instance.TryFertilizePlant(CurrentCell);
     }
 
     public void RemoveInCell()
     {
-        if (player == null || !player.isLocalPlayer) return;
-        var c = currentCell;
-        player.CmdRemovePlant(c.x, c.y, c.z);
+        if (FarmManager.instance == null) return;
+        int playerIndex = input != null ? input.playerIndex : -1;
+        FarmManager.instance.TryRemovePlant(CurrentCell, playerIndex);
     }
 }
