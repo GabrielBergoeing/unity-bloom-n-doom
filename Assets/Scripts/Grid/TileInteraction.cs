@@ -29,31 +29,49 @@ public class TileInteraction : MonoBehaviour
 
     private void Awake()
     {
-        input = player.input;
+        // No dependemos de player.input aquí porque Player.Awake() podría no haber corrido aún.
     }
 
     private void Start()
     {
         if (cam == null) cam = Camera.main;
+
+        farmManager = FarmManager.instance;
+
+        // Intentar asignar input de forma segura (podría no estar listo en Awake)
+        if (player != null)
+            input = player.input ?? GetComponentInParent<Player>()?.input;
     }
 
     private void Update()
     {
+        if (player == null) return;
+
         if (!player.canControl || !player.isLocalPlayer)
             return;
         
-        if (FarmManager.instance == null || FarmManager.instance.farmTilemap == null) 
+        if (farmManager == null || farmManager.farmTilemap == null) 
             return;
 
         Vector3Int cell = CurrentCell;
-        Vector3 cellCenter = FarmManager.instance.farmTilemap.GetCellCenterWorld(cell);
+        Vector3 cellCenter = farmManager.farmTilemap.GetCellCenterWorld(cell);
+
+        // Mantener el Z igual al del jugador para que el outline quede en la misma capa visual
+        float z = player.transform.position.z;
+        Vector3 targetPos = new Vector3(cellCenter.x, cellCenter.y, z);
         
         if (tileOutlinePrefab != null)
         {
             if (currentOutline == null)
-                currentOutline = Instantiate(tileOutlinePrefab, cellCenter, Quaternion.identity);
+            {
+                // Hacer el outline hijo del Tilemap para respetar orden y transformaciones
+                Transform parent = farmManager.farmTilemap.transform;
+                currentOutline = Instantiate(tileOutlinePrefab, targetPos, Quaternion.identity, parent);
+            }
             else
-                currentOutline.transform.position = cellCenter;
+            {
+                currentOutline.transform.position = targetPos;
+            }
         }
     }
 
