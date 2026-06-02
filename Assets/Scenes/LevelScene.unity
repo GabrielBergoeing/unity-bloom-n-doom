@@ -15987,6 +15987,18 @@ PrefabInstance:
       propertyPath: m_Tiles.Array.data[75].second.m_TileObjectToInstantiateIndex
       value: 65535
       objectReference: {fileID: 0}
+    - target: {fileID: 3788114971461017651, guid: c69915b043e4ad14d88847e9f6ea2c1b, type: 3}
+      propertyPath: fileName
+      value: FirstLevel.json
+      objectReference: {fileID: 0}
+    - target: {fileID: 3788114971461017651, guid: c69915b043e4ad14d88847e9f6ea2c1b, type: 3}
+      propertyPath: encryptData
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5192852097769047814, guid: c69915b043e4ad14d88847e9f6ea2c1b, type: 3}
+      propertyPath: sceneId
+      value: 3797322902
+      objectReference: {fileID: 0}
     - target: {fileID: 7279096665031295556, guid: c69915b043e4ad14d88847e9f6ea2c1b, type: 3}
       propertyPath: m_Size.x
       value: 27
@@ -22935,6 +22947,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1926945268295259053, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
+      propertyPath: sceneId
+      value: 2478748927
+      objectReference: {fileID: 0}
     - target: {fileID: 3668829381027802239, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
       propertyPath: farmTilemap
       value: 

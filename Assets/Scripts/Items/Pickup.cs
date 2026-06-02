@@ -27,6 +27,9 @@ public class Pickup : NetworkBehaviour
 
     private void OnEnable()
     {
+        if (!gameObject.scene.isLoaded)
+            return;
+            
         if (isServer)
         {
             ResetPickupState();

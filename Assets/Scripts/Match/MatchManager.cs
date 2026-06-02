@@ -26,11 +26,31 @@ public class MatchManager : MonoBehaviour
         instance = this;
         scoreTally = GetComponent<ScoreTally>();
 
-        currentLevel = GameManager.instance.currentLevel;
-        timer = currentLevel.matchDuration;
+        if (GameManager.instance != null && GameManager.instance.currentLevel != null)
+        {
+            currentLevel = GameManager.instance.currentLevel;
+            timer = currentLevel.matchDuration;
 
-        for (int i = 0; i < 4; i++)
-            playerSpawns[i] = currentLevel.playerSpawnPositions[i];
+            if (currentLevel.playerSpawnPositions != null && currentLevel.playerSpawnPositions.Length >= 4)
+            {
+                playerSpawns = new Vector3[4];
+                for (int i = 0; i < 4; i++)
+                    playerSpawns[i] = currentLevel.playerSpawnPositions[i];
+            }
+        }
+        else
+        {
+            Debug.LogError("[MatchManager] No currentLevel set in GameManager!");
+            // Set reasonable defaults
+            timer = 900f;
+            playerSpawns = new Vector3[4] 
+            { 
+                Vector3.zero, 
+                Vector3.one, 
+                Vector3.one * 2, 
+                Vector3.one * 3 
+            };
+        }
     }
 
     private void Update()

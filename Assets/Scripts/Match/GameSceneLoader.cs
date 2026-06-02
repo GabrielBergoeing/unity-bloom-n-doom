@@ -6,9 +6,27 @@ public class GameSceneLoader : MonoBehaviour
 {
     private void Start()
     {
-        PlayerInputService.instance.ResetForGameplay(); // reset runtime list
-        var players = SpawnPlayersFromConfig();         // get gameplay players
-        MatchManager.instance.InitializePlayers(players);
+        var service = PlayerInputService.instance;
+        
+        if (service == null)
+        {
+            Debug.LogError("[GameSceneLoader] PlayerInputService not found!");
+            return;
+        }
+
+        if (service.Configs == null || service.Configs.Count == 0)
+        {
+            Debug.LogError("[GameSceneLoader] No player configs found! Players not set up correctly in lobby.");
+            return;
+        }
+
+        service.ResetForGameplay();
+        var players = SpawnPlayersFromConfig();
+        
+        if (MatchManager.instance != null)
+        {
+            MatchManager.instance.InitializePlayers(players);
+        }
     }
 
     private List<PlayerInput> SpawnPlayersFromConfig()

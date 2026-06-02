@@ -33,10 +33,17 @@ public class EventManager : MonoBehaviour
         }
         instance = this;
 
-        currentLevel = GameManager.instance.currentLevel;
-        mapSeeds = currentLevel.seedPrefabs;
-        mapTools = currentLevel.toolPrefabs;
-        mapRarities = currentLevel.rarePrefabs;
+        if (GameManager.instance != null && GameManager.instance.currentLevel != null)
+        {
+            currentLevel = GameManager.instance.currentLevel;
+            mapSeeds = currentLevel.seedPrefabs;
+            mapTools = currentLevel.toolPrefabs;
+            mapRarities = currentLevel.rarePrefabs;
+        }
+        else
+        {
+            Debug.LogWarning("[EventManager] GameManager.currentLevel not initialized.");
+        }
     }
 
     private void Update()

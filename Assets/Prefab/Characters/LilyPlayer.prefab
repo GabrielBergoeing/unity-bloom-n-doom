@@ -310,7 +310,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   clientAuthority: 0
-  animator: {fileID: 7778674772011878361, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
+  animator: {fileID: 7778674772011878361}
 --- !u!114 &-8236677685244742977
 MonoBehaviour:
   m_ObjectHideFlags: 0

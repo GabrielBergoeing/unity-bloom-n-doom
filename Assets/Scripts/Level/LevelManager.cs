@@ -14,7 +14,24 @@ public class LevelManager : MonoBehaviour
 
     private void Awake()
     {
-        currentLevel = GameManager.instance.currentLevel;
+        // Try to get currentLevel from GameManager first
+        if (GameManager.instance != null && GameManager.instance.currentLevel != null)
+        {
+            currentLevel = GameManager.instance.currentLevel;
+        }
+        else
+        {
+            // Fallback: try to load from Resources
+            Debug.LogWarning("[LevelManager] GameManager.currentLevel not set. Attempting to load default level.");
+            currentLevel = Resources.Load<LevelData>("Levels/DefaultLevel");
+            
+            if (currentLevel == null)
+            {
+                Debug.LogError("[LevelManager] No LevelData found! Create a LevelData ScriptableObject in Resources/Levels/");
+                return;
+            }
+        }
+
         string levelFileToLoad = currentLevel.jsonFileName ?? fileName;
 
         // Use Resources folder for build compatibility
