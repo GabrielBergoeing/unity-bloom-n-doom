@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Mirror;
 
 public class UI_MatchMenu : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class UI_MatchMenu : MonoBehaviour
     private readonly Dictionary<PlayerInput, UI_CharacterSelector> players = new();
     private Coroutine autoStartCoroutine;
     private UIService UI => UIService.instance;
+
+    private bool isOnlineMode = false; // setear desde UI
     #endregion
 
     private void Awake()
@@ -121,19 +124,44 @@ public class UI_MatchMenu : MonoBehaviour
         UI.sfx.PlayOnConfirm();
         Debug.Log("[MatchMenu] Launching next scene.");
 
-        // keep player order consistent: slot order = player order
         var ordered = slots.Where(s => s.IsOccupied)
                            .Select(s => s.AssignedPlayer)
                            .ToArray();
 
+        // Guardar configuraciones de los players (maneja nulls para slots remotos)
         PlayerInputService.instance.StoreLobbyPlayers(ordered);
 
-        // write selected characters to config for gameplay spawning
         var configs = PlayerInputService.instance.Configs;
         for (int i = 0; i < ordered.Length; i++)
+            configs[i].selectedCharacter = slots[i].SelectedCharacter;
+
+        if (isOnlineMode)
         {
-            var selector = slots[i];
-            configs[i].selectedCharacter = selector.SelectedCharacter;
+            // Validaciones para online
+            if (NetworkManager.singleton == null)
+            {
+                Debug.LogError("[MatchMenu] No NetworkManager found for online mode.");
+                return;
+            }
+
+            if (NetworkManager.singleton.playerPrefab == null)
+            {
+                Debug.LogError("[MatchMenu] NetworkManager.playerPrefab is empty. Asigna un prefab o configura OnServerAddPlayer.");
+                return;
+            }
+
+            // Evitar joins locales que creen PlayerInput redundantes
+            if (PlayerInputManager.instance != null)
+                PlayerInputManager.instance.enabled = false;
+
+            // Arranca host (o client según la UI)
+            NetworkManager.singleton.StartHost();
+        }
+        else
+        {
+            // Local: PlayerInputManager debe estar activo para joins; la escena de juego hará spawn local con PlayerInputService
+            if (PlayerInputManager.instance != null)
+                PlayerInputManager.instance.enabled = true;
         }
 
         GameManager.instance.StartMatchScene("MapSelector");

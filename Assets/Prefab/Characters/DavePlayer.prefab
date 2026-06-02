@@ -18,6 +18,8 @@ GameObject:
   - component: {fileID: 4213318453253227017}
   - component: {fileID: 8000344589524411964}
   - component: {fileID: -5329489693210443631}
+  - component: {fileID: 5606457585317415201}
+  - component: {fileID: -3413183083222087703}
   m_Layer: 9
   m_Name: DavePlayer
   m_TagString: Player
@@ -105,6 +107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 255ad9fefb06aff498aee057089f4b0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   slots: []
   stackCounts: 
   currentSlot: 0
@@ -289,6 +294,45 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &5606457585317415201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  clientAuthority: 0
+  animator: {fileID: 7778674772011878361, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
+--- !u!114 &-3413183083222087703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165571438480114262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f12e607fabde10488cd32c4dd28924a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  pingInterval: 0.5
+  maxWindow: 50
+  showHUD: 1
+  autoExportOnStop: 1
+  exportKey: 289
+  toggleKey: 288
+  autoStart: 0
 --- !u!1 &1209325819614066548
 GameObject:
   m_ObjectHideFlags: 0

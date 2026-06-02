@@ -164,7 +164,20 @@ public class PlayerInputService : MonoBehaviour
 
         foreach (var p in lobbyPlayers)
         {
-            if (p.devices.Count == 0) continue;
+            // If slot represents a remote selection (null PlayerInput), keep a placeholder config
+            if (p == null)
+            {
+                configs.Add(new PlayerConfiguration());
+                continue;
+            }
+
+            // If the PlayerInput has no devices, store placeholder and destroy instance
+            if (p.devices.Count == 0)
+            {
+                configs.Add(new PlayerConfiguration());
+                Destroy(p.gameObject);
+                continue;
+            }
 
             configs.Add(new PlayerConfiguration
             {

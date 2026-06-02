@@ -1836,6 +1836,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098b8d72cb9442343bd1abbe94f23037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkMode: 1
+  overrideTransport: {fileID: 0}
+  remoteHostAddress: 127.0.0.1
+  joinDelay: 1.5
 --- !u!4 &4253433090173991511
 Transform:
   m_ObjectHideFlags: 0
@@ -1880,7 +1884,31 @@ MonoBehaviour:
   playerPrefab: {fileID: 0}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 7950738963709284094, guid: 58b4e7cc4e363a341b629408666c3a37, type: 3}
+  - {fileID: 165571438480114262, guid: 091358c6c976a3f4bb3149a18b507b75, type: 3}
+  - {fileID: 5840447366612253708, guid: 5b4babd5aadc080479127448fa28cefc, type: 3}
+  - {fileID: 187991493021349217, guid: fb48b5dc270d65b429391925ed90d613, type: 3}
+  - {fileID: 7554891935492345296, guid: ec224f5adeb154c498736cbfa35c7f76, type: 3}
+  - {fileID: 165571438480114262, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
+  - {fileID: 165571438480114262, guid: a2585420cfeadd04a80550f3b451a7de, type: 3}
+  - {fileID: 165571438480114262, guid: c6255ba2fa7d7144a90e7e277536ea01, type: 3}
+  - {fileID: 5654476984458142201, guid: a45c29451d903e64dbac31174da0884c, type: 3}
+  - {fileID: 391816432929291485, guid: 5ae40d33337bfc6d4a2819e125bf0e7a, type: 3}
+  - {fileID: 391816432929291485, guid: 584c077ab13c30a4b9e6967e0e4786e0, type: 3}
+  - {fileID: 391816432929291485, guid: c63c71a8fe0811e83873dbb39548caff, type: 3}
+  - {fileID: 391816432929291485, guid: 157cfe018ef02506191fce66d3e1bc73, type: 3}
+  - {fileID: 5654476984458142201, guid: a6096c3c1d986e24e8cdec191e0a45d0, type: 3}
+  - {fileID: 165571438480114262, guid: b291267d2d53d2740ae30b461b8044e1, type: 3}
+  - {fileID: 3485547710261962795, guid: a9dd71347878ab242836d22b98d90c79, type: 3}
+  - {fileID: 2558169981995761550, guid: e940a3d33077a8c4e9a2cb3b65cdb2dd, type: 3}
+  - {fileID: 2558169981995761550, guid: 28cf2b92a8a19af01a61a92bb3748841, type: 3}
+  - {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
+  - {fileID: 2558169981995761550, guid: 0ce7159f44e6bf9b8aff0a44881b4133, type: 3}
+  - {fileID: 2558169981995761550, guid: 93650a7fc1d7d06d2aee2bf624998d6d, type: 3}
+  - {fileID: 6445088790610930207, guid: efb202bd4dead634c9fdfefa8dc37831, type: 3}
+  - {fileID: 2003958750646805177, guid: c1cb0d70acf0bda48bcabc6f2085e522, type: 3}
+  - {fileID: 2066449091537581138, guid: 6f1701a8bf13a044cb9185aea1f1b32f, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -1947,6 +1975,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 7777
+  handshakeRetryInterval: 0.5
   timeoutDuration: 5
 --- !u!114 &9209184956688542782
 MonoBehaviour:
