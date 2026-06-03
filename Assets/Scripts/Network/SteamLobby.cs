@@ -52,6 +52,11 @@ public class SteamLobby : MonoBehaviour
 
         Debug.Log($"[SteamLobby] Start - mode={networkMode}, transport={Transport.active?.GetType().Name ?? "null"}");
 
+        if (Application.dataPath.ToLower().Contains("clone"))
+                {
+                    networkMode = NetworkMode.Join;
+                }
+
         switch (networkMode)
         {
             case NetworkMode.Steam:
