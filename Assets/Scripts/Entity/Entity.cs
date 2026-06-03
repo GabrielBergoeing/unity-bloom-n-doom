@@ -25,10 +25,19 @@ public class Entity : NetworkBehaviour
     protected virtual void Update()
     {
         bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        bool isNetworkSpawnedObject = isServer || isClient;
 
         if (isNetworkActive)
         {
-            if (!isServer && !isClient) return;
+            if (!isNetworkSpawnedObject)
+            {
+                // Mirror can be active while some gameplay objects are local-only.
+                // Keep local simulation running for those objects.
+                stateMachine.UpdateActiveState();
+                UpdateClient();
+                UpdateLocalPlayer();
+                return;
+            }
 
             if (isServer)
                 stateMachine.UpdateActiveState();

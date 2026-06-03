@@ -68,7 +68,30 @@ public class Player_ScreenCamera : MonoBehaviour
 
     private void Update()
     {
+        RefreshLocalLayoutState();
         RefreshOnlineCameraOwnership();
+    }
+
+    private void RefreshLocalLayoutState()
+    {
+        if (player == null)
+            return;
+
+        int currentIndex = player.playerIndex;
+        int currentTotalPlayers = Mathf.Max(1, PlayerInput.all.Count);
+
+        bool changed = currentIndex != index || currentTotalPlayers != totalPlayers;
+        if (!changed)
+            return;
+
+        index = currentIndex;
+        totalPlayers = currentTotalPlayers;
+
+        if (cam != null)
+            cam.depth = index;
+
+        if (!IsOnlineSession())
+            SetupCamera();
     }
 
     private void RefreshOnlineCameraOwnership()
@@ -76,11 +99,13 @@ public class Player_ScreenCamera : MonoBehaviour
         if (cam == null)
             return;
 
-        bool isOnlineSession = NetworkClient.active || NetworkServer.active;
+        bool isOnlineSession = IsOnlineSession();
         if (!isOnlineSession)
         {
             if (!cam.enabled)
                 cam.enabled = true;
+
+            SetupCamera();
             return;
         }
 
@@ -100,8 +125,8 @@ public class Player_ScreenCamera : MonoBehaviour
         if (!cam.enabled)
             return;
 
-        totalPlayers = PlayerInput.all.Count;
-        bool isOnlineSession = NetworkServer.active || NetworkClient.active;
+        totalPlayers = Mathf.Max(1, PlayerInput.all.Count);
+        bool isOnlineSession = IsOnlineSession();
 
         if (isOnlineSession)
         {
@@ -113,6 +138,15 @@ public class Player_ScreenCamera : MonoBehaviour
             // Local — split screen based on player count
             SetupCamera();
         }
+    }
+
+    private bool IsOnlineSession()
+    {
+        bool mirrorActive = NetworkServer.active || NetworkClient.active;
+        bool multipleLocalInputs = PlayerInput.all.Count > 1;
+
+        // If more than one local input exists, treat it as local split-screen even when Mirror is active.
+        return mirrorActive && !multipleLocalInputs;
     }
 
     private void SetupCamera()

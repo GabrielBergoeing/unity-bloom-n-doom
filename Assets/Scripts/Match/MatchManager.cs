@@ -71,8 +71,7 @@ public class MatchManager : MonoBehaviour
 
         foreach (var p in players)
         {
-            p.ActivateInput();
-            p.SwitchCurrentActionMap("Player");
+            EnableAndSwitchActionMap(p, "Player");
         }
 
         isPlayingMatch = true;
@@ -131,19 +130,39 @@ public class MatchManager : MonoBehaviour
         {
             if (pause)
             {
-                p.DeactivateInput();
+                EnsureInputReady(p);
                 p.SwitchCurrentActionMap("UI");
+                p.DeactivateInput();
             }
             else
             {
-                p.ActivateInput();
-                p.SwitchCurrentActionMap("Player");
+                EnableAndSwitchActionMap(p, "Player");
             }
         }
     }
 
     public void PauseMatch() => PauseMatch(true);
     public void UnpauseMatch() => PauseMatch(false);
+
+    private void EnableAndSwitchActionMap(PlayerInput playerInput, string actionMap)
+    {
+        if (playerInput == null) return;
+
+        EnsureInputReady(playerInput);
+        playerInput.ActivateInput();
+        playerInput.SwitchCurrentActionMap(actionMap);
+    }
+
+    private static void EnsureInputReady(PlayerInput playerInput)
+    {
+        if (playerInput == null) return;
+
+        if (!playerInput.enabled)
+            playerInput.enabled = true;
+
+        if (playerInput.actions != null && !playerInput.actions.enabled)
+            playerInput.actions.Enable();
+    }
 
     // --------------------------- END MATCH --------------------------- //
 

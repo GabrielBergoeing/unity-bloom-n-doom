@@ -47,7 +47,10 @@ public class TileInteraction : MonoBehaviour
     {
         if (player == null) return;
 
-        if (!player.canControl || !player.isLocalPlayer)
+        bool isNetworkSpawnedObject = player.isServer || player.isClient;
+        bool hasLocalControl = !isNetworkSpawnedObject || player.isLocalPlayer;
+
+        if (!player.canControl || !hasLocalControl)
             return;
         
         if (farmManager == null || farmManager.farmTilemap == null) 

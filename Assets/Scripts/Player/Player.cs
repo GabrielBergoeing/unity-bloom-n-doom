@@ -98,8 +98,12 @@ public class Player : Entity
         base.Start();
         stateMachine.Initialize(idleState);
 
-        // In local (non-networked) mode, Mirror callbacks never fire so enable input directly
-        if (!NetworkServer.active && !NetworkClient.active)
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        bool isNetworkSpawnedObject = isServer || isClient;
+
+        // In local mode or local-only objects under an active Mirror session,
+        // Mirror ownership callbacks do not grant local authority.
+        if (!isNetworkActive || !isNetworkSpawnedObject)
         {
             input.enabled = true;
             canControl = true;
@@ -115,35 +119,35 @@ public class Player : Entity
     {
         if (input == null || !input.enabled) return;
 
-        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        bool useNetworkCommands = isServer || isClient;
 
         if (input.actions["Pickup"].triggered)
         {
-            if (isNetworkActive) CmdRequestPickup();
+            if (useNetworkCommands) CmdRequestPickup();
             else pickupRequested = true;
         }
 
         if (input.actions["Interact"].triggered)
         {
-            if (isNetworkActive) CmdRequestInteract();
+            if (useNetworkCommands) CmdRequestInteract();
             else interactRequested = true;
         }
 
         if (input.actions["Drop"].triggered)
         {
-            if (isNetworkActive) CmdRequestDrop();
+            if (useNetworkCommands) CmdRequestDrop();
             else dropRequested = true;
         }
 
         if (input.actions["Sabotage"].triggered)
         {
-            if (isNetworkActive) CmdRequestSabotage();
+            if (useNetworkCommands) CmdRequestSabotage();
             else sabotageRequested = true;
         }
 
         if (input.actions["CheatRefill"].triggered)
         {
-            if (isNetworkActive) CmdCheatRefill();
+            if (useNetworkCommands) CmdCheatRefill();
             else waterSupply = 100;
         }
 
@@ -203,15 +207,15 @@ public class Player : Entity
 
     public void OnMovement(InputValue inputValue)
     {
-        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
-        if (isNetworkActive && !isLocalPlayer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isLocalPlayer) return;
 
         Vector2 val = inputValue.Get<Vector2>();
 
         if (!canControl)
             val = Vector2.zero;
 
-        if (isNetworkActive)
+        if (isNetworkSpawnedObject)
             CmdSendMovement(val);
         else
         {
