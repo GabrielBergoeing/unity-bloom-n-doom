@@ -69,8 +69,8 @@ public class Entity : NetworkBehaviour
     //Classical arcade-like movement, has no acceleration or force
     public void SetVelocity(float xVelocity, float yVelocity)
     {
-        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
-        if (isNetworkActive && !isServer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
 
         rb.linearVelocity = new Vector2(xVelocity, yVelocity);
     }
