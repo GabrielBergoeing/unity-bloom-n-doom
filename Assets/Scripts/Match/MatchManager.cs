@@ -68,6 +68,13 @@ public class MatchManager : MonoBehaviour
     {
         players = _players;
         SpawnPlayers();
+
+        foreach (var p in players)
+        {
+            p.ActivateInput();
+            p.SwitchCurrentActionMap("Player");
+        }
+
         isPlayingMatch = true;
     }
 

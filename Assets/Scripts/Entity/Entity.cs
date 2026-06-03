@@ -24,20 +24,26 @@ public class Entity : NetworkBehaviour
 
     protected virtual void Update()
     {
-        if (!isServer && !isClient) return;
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
 
-        if (isServer)
+        if (isNetworkActive)
         {
+            if (!isServer && !isClient) return;
+
+            if (isServer)
+                stateMachine.UpdateActiveState();
+
+            if (isClient)
+                UpdateClient();
+
+            if (isLocalPlayer)
+                UpdateLocalPlayer();
+        }
+        else
+        {
+            // Local (non-networked) multiplayer: run all logic without authority checks
             stateMachine.UpdateActiveState();
-        }
-
-        if (isClient)
-        {
             UpdateClient();
-        }
-
-        if (isLocalPlayer)
-        {
             UpdateLocalPlayer();
         }
     }
@@ -54,7 +60,8 @@ public class Entity : NetworkBehaviour
     //Classical arcade-like movement, has no acceleration or force
     public void SetVelocity(float xVelocity, float yVelocity)
     {
-        if (!isServer) return;
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return;
 
         rb.linearVelocity = new Vector2(xVelocity, yVelocity);
     }

@@ -97,6 +97,13 @@ public class Player : Entity
     {
         base.Start();
         stateMachine.Initialize(idleState);
+
+        // In local (non-networked) mode, Mirror callbacks never fire so enable input directly
+        if (!NetworkServer.active && !NetworkClient.active)
+        {
+            input.enabled = true;
+            canControl = true;
+        }
     }
 
     protected override void Update()
@@ -108,20 +115,37 @@ public class Player : Entity
     {
         if (input == null || !input.enabled) return;
 
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+
         if (input.actions["Pickup"].triggered)
-            CmdRequestPickup();
+        {
+            if (isNetworkActive) CmdRequestPickup();
+            else pickupRequested = true;
+        }
 
         if (input.actions["Interact"].triggered)
-            CmdRequestInteract();
+        {
+            if (isNetworkActive) CmdRequestInteract();
+            else interactRequested = true;
+        }
 
         if (input.actions["Drop"].triggered)
-            CmdRequestDrop();
+        {
+            if (isNetworkActive) CmdRequestDrop();
+            else dropRequested = true;
+        }
 
         if (input.actions["Sabotage"].triggered)
-            CmdRequestSabotage();
+        {
+            if (isNetworkActive) CmdRequestSabotage();
+            else sabotageRequested = true;
+        }
 
         if (input.actions["CheatRefill"].triggered)
-            CmdCheatRefill();
+        {
+            if (isNetworkActive) CmdCheatRefill();
+            else waterSupply = 100;
+        }
 
         if (input.actions["CheatScissors"].triggered)
             CmdCheatSpawnScissors();
@@ -165,26 +189,35 @@ public class Player : Entity
 
     public void EnableControl()
     {
-        if (isServer)
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (!isNetworkActive || isServer)
             canControl = true;
     }
 
     public void DisableControl()
     {
-        if (isServer)
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (!isNetworkActive || isServer)
             canControl = false;
     }
 
     public void OnMovement(InputValue inputValue)
     {
-        if (!isLocalPlayer) return;
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isLocalPlayer) return;
 
-        Vector2 input = inputValue.Get<Vector2>();
+        Vector2 val = inputValue.Get<Vector2>();
 
         if (!canControl)
-            input = Vector2.zero;
+            val = Vector2.zero;
 
-        CmdSendMovement(input);
+        if (isNetworkActive)
+            CmdSendMovement(val);
+        else
+        {
+            moveInput = val;
+            DetermineFacingDir();
+        }
     }
 
     [Command]
