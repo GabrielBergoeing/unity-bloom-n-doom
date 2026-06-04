@@ -1,0 +1,27 @@
+﻿<!-- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:gl="AmazonGameLift.Editor">
+    <Style src="../common.uss"/>
+    <ui:VisualElement class="separator separator--vertical separator--large">
+        <ui:VisualElement class="separator separator--vertical">
+            <ui:Label name="ManagedEC2Title" class="page__title" text="Managed EC2"/>
+            <ui:Label name="ManagedEC2Description" text="Managed EC2 fleets use Amazon EC2 instances to host your game servers.&#10;Amazon GameLift manages the instances and removes the burden of hardware and software management from hosting your games."/>
+        <gl:InfoLinks/>
+        </ui:VisualElement>
+        <ui:VisualElement class="divider"/>
+        <gl:StatusBox name="ManagedEC2StatusBox"/>
+        <ui:VisualElement class="separator separator--vertical">
+            <ui:Label class="child__title" text="AWS Credential Profile"/>
+            <gl:ProfileTable name="ProfileTable"/>
+            <ui:Label text="This credential profile will be used to create your fleet, change your active profile in AWS Access Credentials."/>
+            <ui:Button name="ManageCredentialsButton" class="button button--default button--small button--part-width" text="Manage Credentials"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="divider"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="ManagedEC2IntegrateStepTitle"/>
+    <ui:VisualElement name="ManagedEC2DeploymentScenariosStepTitle"/>
+    <ui:VisualElement name="ManagedEC2GameParametersStep"/>
+    <ui:VisualElement name="ManagedEC2PageDeployTitle"/>
+    <ui:VisualElement name="ManagedEC2PageLaunchClientTitle"/>
+</ui:UXML>

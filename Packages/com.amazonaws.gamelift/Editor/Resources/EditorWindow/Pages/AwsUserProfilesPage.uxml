@@ -1,0 +1,58 @@
+<!-- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:gl="AmazonGameLift.Editor">
+    <Style src="./AwsUserProfilesPage.uss"/>
+    <ui:VisualElement class="separator separator--vertical separator--large">
+        <ui:VisualElement class="separator separator--vertical">
+            <ui:Label name="UserProfilePageTitle" class="page__title" text="%%Set up your AWS user profile%%"/>
+            <ui:Label name="UserProfilePageDescription" text="%%AWS Account Credentials are used for any account bootstrapping and CloudFormation deployments.%%"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="divider"/>
+        <gl:StatusBox name="UserProfilePageStatusBox" class="status-box--full-width"/>
+        <ui:VisualElement name="UserProfilePageNoAccountMenu" class="separator separator--large separator--horizontal">
+            <ui:VisualElement class="card card--large card--centered separator separator--vertical">
+                <ui:Image name="UserProfilePageAccountCardNoAccountIcon" class="card__icon card__icon--large"/>
+                <ui:Label name="UserProfilePageAccountCardNoAccountTitle" class="card__title bold" text="%%I don’t have an AWS account%%"/>
+                <ui:Label name="UserProfilePageAccountCardNoAccountDescription" text="%%text about needing an AWS account and it can take a maximum of two sentences%%"/>
+                <ui:Button name="UserProfilePageAccountCardNoAccountButton" class="button">
+                    <ui:Label name="UserProfilePageAccountCardNoAccountButtonLabel" text="%%Create an AWS Account%%"/>
+                    <ui:Image name="ExternalLinkIcon" class="icon--extrasmall"/>
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="card card--large card--centered separator separator--vertical">
+                <ui:Image name="UserProfilePageAccountCardHasAccountIcon" class="card__icon card__icon--large"/>
+                <ui:Label name="UserProfilePageAccountCardHasAccountTitle" class="card__title bold" text="%%I have an AWS account%%"/>
+                <ui:Label name="UserProfilePageAccountCardHasAccountDescription" text="%%text about having an AWS account and it can take a maximum of two sentences%%"/>
+                <ui:Button name="UserProfilePageAccountCardHasAccountButton" class="button button--primary" text="%%Add New Profile%%"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="UserProfilePageCreateMenu"/>
+        <ui:VisualElement name="UserProfilesTableMenu" class="separator separator--vertical separator--medium">
+            <ui:Label name="UserProfilePageTableTitle" class="card__title" text="%%AWS Profiles%%"/>
+            <ui:Label name="UserProfilePageTableDescription" text="%%These AWS profiles are configured for use with...%%"/>
+           <ui:VisualElement class="separator separator--horizontal separator--right">
+                <ui:Button name="UserProfilePageSetProfileButton" class="button button--primary" text="%%Set profile as selected%%"/>
+                <ui:Button name="UserProfilePageBootstrapButton" class="button button--primary" text="%%Bootstrap selected profile%%"/>
+                <ui:VisualElement name="WhatIsBootstrappingLink" class="external-link margin__tiny">
+                    <ui:Label name="UserProfilePageCompletedBootstrapHelpLink" class="child__link" text="%%What is bootstrapping?%%"/>
+                    <ui:Image name="ExternalLinkIcon" class="icon--tiny"/>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+            <gl:ProfileTable showRadioButtons="true" />
+            <ui:VisualElement name="UserProfilePageAwsConfigurationFile" class="form-row separator separator--horizontal">
+                <ui:Label name="UserProfilePageAwsConfigurationFileLabel" class="form-row__label" text="%%AWS configuration file%%"/>
+                <ui:TextField name="UserProfilePageAwsConfigurationFileInput" class="form-row__input text-input" value="C:\Users\username\.aws\credentials"/>
+                <ui:Button name="UserProfilePageAwsConfigurationFileButton" class="button float-right">
+                    <ui:Label name="UserProfilePageAwsConfigurationFileButtonLabel" text="Open file"/>
+                    <ui:Image name="ExternalLinkIcon" class="icon--tiny"/>
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="divider"/>
+
+        <ui:Foldout name="HelpfulResourcesFoldout" class="foldout separator separator--vertical" text="Helpful Resources"/>
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,9 @@
+﻿/* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@import "../ProgressBar.uss";
+
+.ip-spacer {
+    margin: 0 4px 0 4px;
+    padding-top: 8px;
+}

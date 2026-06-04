@@ -1,0 +1,17 @@
+﻿<!-- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="../common.uss"/>
+    <ui:GroupBox class="form-row__group-box separator separator--vertical">
+        <ui:VisualElement class="form-row">
+            <ui:Label name="DeploymentScenarioLabel" class="form-row__label" text="Deployment scenario"/>
+            <ui:VisualElement class="form-row__input">
+                <ui:RadioButton name="DeploymentScenarioSingleFleetRadio" class="form-row__radio-button" text="Single location"/>
+                <ui:Label name="DeploymentScenarioSingleFleetLabel" class="form-row__text-display foldout__link" text="%%Deploy to one On-Demand fleet, with a game backend to put players into games.%%"/>
+                <ui:RadioButton name="DeploymentScenarioFlexMatchRadio" class="form-row__radio-button" text="Multi-location with FlexMatch"/>
+                <ui:Label name="DeploymentScenarioFlexMatchLabel" class="form-row__text-display foldout__link" text="%%Deploy to Spot fleets, with a game backend, matchmaking, and placement queue to put players into games.%%"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:GroupBox>
+</ui:UXML>

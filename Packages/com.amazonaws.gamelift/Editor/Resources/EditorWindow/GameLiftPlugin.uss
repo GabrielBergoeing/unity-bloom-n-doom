@@ -1,0 +1,93 @@
+/* Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@import './common.uss';
+
+:root {
+    height: 100%;
+    width: 100%;
+}
+
+.main {
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.main__menu {
+    width: 240px;
+    padding-top: var(--spacing-medium);
+    background-color: var(--color-background-accent);
+    flex: 0 0 auto;
+    border-right-color: var(--color-border-accent);
+    border-right-width: var(--border-size-medium);
+}
+
+.main__content {
+    flex-grow: 1;
+    background-color: var(--color-background-primary);
+}
+
+.tab__button__large {
+    font-size: var(--font-size-large);
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    padding: 0 var(--spacing-small) 0 var(--spacing-medium);
+    margin: 0 0 var(--spacing-small) 0;
+    padding-right: 50px;
+    background-color: rgba(0,0,0,0);
+    border-radius: 0;
+    border-width: 0;
+    height: 24px;
+}
+
+.tab__button__large__bold {
+    font-size: var(--font-size-large);
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    padding: 0 var(--spacing-small) 0 var(--spacing-medium);
+    margin: 0 0 var(--spacing-small) 0;
+    padding-right: 50px;
+    background-color: rgba(0,0,0,0);
+    border-radius: 0;
+    border-width: 0;
+    height: 24px;
+}
+
+.tab__button__default {
+    font-size: var(--font-size-default);
+    -unity-text-align: middle-left;
+    padding: 0 var(--spacing-small) 0 var(--spacing-medium);
+    margin: 0 0 var(--spacing-small) 0;
+    padding-right: 50px;
+    background-color: rgba(0,0,0,0);
+    border-radius: 0;
+    border-width: 0;
+    height: 24px;
+}
+
+.tab__button__large__bold:hover {
+    background-color: var(--color-button-default-hover);
+}
+
+.tab__button__large__bold--selected {
+    background-color: var(--color-button-primary);
+}
+
+.tab__button__default:hover {
+    background-color: var(--color-button-default-hover);
+}
+
+.tab__button__default--selected {
+    background-color: var(--color-button-primary);
+}
+
+.tab__content {
+    display: none;
+    padding: var(--spacing-large);
+    min-width: var(--page-width);
+}
+
+.tab__content.tab__content--selected {
+    display: flex;
+}
