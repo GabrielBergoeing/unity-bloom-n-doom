@@ -4,13 +4,15 @@ using System.Reflection;
 using UnityEngine;
 using Mirror;
 
+#if UNITY_SERVER
+using Aws.GameLift.Server;
+using Aws.GameLift.Server.Model;
+#endif
+
 public class GameLiftServerManager : MonoBehaviour
 {
-#if UNITY_SERVER
-    // Requiere Aws.GameLift.Server (v5.x) en el build servidor.
-    // Compilará sólo en builds de servidor.
-    using Aws.GameLift.Server;
-    using Aws.GameLift.Server.Model;
+#if UNITY_SERVER 
+    // ^^^ AÑADIDO AQUÍ: Todo este bloque hasta el final es solo para el servidor
 
     public static GameLiftServerManager Instance { get; private set; }
 
@@ -47,11 +49,15 @@ public class GameLiftServerManager : MonoBehaviour
             return;
         }
 
+        int serverPort = GetDefaultTransportPort();
+
         // Registrar callbacks y marcar proceso listo
         ProcessParameters processParameters = new ProcessParameters(
             OnStartGameSession,
+            OnUpdateGameSession, // <- NUEVO
             OnProcessTerminate,
             OnHealthCheck,
+            serverPort,          // <- NUEVO
             new LogParameters(new string[] { Application.dataPath + "/server_log.txt" })
         );
 
@@ -85,29 +91,24 @@ public class GameLiftServerManager : MonoBehaviour
 
         Debug.Log($"[GameLift] Puerto asignado: {assignedPort}, portSet={portSet}");
 
-        // Aceptar y activar la sesión
-        var acceptOutcome = GameLiftServerAPI.AcceptGameSession(gameSession);
-        if (!acceptOutcome.Success)
-        {
-            Debug.LogError($"[GameLift] AcceptGameSession falló: {acceptOutcome.Error}");
-            return;
-        }
-        Debug.Log("[GameLift] GameSession aceptada.");
-
         // Arrancar servidor Mirror para esta sesión
         StartMirrorServer();
-        // Informar a GameLift que la sesión está activa
+
+        // Informar a GameLift que la sesión está activa (Se eliminó AcceptGameSession)
         var activateOutcome = GameLiftServerAPI.ActivateGameSession();
         if (!activateOutcome.Success)
             Debug.LogError($"[GameLift] ActivateGameSession falló: {activateOutcome.Error}");
         else
             Debug.Log("[GameLift] GameSession activada.");
     }
+    private void OnUpdateGameSession(UpdateGameSession updateGameSession)
+    {
+        Debug.Log($"[GameLift] OnUpdateGameSession recibido. Motivo: {updateGameSession.UpdateReason}");
+    }
 
     // Health check simple
     private bool OnHealthCheck()
     {
-        // Aquí puedes implementar verificaciones más avanzadas.
         return true;
     }
 
@@ -142,7 +143,6 @@ public class GameLiftServerManager : MonoBehaviour
             return;
         }
 
-        // Asegúrate de que no hay conflicto con singleton de NetworkManager
         if (!NetworkServer.active)
         {
             Debug.Log("[GameLift] Iniciando NetworkManager.StartServer()");
@@ -167,13 +167,11 @@ public class GameLiftServerManager : MonoBehaviour
 
     private int GetDefaultTransportPort()
     {
-        // Intenta leer campos/properties comunes; fallback 7777
         ushort port = 7777;
-        TrySetPortOnTransport(networkManager.transport, port); // sólo para leer intención en implementaciones personalizadas
+        TrySetPortOnTransport(networkManager.transport, port);
         return port;
     }
 
-    // Intenta fijar puerto en transporte por reflexión (same approach que SteamLobby)
     private static bool TrySetPortOnTransport(Transport transport, ushort port)
     {
         if (transport == null) return false;
@@ -225,9 +223,6 @@ public class GameLiftServerManager : MonoBehaviour
     //  PLAYER SESSION MANAGEMENT
     // ---------------------------
 
-    // Intent: aceptar un playerSessionId para una conexión concreta.
-    // Devuelve true si GameLift aceptó la player session y el servidor añadió el player localmente.
-    // Nota: la llamada a GameLift se realiza por reflexión para soportar distintas versiones de la API sin tipos fuertes.
     public bool TryAcceptPlayerSessionForConnection(string playerSessionId, int connectionId)
     {
         if (string.IsNullOrEmpty(playerSessionId))
@@ -236,7 +231,6 @@ public class GameLiftServerManager : MonoBehaviour
             return false;
         }
 
-        // Llamada reflectiva a GameLiftServerAPI.AcceptPlayerSession(playerSessionId)
         bool acceptSuccess = InvokeGameLiftAcceptPlayerSession(playerSessionId);
         if (!acceptSuccess)
         {
@@ -244,11 +238,9 @@ public class GameLiftServerManager : MonoBehaviour
             return false;
         }
 
-        // Registrar mapping local
         acceptedPlayerSessions[playerSessionId] = connectionId;
         Debug.Log($"[GameLift] PlayerSession aceptada y mapeada: {playerSessionId} -> connId {connectionId}");
 
-        // Intentar añadir player en Mirror (si la conexión existe)
         if (NetworkServer.connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
         {
             if (networkManager.playerPrefab == null)
@@ -257,7 +249,6 @@ public class GameLiftServerManager : MonoBehaviour
             }
             else
             {
-                // Añadir player para la conexión (crea la instancia usando playerPrefab configurado)
                 NetworkServer.AddPlayerForConnection(conn, networkManager.playerPrefab);
                 Debug.Log($"[GameLift] Player creado para connectionId {connectionId}.");
             }
@@ -270,7 +261,6 @@ public class GameLiftServerManager : MonoBehaviour
         return true;
     }
 
-    // Marca la player session como removida/terminada en GameLift y desconecta al jugador localmente.
     public bool TryRemovePlayerSession(string playerSessionId)
     {
         if (string.IsNullOrEmpty(playerSessionId))
@@ -279,22 +269,18 @@ public class GameLiftServerManager : MonoBehaviour
             return false;
         }
 
-        // Llamada reflectiva a GameLiftServerAPI.RemovePlayerSession(playerSessionId)
         bool removeSuccess = InvokeGameLiftRemovePlayerSession(playerSessionId);
         if (!removeSuccess)
         {
             Debug.LogWarning($"[GameLift] RemovePlayerSession falló para PlayerSessionId={playerSessionId}");
-            // Continuamos con limpieza local igualmente
         }
 
         if (acceptedPlayerSessions.TryGetValue(playerSessionId, out int connectionId))
         {
-            // Desconectar/limpiar player localmente
             if (NetworkServer.connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 if (conn.identity != null)
                 {
-                    // Si hay una identidad de player, removerla del server
                     NetworkServer.Destroy(conn.identity.gameObject);
                 }
                 conn.Disconnect();
@@ -310,7 +296,6 @@ public class GameLiftServerManager : MonoBehaviour
         return removeSuccess;
     }
 
-    // Consulta el estado de una player session (DescribePlayerSessions). Devuelve null si no se pudo consultar.
     public string DescribePlayerSessionStatus(string playerSessionId)
     {
         if (string.IsNullOrEmpty(playerSessionId))
@@ -326,7 +311,6 @@ public class GameLiftServerManager : MonoBehaviour
                 return null;
             }
 
-            // Intentamos invocar con sólo el playerSessionId si la firma lo permite
             object result = null;
             ParameterInfo[] pars = describeMethod.GetParameters();
             if (pars.Length == 1 && pars[0].ParameterType == typeof(string))
@@ -335,7 +319,6 @@ public class GameLiftServerManager : MonoBehaviour
             }
             else
             {
-                // intentaremos crear un request dinámico DescribePlayerSessionsRequest { PlayerSessionId = playerSessionId }
                 Type reqType = null;
                 foreach (var t in apiType.Assembly.GetTypes())
                 {
@@ -409,7 +392,6 @@ public class GameLiftServerManager : MonoBehaviour
             }
             else
             {
-                // Si la API espera un request object (AcceptPlayerSessionRequest)
                 Type reqType = null;
                 foreach (var t in apiType.Assembly.GetTypes())
                 {
@@ -440,7 +422,6 @@ public class GameLiftServerManager : MonoBehaviour
                     return (bool)successProp.GetValue(result);
             }
 
-            // Si no hay objeto resultado, asumimos éxito (depende de la versión de SDK)
             return true;
         }
         catch (Exception ex)
@@ -458,7 +439,6 @@ public class GameLiftServerManager : MonoBehaviour
             MethodInfo removeMethod = apiType.GetMethod("RemovePlayerSession", BindingFlags.Public | BindingFlags.Static);
             if (removeMethod == null)
             {
-                // Si no existe, intentamos otra firma o terminamos devolviendo false.
                 Debug.LogWarning("[GameLift] RemovePlayerSession no disponible en esta versión de API (reflection).");
                 return false;
             }
@@ -515,5 +495,5 @@ public class GameLiftServerManager : MonoBehaviour
     {
         // En cliente/editor no hacemos nada relativo a GameLift
     }
-#endif
+#endif 
 }

@@ -1,3 +1,171 @@
 version: 1
-LastOpenTab: Credentials
+LastOpenTab: Anywhere
+CurrentProfileName: default
+CurrentRegion: us-east-1
+UserProfiles: >+
+  - Region: sa-east-1
+
+    Name: test-profile
+
+    BucketName: 
+
+    AnywhereFleetName: 
+
+    AnywhereFleetId: 
+
+    AnywhereFleetLocation: 
+
+    ComputeName: 
+
+    IpAddress: 
+
+    WebSocketUrl: 
+
+    ContainerDeploymentInProgress: false
+
+    ContainersDeploymentComplete: false
+
+    ContainerQuestionnaireScenario: NoContainerImageNoExistingEcrRepo
+
+    ContainerDeploymentScenario: SingleRegion
+
+    ContainerEnableMetrics: false
+
+    ContainerGameServerBuildPath: 
+
+    ContainerGameServerExecutable: 
+
+    ContainerDockerImageId: 
+
+    ContainerECRRepositoryName: 
+
+    ContainerECRRepositoryUri: 
+
+    ContainerECRImageUri: 
+
+    ContainerECRImageId: 
+
+    ContainerPortRange: 
+
+    ContainerTotalMemory: 
+
+    ContainerTotalVcpu: 
+
+    ContainerGameName: 
+
+    ContainerImageTag: 
+
+    IsContainerImageBuilding: false
+
+    IsContainerImageBuilt: false
+
+    IsECRRepoCreated: false
+
+    IsContainerPushedToECR: false
+
+    IsCGDDeploying: false
+
+    IsCGDDeployed: false
+
+    DeploymentScenario: SingleRegion
+
+    DeploymentGameName: 
+
+    ManagedEC2FleetName: 
+
+    BuildName: 
+
+    LaunchParameters: 
+
+    BuildOperatingSystem: 
+
+    EnableMetrics: false
+
+    DeploymentBuildFilePath: 
+
+    DeploymentBuildFolderPath: 
+
+  - Region: us-east-1
+
+    Name: default
+
+    BucketName: gamelift-bootstrap-132511547715-us-east-1
+
+    AnywhereFleetName: GameName-AnywhereFleet
+
+    AnywhereFleetId: fleet-72471bbe-1659-4eb0-a38a-c3075fcf6de1
+
+    AnywhereFleetLocation: custom-location-1
+
+    ComputeName: Cito-WindowsPC
+
+    IpAddress: 127.0.0.1
+
+    WebSocketUrl: wss://us-east-1.api.amazongamelift.com
+
+    ContainerDeploymentInProgress: false
+
+    ContainersDeploymentComplete: false
+
+    ContainerQuestionnaireScenario: NoContainerImageNoExistingEcrRepo
+
+    ContainerDeploymentScenario: SingleRegion
+
+    ContainerEnableMetrics: false
+
+    ContainerGameServerBuildPath: 
+
+    ContainerGameServerExecutable: 
+
+    ContainerDockerImageId: 
+
+    ContainerECRRepositoryName: 
+
+    ContainerECRRepositoryUri: 
+
+    ContainerECRImageUri: 
+
+    ContainerECRImageId: 
+
+    ContainerPortRange: 
+
+    ContainerTotalMemory: 
+
+    ContainerTotalVcpu: 
+
+    ContainerGameName: 
+
+    ContainerImageTag: 
+
+    IsContainerImageBuilding: false
+
+    IsContainerImageBuilt: false
+
+    IsECRRepoCreated: false
+
+    IsContainerPushedToECR: false
+
+    IsCGDDeploying: false
+
+    IsCGDDeployed: false
+
+    DeploymentScenario: SingleRegion
+
+    DeploymentGameName: 
+
+    ManagedEC2FleetName: 
+
+    BuildName: 
+
+    LaunchParameters: 
+
+    BuildOperatingSystem: 
+
+    EnableMetrics: false
+
+    DeploymentBuildFilePath: 
+
+    DeploymentBuildFolderPath: 
+
+CurrentBucketName: gamelift-bootstrap-132511547715-us-east-1
 ...
