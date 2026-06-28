@@ -790,7 +790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0ccc276fcbc9634189aacc4552eea56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onlineLobbySceneName: OnlineLobby
+  onlineLobbySceneName: CharacterSelectorOnline
   hostPortInput: {fileID: 484567019}
   defaultHostPort: 7777
   joinIpInput: {fileID: 893648227}

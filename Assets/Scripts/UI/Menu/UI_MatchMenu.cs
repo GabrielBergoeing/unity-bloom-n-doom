@@ -20,7 +20,7 @@ public class UI_MatchMenu : MonoBehaviour
     private Coroutine autoStartCoroutine;
     private UIService UI => UIService.instance;
 
-    private bool isOnlineMode = false; // setear desde UI
+    [SerializeField] private bool isOnlineMode = false; // setear desde UI
     #endregion
 
     private void Awake()
@@ -154,12 +154,12 @@ public class UI_MatchMenu : MonoBehaviour
             if (PlayerInputManager.instance != null)
                 PlayerInputManager.instance.enabled = false;
 
-            // Arranca host (o client según la UI)
+            // Arranca host (o client segï¿½n la UI)
             NetworkManager.singleton.StartHost();
         }
         else
         {
-            // Local: PlayerInputManager debe estar activo para joins; la escena de juego hará spawn local con PlayerInputService
+            // Local: PlayerInputManager debe estar activo para joins; la escena de juego harï¿½ spawn local con PlayerInputService
             if (PlayerInputManager.instance != null)
                 PlayerInputManager.instance.enabled = true;
         }

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class UI_OnlineDirectMenu : MonoBehaviour
 {
     [Header("Scene")]
-    [SerializeField] private string onlineLobbySceneName = "OnlineLobby";
+    [SerializeField] private string onlineLobbySceneName = "CharacterSelectOnline";
 
     [Header("Host")]
     [SerializeField] private TMP_InputField hostPortInput;
