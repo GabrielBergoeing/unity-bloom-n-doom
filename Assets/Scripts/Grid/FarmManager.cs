@@ -28,10 +28,10 @@ public class FarmManager : NetworkBehaviour
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    // Eliminar/ignorar la asignación en Awake; usar OnStartServer/OnStartClient
+    // Eliminar/ignorar la asignaciï¿½n en Awake; usar OnStartServer/OnStartClient
     private void Awake()
     {
-        // no establecer 'instance' aquí para evitar referenciar instancias no networked
+        // no establecer 'instance' aquï¿½ para evitar referenciar instancias no networked
         if (!startFarm)
             LevelManager.OnLevelLoaded += () => HandleLevelLoaded();
         else
@@ -43,14 +43,20 @@ public class FarmManager : NetworkBehaviour
         EnsurePlantsRootExists();
     }
 
-    // Nuevo: confirmación y fallback cuando el objeto se inicializa en el cliente
+    // Nuevo: confirmaciï¿½n y fallback cuando el objeto se inicializa en el cliente
     public override void OnStartClient()
     {
         base.OnStartClient();
+
+        // On a pure (non-host) client, OnStartServer never runs, so `instance` was never
+        // assigned â€” every client-side reader (TileInteraction, etc.) saw it as null.
+        if (instance == null)
+            instance = this;
+
         Debug.Log($"[FarmManager][OnStartClient] farmTilemap={(farmTilemap==null?"NULL":"OK")} preparedTile={(preparedTile==null?"NULL":"OK")} seedTile={(seedTile==null?"NULL":"OK")}");
         if (farmTilemap == null)
         {
-            // intento de fallback: tomar el primer Tilemap de la escena (útil en debugging)
+            // intento de fallback: tomar el primer Tilemap de la escena (ï¿½til en debugging)
             var any = FindObjectOfType<Tilemap>();
             if (any != null)
             {
@@ -133,7 +139,7 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region Actions: Prepare / Plant / Water
-    // Marcar PrepareTile como [Server] y loggear ejecución
+    // Marcar PrepareTile como [Server] y loggear ejecuciï¿½n
     [Server]
     public void PrepareTile(Vector3Int cell)
     {
@@ -310,7 +316,7 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region RPCs
-    // Asegúrate de que RpcSetTileState también loggea su llegada
+    // Asegï¿½rate de que RpcSetTileState tambiï¿½n loggea su llegada
     [ClientRpc]
     private void RpcSetTileState(int x, int y, int z, byte state)
     {

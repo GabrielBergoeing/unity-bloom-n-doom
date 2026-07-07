@@ -62,6 +62,13 @@ public class Player : Entity
     // Boolean flag that inidicates if player character can be controled
     [SyncVar] public bool canControl  = false;
 
+    // Stable per-slot scoring index for online matches. Set by OnlineNetworkManager
+    // before AddPlayerForConnection so input.playerIndex (unreliable online) is never needed.
+    [SyncVar] public int onlinePlayerIndex = -1;
+
+    // Unified scoring key used by CmdRequestPlant, CmdRemovePlant, and Cactus.
+    public int OwnerIndex => onlinePlayerIndex >= 0 ? onlinePlayerIndex : (input != null ? input.playerIndex : -1);
+
     // Client action intents are sent through Commands and consumed by server-side states.
     private bool pickupRequested;
     private bool interactRequested;
@@ -241,6 +248,18 @@ public class Player : Entity
         CmdSetControl(true);
     }
 
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        OnlineMatchManager.instance?.RegisterPlayer(this);
+    }
+
+    public override void OnStopServer()
+    {
+        OnlineMatchManager.instance?.UnregisterPlayer(this);
+        base.OnStopServer();
+    }
+
     [Command]
     void CmdSetControl(bool value)
     {
@@ -333,8 +352,7 @@ public class Player : Entity
     {
         if (!isServer || FarmManager.instance == null) return;
         Vector3Int cell = new Vector3Int(x, y, z);
-        // usa el input.playerIndex del cliente que llam� el Command como comprobaci�n
-        int requesterIndex = input != null ? input.playerIndex : -1;
+        int requesterIndex = OwnerIndex;
         FarmManager.instance.TryRemovePlant(cell, requesterIndex);
     }
 
@@ -353,7 +371,7 @@ public class Player : Entity
         }
 
         Vector3Int cell = new Vector3Int(x, y, z);
-        int playerIndex = input != null ? input.playerIndex : (connectionToClient != null ? connectionToClient.connectionId : -1);
+        int playerIndex = OwnerIndex;
         FarmManager.instance.PlantSeed(cell, playerIndex, prefab);
     }
 

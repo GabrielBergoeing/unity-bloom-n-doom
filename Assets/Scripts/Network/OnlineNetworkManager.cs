@@ -111,6 +111,13 @@ public class OnlineNetworkManager : NetworkManager
 
         Vector3 spawnPos = GetOnlineSpawnPosition(slotIndex);
         GameObject player = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity);
+
+        // Set pre-spawn so the SyncVar is included in the initial spawn message.
+        // Cannot use [Server]-attributed methods here since isServer is false before spawn.
+        Player playerComp = player.GetComponent<Player>();
+        if (playerComp != null)
+            playerComp.onlinePlayerIndex = slotIndex;
+
         NetworkServer.AddPlayerForConnection(conn, player);
     }
 

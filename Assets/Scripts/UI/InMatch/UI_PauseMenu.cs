@@ -13,7 +13,25 @@ public class UI_PauseMenu : MonoBehaviour
     [SerializeField] private EventSystem eventSystem;
 
     private bool isPaused = false;
-    private MatchManager mm => MatchManager.instance;
+
+    private bool IsMatchRunning()
+    {
+        if (OnlineMatchManager.instance != null) return OnlineMatchManager.instance.isMatchRunning;
+        if (MatchManager.instance != null)       return MatchManager.instance.isMatchRunning;
+        return false;
+    }
+
+    private void PauseActiveMatch()
+    {
+        if (OnlineMatchManager.instance != null) OnlineMatchManager.instance.PauseMatch();
+        else MatchManager.instance?.PauseMatch();
+    }
+
+    private void UnpauseActiveMatch()
+    {
+        if (OnlineMatchManager.instance != null) OnlineMatchManager.instance.UnpauseMatch();
+        else MatchManager.instance?.UnpauseMatch();
+    }
     private PlayerInput uiInput; // <<--- receives UI pause input
 
     private void Awake()
@@ -32,7 +50,7 @@ public class UI_PauseMenu : MonoBehaviour
 
     public void TogglePause()
     {
-        if (!mm.isMatchRunning) return;
+        if (!IsMatchRunning()) return;
 
         UI_MatchResults results = FindObjectOfType<UI_MatchResults>(true);
         if (results != null && results.gameObject.activeInHierarchy) return;
@@ -44,7 +62,7 @@ public class UI_PauseMenu : MonoBehaviour
     private void PauseGame()
     {
         isPaused = true;
-        mm.PauseMatch(); // switches players to UI input
+        PauseActiveMatch();
 
         pausePanel.SetActive(true);
         if (eventSystem != null)
@@ -58,7 +76,7 @@ public class UI_PauseMenu : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-        mm.UnpauseMatch(); // returns players to Player input
+        UnpauseActiveMatch();
 
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
@@ -72,6 +90,6 @@ public class UI_PauseMenu : MonoBehaviour
     private void ForceResume()
     {
         Time.timeScale = 1f;
-        mm.UnpauseMatch();
+        UnpauseActiveMatch();
     }
 }

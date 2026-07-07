@@ -46,4 +46,29 @@ public class ScoreTally : MonoBehaviour
 
       return results;
    }
+
+   public List<ScoreResult> DeterminePlacementsByIndex(IReadOnlyDictionary<int, string> playerNames)
+   {
+      playerScores.Clear();
+
+      Plant[] allPlants = FindObjectsByType<Plant>(FindObjectsSortMode.None);
+      foreach (var plant in allPlants)
+      {
+         if (plant.ownerPlayerIndex < 0) continue;
+         int points = plant.GetScoring();
+         if (!playerScores.ContainsKey(plant.ownerPlayerIndex))
+               playerScores[plant.ownerPlayerIndex] = 0;
+         playerScores[plant.ownerPlayerIndex] += points;
+      }
+
+      var placements = playerScores.OrderByDescending(p => p.Value);
+      List<ScoreResult> results = new();
+      foreach (var pair in placements)
+      {
+         string name = (playerNames != null && playerNames.TryGetValue(pair.Key, out string n))
+            ? n : $"Player {pair.Key}";
+         results.Add(new ScoreResult { playerIndex = pair.Key, playerName = name, score = pair.Value });
+      }
+      return results;
+   }
 }

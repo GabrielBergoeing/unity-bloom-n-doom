@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -48,6 +49,11 @@ public class EventManager : MonoBehaviour
 
     private void Update()
     {
+        // In an online match only the server decides what spawns; clients just
+        // observe the networked pickups the server spawns via NetworkServer.Spawn.
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !NetworkServer.active) return;
+
         seedTimer += Time.deltaTime;
         toolTimer += Time.deltaTime;
         rarityTimer += Time.deltaTime;
@@ -79,7 +85,11 @@ public class EventManager : MonoBehaviour
             return;
 
         GameObject prefab = itemList[Random.Range(0, itemList.Count)];
-        Instantiate(prefab, spawnPos.Value, Quaternion.identity);
+        GameObject item = Instantiate(prefab, spawnPos.Value, Quaternion.identity);
+
+        // Some rare-spawn entries (e.g. hazard creatures) aren't networked yet.
+        if (NetworkServer.active && item.TryGetComponent(out NetworkIdentity _))
+            NetworkServer.Spawn(item);
     }
 
     private Vector3? GetRandomFreeTile()

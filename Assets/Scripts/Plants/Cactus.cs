@@ -35,7 +35,7 @@ public class Cactus : Plant
 
         Debug.Log($"Collision: {collision.gameObject.name}");
         Player otherPlayer = collision.gameObject.GetComponent<Player>();
-        if (otherPlayer != null && otherPlayer.input.playerIndex != ownerPlayerIndex)
+        if (otherPlayer != null && otherPlayer.OwnerIndex != ownerPlayerIndex)
         {
             // Steal water
             float waterToSteal = Mathf.Min(waterStealRate, otherPlayer.waterSupply);

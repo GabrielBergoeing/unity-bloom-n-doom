@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class UI_MapSelector : MonoBehaviour
 {
+    [SerializeField] private string levelSceneName = "LevelScene";
     private UIService UI => UIService.instance;
     [Header("Levels Data")]
     [SerializeField] private List<LevelData> levels;
@@ -19,7 +20,7 @@ public class UI_MapSelector : MonoBehaviour
         AudioManager.instance.StopBGM();
         UI.sfx.PlayOnConfirm();
         
-        GameManager.instance.ChangeSceneWithLevel("LevelScene", chosenLevel);
+        GameManager.instance.ChangeSceneWithLevel(levelSceneName, chosenLevel);
         AudioManager.instance.StartBGM(chosenLevel.bgmTrackName);
     }
 }

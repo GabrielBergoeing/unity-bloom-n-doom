@@ -3,7 +3,6 @@ using TMPro;
 
 public class UI_Timer : MonoBehaviour
 {
-    private MatchManager matchManager;
     private TextMeshProUGUI textMeshPro;
 
     private float updateInterval = 1f;
@@ -17,37 +16,28 @@ public class UI_Timer : MonoBehaviour
         textMeshPro = GetComponent<TextMeshProUGUI>();
     }
 
-    private void Start()
-    {
-        matchManager = MatchManager.instance;
-    }
-
     private void Update()
     {
-        if (matchManager == null)
-        {
-            if (MatchManager.instance != null)
-            {
-                matchManager = MatchManager.instance;
-                Debug.Log("[UI_Timer] MatchManager reference obtained in Update().");
-            }
-            else
-            {
-                Debug.LogWarning("[UI_Timer] MatchManager.instance still NULL. Skipping frame.");
-                return;
-            }
-        }
+        float t = GetTimer();
+        if (t < 0f) return;
 
-        if (Time.time >= nextUpdateTime && matchManager != null)
+        if (Time.time >= nextUpdateTime)
         {
-            UpdateTimerDisplay();
+            UpdateTimerDisplay(t);
             nextUpdateTime = Time.time + updateInterval;
         }
     }
 
-    private void UpdateTimerDisplay()
+    private float GetTimer()
     {
-        float remainingTime = Mathf.Max(matchManager.timer, 0f);
+        if (OnlineMatchManager.instance != null) return OnlineMatchManager.instance.timer;
+        if (MatchManager.instance != null)       return MatchManager.instance.timer;
+        return -1f;
+    }
+
+    private void UpdateTimerDisplay(float remainingTime)
+    {
+        remainingTime = Mathf.Max(remainingTime, 0f);
         int minutes = Mathf.FloorToInt(remainingTime / 60);
         int seconds = Mathf.FloorToInt(remainingTime % 60);
 
