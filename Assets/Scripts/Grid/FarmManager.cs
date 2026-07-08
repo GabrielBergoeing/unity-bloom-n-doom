@@ -31,7 +31,13 @@ public class FarmManager : NetworkBehaviour
     // Eliminar/ignorar la asignaci�n en Awake; usar OnStartServer/OnStartClient
     private void Awake()
     {
-        // no establecer 'instance' aqu� para evitar referenciar instancias no networked
+        // Pure offline (no Mirror session at all): OnStartServer/OnStartClient never
+        // fire, so 'instance' would stay null forever. Assign it here in that case only;
+        // online mode keeps assigning via the Mirror hooks below.
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (!isNetworkActive)
+            instance = this;
+
         if (!startFarm)
             LevelManager.OnLevelLoaded += () => HandleLevelLoaded();
         else
@@ -107,7 +113,12 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region Level Signal Handler
-    private void OnDestroy() => LevelManager.OnLevelLoaded -= HandleLevelLoaded;
+    private void OnDestroy()
+    {
+        LevelManager.OnLevelLoaded -= HandleLevelLoaded;
+        if (instance == this)
+            instance = null;
+    }
 
     private void HandleLevelLoaded()
     {
