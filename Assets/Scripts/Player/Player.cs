@@ -393,30 +393,43 @@ public class Player : Entity
     [Server]
     public bool ConsumePickupRequest()
     {
+        // En modo local (sin Mirror activo) o en servidor, permitir consumo
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return false;
+
         if (!pickupRequested) return false;
         pickupRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeInteractRequest()
     {
+        // En modo local (sin Mirror activo) o en servidor, permitir consumo
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return false;
+
         if (!interactRequested) return false;
         interactRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeDropRequest()
     {
+        // En modo local (sin Mirror activo) o en servidor, permitir consumo
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return false;
+
         if (!dropRequested) return false;
         dropRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeSabotageRequest()
     {
+        // En modo local (sin Mirror activo) o en servidor, permitir consumo
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return false;
+
         if (!sabotageRequested) return false;
         sabotageRequested = false;
         return true;
