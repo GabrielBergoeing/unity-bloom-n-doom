@@ -23,14 +23,16 @@ public class Fertilizer : MonoBehaviour
     {
         if (owner == null) return;
 
-        // only local owner sends the request
-        if (!owner.isLocalPlayer) return;
+        // isLocalPlayer is never true offline (never Mirror-spawned), so gate on that
+        // only when actually networked; offline just needs local input handling.
+        bool isNetworkSpawnedObject = owner.isServer || owner.isClient;
+        if (isNetworkSpawnedObject && !owner.isLocalPlayer) return;
 
         bool isUsing = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 
         if (isUsing)
         {
-            if (TryUseFertilizer())
+            if (TryUseFertilizer(isNetworkSpawnedObject))
             {
                 // consume locally request server to destroy / handle stacks via HotbarSystem
                 if (pickup != null)
@@ -39,24 +41,26 @@ public class Fertilizer : MonoBehaviour
         }
     }
 
-    private bool TryUseFertilizer()
+    private bool TryUseFertilizer(bool isNetworkSpawnedObject)
     {
         if (owner == null) return false;
 
         TileInteraction tileInteraction = owner.tile;
-        if (tileInteraction == null) 
+        if (tileInteraction == null)
         {
             return false;
         }
         Vector3Int targetCell = tileInteraction.CurrentCell;
-        if (!FarmManager.instance.HasPlant(targetCell)) 
+        if (!FarmManager.instance.HasPlant(targetCell))
         {
             return false;
         }
 
-        // Request server to fertilize via Player command
-        owner.CmdFertilizeCell(targetCell.x, targetCell.y, targetCell.z);
-        
+        if (isNetworkSpawnedObject)
+            owner.CmdFertilizeCell(targetCell.x, targetCell.y, targetCell.z); // request server to fertilize
+        else
+            FarmManager.instance.TryFertilizePlant(targetCell);
+
         if (sfx != null)
         {
             sfx.PlayOnUse();

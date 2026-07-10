@@ -53,33 +53,38 @@ public class Flamethrower : NetworkBehaviour
             }
         }
 
-        // Only the local player reads inputs and requests the server to shoot.
-        if (owner.isLocalPlayer)
+        // isLocalPlayer is never true offline (never Mirror-spawned), so gate on that
+        // only when actually networked; offline just needs local input handling.
+        bool isNetworkSpawnedObject = owner.isServer || owner.isClient;
+        if (isNetworkSpawnedObject && !owner.isLocalPlayer) return;
+
+        bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
+
+        if (isFiring && currentAmmo > 0f)
         {
-            bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
+            if (isNetworkSpawnedObject)
+                owner.CmdRequestShoot(); // request server to shoot (Command on Player)
+            else
+                ServerShoot(owner.rb != null ? owner.rb.linearVelocity : Vector2.zero);
+        }
 
-            if (isFiring && currentAmmo > 0f)
-            {
-                // request server to shoot (Command on Player)
-                owner.CmdRequestShoot();
-            }
-
-            // local cooldown of ammo (visual/UX). Actual ammo consumption enforced on server.
-            if (isFiring && currentAmmo > 0f)
-            {
-                currentAmmo -= Time.deltaTime;
-                if (currentAmmo < 0f) currentAmmo = 0f;
-            }
+        // local cooldown of ammo (visual/UX). Actual ammo consumption enforced on server.
+        if (isFiring && currentAmmo > 0f)
+        {
+            currentAmmo -= Time.deltaTime;
+            if (currentAmmo < 0f) currentAmmo = 0f;
         }
 
         // On server the ServerShoot method enforces fireRate and ammo consumption.
     }
 
-    // This method runs on the server to spawn projectiles.
+    // Runs directly offline; server-authoritative online (see isNetworkSpawnedObject guard).
     // Call from server-side (e.g. Player.CmdRequestShoot -> finds current item and calls this).
-    [Server]
     public void ServerShoot(Vector2 ownerVelocity)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (nextFireTime > Time.time) return;
         if (currentAmmo <= 0f) return;
 
@@ -110,9 +115,12 @@ public class Flamethrower : NetworkBehaviour
                 fireNet.SetInheritedVelocityServer(ownerVelocity);
             }
 
-            NetworkServer.Spawn(fireInstance);
-            var nid = fireInstance.GetComponent<NetworkIdentity>()?.netId ?? 0;
-            Debug.Log($"[Flamethrower] Spawned projectile '{firePrefab.name}' netId={nid} at {fireInstance.transform.position}");
+            if (isServer)
+            {
+                NetworkServer.Spawn(fireInstance);
+                var nid = fireInstance.GetComponent<NetworkIdentity>()?.netId ?? 0;
+                Debug.Log($"[Flamethrower] Spawned projectile '{firePrefab.name}' netId={nid} at {fireInstance.transform.position}");
+            }
         }
     }
 }

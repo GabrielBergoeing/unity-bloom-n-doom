@@ -20,6 +20,10 @@ public class Pickup : NetworkBehaviour
 
     private Collider2D col;
 
+    // NetworkTime.time never advances without an active Mirror session, so time-gating
+    // must fall back to plain Time.timeAsDouble offline or it would stay stuck forever.
+    private double CurrentTime => (isServer || isClient) ? NetworkTime.time : Time.timeAsDouble;
+
     private void Awake()
     {
         col = GetComponent<Collider2D>();
@@ -29,8 +33,9 @@ public class Pickup : NetworkBehaviour
     {
         if (!gameObject.scene.isLoaded)
             return;
-            
-        if (isServer)
+
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (!isNetworkSpawnedObject || isServer)
         {
             ResetPickupState();
         }
@@ -44,10 +49,9 @@ public class Pickup : NetworkBehaviour
         ResetPickupState();
     }
 
-    [Server]
     private void ResetPickupState()
     {
-        pickupReadyTime = NetworkTime.time + pickupDelay;
+        pickupReadyTime = CurrentTime + pickupDelay;
         canPickup = false;
         isPickedUp = false;
         playerInRange = null;
@@ -64,11 +68,13 @@ public class Pickup : NetworkBehaviour
             col.enabled = !isPickedUp;
     }
 
-    [ServerCallback]
     private void OnTriggerEnter2D(Collider2D other)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (isPickedUp) return;
-        if (NetworkTime.time < pickupReadyTime) return;
+        if (CurrentTime < pickupReadyTime) return;
         if (!other.CompareTag("Player")) return;
 
         Player player = other.GetComponent<Player>();
@@ -82,9 +88,11 @@ public class Pickup : NetworkBehaviour
         }
     }
 
-    [ServerCallback]
     private void OnTriggerExit2D(Collider2D other)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (!other.CompareTag("Player")) return;
 
         Player player = other.GetComponent<Player>();
@@ -100,9 +108,11 @@ public class Pickup : NetworkBehaviour
         }
     }
 
-    [Server]
     public void Pick(Player player)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (player == null) return;
         if (!canPickup || isPickedUp) return;
 
@@ -113,19 +123,23 @@ public class Pickup : NetworkBehaviour
         OnPickup?.Invoke(player);
     }
 
-    [Server]
     public void Drop(Player player, bool consume = false)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         isPickedUp = false;
         canPickup = false;
-        pickupReadyTime = NetworkTime.time + pickupDelay;
+        pickupReadyTime = CurrentTime + pickupDelay;
         playerInRange = null;
         OnDrop?.Invoke(player);
     }
 
-    [Server]
     public void Consume(Player player)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (player == null)
         {
             Debug.LogError("[PICKUP] Consume failed — player was NULL!");

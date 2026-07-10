@@ -50,10 +50,12 @@ public class Plant : NetworkBehaviour
     }
 
     #region Server Initialization & lifecycle
-    // Server-side init
-    [Server]
+    // Runs directly offline; server-authoritative online.
     public void InitServer(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         ownerPlayerIndex = ownerIndex;
         cellPos = gridCell;
 
@@ -163,8 +165,10 @@ public class Plant : NetworkBehaviour
 
     protected virtual void Update()
     {
-        // Server executes game logic: timer, fire damage, die
-        if (isServer)
+        // Offline: this is the only simulation, runs unconditionally.
+        // Online: only the server simulates; clients just see synced state.
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (!isNetworkSpawnedObject || isServer)
         {
             // decrease timer and sync occasionally
             timer -= Time.deltaTime;
@@ -194,10 +198,12 @@ public class Plant : NetworkBehaviour
         }
     }
 
-    #region Game actions (server-side)
-    [Server]
+    #region Game actions (server-side online, direct offline)
     public void Interact()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (IsFullyGrown()) return;
 
         currentInteractions++;
@@ -208,9 +214,11 @@ public class Plant : NetworkBehaviour
             stage = GrowthStage.Growing;
     }
 
-    [Server]
     public void WaterPlant()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (isOnFire)
         {
             ExtinguishFire();
@@ -228,9 +236,11 @@ public class Plant : NetworkBehaviour
             stage = GrowthStage.Growing;
     }
 
-    [Server]
     public void FertilizePlant()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (stage == GrowthStage.Mature) return;
 
         currentInteractions = interactionsToMature;
@@ -239,38 +249,47 @@ public class Plant : NetworkBehaviour
         timerSync = timer;
     }
 
-    [Server]
     public void SetOnFire()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (isOnFire) return;
         isOnFire = true;
         fireTimer = fireDuration;
     }
 
-    [Server]
     public void ExtinguishFire()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         isOnFire = false;
         fireTimer = 0f;
     }
 
     public virtual void TakeDamage(float damage)
     {
-        if (!isServer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         health -= damage;
     }
 
-    [Server]
     private void Die()
     {
-        // notify FarmManager server-side
+        // notify FarmManager
         if (FarmManager.instance != null)
         {
-            // compute cell from position on server if needed - FarmManager server tracks plantsByCell
             FarmManager.instance.NotifyPlantDeath(FarmManager.instance.farmTilemap.WorldToCell(transform.position));
         }
 
-        NetworkServer.Destroy(gameObject);
+        // NetworkServer.Destroy() is a no-op without an active server, so fall back
+        // to a plain Destroy() offline or the plant object would never disappear.
+        if (isServer)
+            NetworkServer.Destroy(gameObject);
+        else
+            Destroy(gameObject);
     }
     #endregion
 
@@ -290,8 +309,10 @@ public class Plant : NetworkBehaviour
     // Used by client VFX to compute wither ratio (uses last synced timer)
     public float GetWitherRatio()
     {
-        // use timerSync on clients, server uses timer
-        float t = isServer ? timer : timerSync;
+        // whoever simulates (offline, or the server online) has the authoritative 'timer';
+        // true remote clients only have the periodically synced 'timerSync'
+        bool isNetworkSpawnedObject = isServer || isClient;
+        float t = (!isNetworkSpawnedObject || isServer) ? timer : timerSync;
         return Mathf.Clamp01(t / witheringTime);
     }
 }

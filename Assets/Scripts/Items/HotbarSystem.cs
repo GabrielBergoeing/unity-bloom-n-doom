@@ -21,12 +21,26 @@ public class HotbarSystem : NetworkBehaviour
 
     void Update()
     {
-        if (!isLocalPlayer || playerInput == null) return;
+        if (playerInput == null) return;
 
-        if (playerInput.actions["Slot1"].triggered) CmdSelectSlot(0);
-        if (playerInput.actions["Slot2"].triggered) CmdSelectSlot(1);
-        if (playerInput.actions["Slot3"].triggered) CmdSelectSlot(2);
-        if (playerInput.actions["Slot4"].triggered) CmdSelectSlot(3);
+        // isLocalPlayer is never true offline (never Mirror-spawned), so gate on that
+        // only when actually networked; offline just needs local input handling.
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isLocalPlayer) return;
+
+        if (playerInput.actions["Slot1"].triggered) RequestSelectSlot(0);
+        if (playerInput.actions["Slot2"].triggered) RequestSelectSlot(1);
+        if (playerInput.actions["Slot3"].triggered) RequestSelectSlot(2);
+        if (playerInput.actions["Slot4"].triggered) RequestSelectSlot(3);
+    }
+
+    private void RequestSelectSlot(int slotIndex)
+    {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject)
+            CmdSelectSlot(slotIndex);
+        else
+            SelectSlot(slotIndex);
     }
 
     private void EnsureRuntimeSetup()
@@ -98,6 +112,10 @@ public class HotbarSystem : NetworkBehaviour
                     {
                         RpcUpdateStackCount(i, stackCounts[i]);
                         NetworkServer.Destroy(item);
+                    }
+                    else if (!isClient)
+                    {
+                        Destroy(item);
                     }
 
                     return true;

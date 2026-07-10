@@ -51,13 +51,14 @@ public class Player_ActionState : PlayerState
         // Animation time
         yield return new WaitForSeconds(duration);
 
-        player.FlipPlayerControlFlag();
-        isPerformingAction = false;
-
-        // Cooldown (sabotage tools, etc)
+        // Cooldown (sabotage tools, etc). Control stays locked until this finishes too,
+        // otherwise the player could immediately re-trigger the same action again.
         if (cooldown > 0)
         {
             yield return new WaitForSeconds(cooldown);
         }
+
+        player.FlipPlayerControlFlag();
+        isPerformingAction = false;
     }
 }

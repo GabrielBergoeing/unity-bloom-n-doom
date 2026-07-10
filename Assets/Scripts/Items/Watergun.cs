@@ -31,11 +31,20 @@ public class Watergun : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         Destroy(gameObject, lifetime);
+
+        // OnStartServer/OnStartClient never fire offline (never Mirror-spawned there),
+        // so play the VFX directly in that case.
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (!isNetworkSpawnedObject)
+            PlayAllParticleSystems();
     }
 
-    [Server]
+    // Runs directly offline; server-authoritative online (see isNetworkSpawnedObject guard).
     public void SetInheritedVelocityServer(Vector2 velocity)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         inheritedVelocitySync = velocity;
         inheritedVelocityLocal = velocity;
     }

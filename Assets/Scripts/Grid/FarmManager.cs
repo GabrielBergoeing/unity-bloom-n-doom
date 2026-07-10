@@ -19,7 +19,6 @@ public class FarmManager : NetworkBehaviour
     [SerializeField] private bool startFarm = false;
 
     // --- Tile State Tracking ---
-    // NOTE: plantsByCell/occupiedCells are maintained on server and also maintained on client via Plant registration
     private readonly Dictionary<Vector3Int, Plant> plantsByCell = new();
     private readonly HashSet<Vector3Int> occupiedCells = new();
 
@@ -28,52 +27,32 @@ public class FarmManager : NetworkBehaviour
 
     public enum TileState { NotPrepared, Prepared, PlantedSeed }
 
-    // Eliminar/ignorar la asignaci�n en Awake; usar OnStartServer/OnStartClient
+    private bool initialized = false;
+
     private void Awake()
     {
-        // Pure offline (no Mirror session at all): OnStartServer/OnStartClient never
-        // fire, so 'instance' would stay null forever. Assign it here in that case only;
-        // online mode keeps assigning via the Mirror hooks below.
+        // Asignación para modo offline (sin Mirror)
         bool isNetworkActive = NetworkServer.active || NetworkClient.active;
         if (!isNetworkActive)
+        {
             instance = this;
+            Debug.Log("[FarmManager] Modo offline. Asignando instance.");
+        }
 
         if (!startFarm)
+        {
             LevelManager.OnLevelLoaded += () => HandleLevelLoaded();
+            Debug.Log("[FarmManager] Registrado en LevelManager.OnLevelLoaded");
+        }
         else
+        {
             InitializeTileStates(true);
+        }
     }
 
     private void Start()
     {
         EnsurePlantsRootExists();
-    }
-
-    // Nuevo: confirmaci�n y fallback cuando el objeto se inicializa en el cliente
-    public override void OnStartClient()
-    {
-        base.OnStartClient();
-
-        // On a pure (non-host) client, OnStartServer never runs, so `instance` was never
-        // assigned — every client-side reader (TileInteraction, etc.) saw it as null.
-        if (instance == null)
-            instance = this;
-
-        Debug.Log($"[FarmManager][OnStartClient] farmTilemap={(farmTilemap==null?"NULL":"OK")} preparedTile={(preparedTile==null?"NULL":"OK")} seedTile={(seedTile==null?"NULL":"OK")}");
-        if (farmTilemap == null)
-        {
-            // intento de fallback: tomar el primer Tilemap de la escena (�til en debugging)
-            var any = FindObjectOfType<Tilemap>();
-            if (any != null)
-            {
-                farmTilemap = any;
-                Debug.Log($"[FarmManager] Assigned farmTilemap fallback -> {any.name}");
-            }
-            else
-            {
-                Debug.LogWarning("[FarmManager] No Tilemap found in scene during OnStartClient.");
-            }
-        }
     }
 
     public override void OnStartServer()
@@ -83,10 +62,38 @@ public class FarmManager : NetworkBehaviour
         Debug.Log($"[FarmManager][OnStartServer] assigned instance on server (netId={netId})");
     }
 
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        // En cliente puro, OnStartServer nunca corre
+        if (instance == null)
+        {
+            instance = this;
+            Debug.Log($"[FarmManager][OnStartClient] assigned instance on client (netId={netId})");
+        }
+
+        // Validar referencias
+        Debug.Log($"[FarmManager][OnStartClient] farmTilemap={(farmTilemap==null?"NULL":"OK")} preparedTile={(preparedTile==null?"NULL":"OK")} seedTile={(seedTile==null?"NULL":"OK")}");
+        
+        if (farmTilemap == null)
+        {
+            var any = FindObjectOfType<Tilemap>();
+            if (any != null)
+            {
+                farmTilemap = any;
+                Debug.Log($"[FarmManager] Asignado farmTilemap fallback -> {any.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[FarmManager] No Tilemap encontrado en la escena durante OnStartClient.");
+            }
+        }
+    }
+
     public override void OnStopClient()
     {
         base.OnStopClient();
-        // si esta instancia cliente era la instance global, limpiarla
         if (instance == this)
             instance = null;
     }
@@ -98,36 +105,38 @@ public class FarmManager : NetworkBehaviour
             instance = null;
     }
 
-    #region Init Helpers
-    public void InitializeTileStates(bool clearBefore = false)
+    private void HandleLevelLoaded()
     {
-        if (clearBefore)
-            ; // keep other structures as clients will populate via Plant.OnStartClient
+        if (initialized)
+            return;
+
+        initialized = true;
+        Debug.Log("[FarmManager] LevelManager.OnLevelLoaded invocado.");
+        InitializeTileStates(false);
+    }
+
+    private void InitializeTileStates(bool generateFarm)
+    {
+        if (generateFarm)
+        {
+            Debug.Log("[FarmManager] Generando farm automático.");
+        }
+        else
+        {
+            Debug.Log("[FarmManager] Inicializando estados de tiles.");
+            // Aquí puedes sincronizar los estados desde el archivo de datos si es necesario
+        }
     }
 
     private void EnsurePlantsRootExists()
     {
         if (plantsRoot == null)
-            plantsRoot = new GameObject("Plants").transform;
+        {
+            plantsRoot = new GameObject("PlantsRoot").transform;
+            plantsRoot.SetParent(transform);
+            Debug.Log("[FarmManager] Creado PlantsRoot.");
+        }
     }
-    #endregion
-
-    #region Level Signal Handler
-    private void OnDestroy()
-    {
-        LevelManager.OnLevelLoaded -= HandleLevelLoaded;
-        if (instance == this)
-            instance = null;
-    }
-
-    private void HandleLevelLoaded()
-    {
-        InitializeTileStates(true);
-        Debug.Log("FarmManager tile states initialized after level load");
-
-        LevelManager.OnLevelLoaded -= HandleLevelLoaded;
-    }
-    #endregion
 
     #region Tile State Queries
     public bool IsPrepared(Vector3Int cell) =>
@@ -222,6 +231,10 @@ public class FarmManager : NetworkBehaviour
 
     private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
     {
+        // En modo local (sin Mirror activo) o en servidor, permitir ejecución
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && !isServer) return;
+
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
         Transform parentRoot = GetPlayerPlantRoot(playerIndex);
 
@@ -348,9 +361,25 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region RPCs
-    // Aseg�rate de que RpcSetTileState tambi�n loggea su llegada
-    [ClientRpc]
     private void RpcSetTileState(int x, int y, int z, byte state)
+    {
+        // En modo local (sin Mirror activo), ejecutar directamente
+        // En modo online, solo ejecutar en cliente
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive && isServer)
+        {
+            // Si estamos en servidor online, enviar RPC a clientes
+            if (isClient)
+                RpcSetTileStateClient(x, y, z, state);
+            return;
+        }
+
+        // Modo local: ejecutar directamente
+        RpcSetTileStateClient(x, y, z, state);
+    }
+
+    [ClientRpc]
+    private void RpcSetTileStateClient(int x, int y, int z, byte state)
     {
         Debug.Log($"[FarmManager][RpcSetTileState] Received state={state} on client. farmTilemap={(farmTilemap==null?"NULL":"OK")}");
         if (farmTilemap == null) return;
