@@ -390,33 +390,41 @@ public class Player : Entity
         FarmManager.instance.PrepareTile(cell);
     }
 
-    [Server]
     public bool ConsumePickupRequest()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (!pickupRequested) return false;
         pickupRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeInteractRequest()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (!interactRequested) return false;
         interactRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeDropRequest()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (!dropRequested) return false;
         dropRequested = false;
         return true;
     }
 
-    [Server]
     public bool ConsumeSabotageRequest()
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (!sabotageRequested) return false;
         sabotageRequested = false;
         return true;
@@ -444,7 +452,8 @@ public class Player : Entity
 
     public void ApplyPushForce(Vector2 direction, float force)
     {
-        if (!isServer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
 
         if (rb != null)
         {
@@ -461,7 +470,8 @@ public class Player : Entity
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!isServer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
 
         if (collision.gameObject == this.gameObject) return;
         
@@ -496,7 +506,8 @@ public class Player : Entity
     #region First To Be Refactor
     public void DropCurrentItem(bool consume = false, bool thrown = false)
     {
-        if (!isServer) return;
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
 
         sfx.PlayOnRemove();
         var item = inventory.GetCurrentItem();

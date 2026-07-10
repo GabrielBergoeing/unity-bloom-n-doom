@@ -150,45 +150,52 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region Actions: Prepare / Plant / Water
-    // Marcar PrepareTile como [Server] y loggear ejecuci�n
-    [Server]
+    // Runs directly in offline mode (no Mirror session); server-authoritative online.
+    // These used to be [Server]-gated, which silently blocked them in offline mode
+    // since the gameplay state machine also drives this code path there (see Entity.Update()).
     public void PrepareTile(Vector3Int cell)
     {
-        Debug.Log($"[FarmManager][PrepareTile] Server preparing tile at {cell} (farmTilemap={(farmTilemap==null?"NULL":"OK")})");
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
+        Debug.Log($"[FarmManager][PrepareTile] Preparing tile at {cell} (farmTilemap={(farmTilemap==null?"NULL":"OK")})");
         if (farmTilemap == null) return;
 
         if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
         {
             farmTilemap.SetTile(cell, preparedTile);
             farmTilemap.RefreshTile(cell);
-            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
-    // Server-side spawn plant
-    [Server]
     public void PlantSeed(Vector3Int cell, int playerIndex, GameObject plantPrefab)
     {
-        Debug.Log($"[FarmManager][Server] PlantSeed request cell={cell} playerIndex={playerIndex} prefab={(plantPrefab!=null?plantPrefab.name:"NULL")}");
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
+        Debug.Log($"[FarmManager] PlantSeed request cell={cell} playerIndex={playerIndex} prefab={(plantPrefab!=null?plantPrefab.name:"NULL")}");
         if (!farmTilemap.HasTile(cell) || IsOccupied(cell))
         {
             Debug.Log($"[FarmManager] PlantSeed aborted: no tile or occupied. HasTile={farmTilemap.HasTile(cell)} IsOccupied={IsOccupied(cell)}");
             return;
         }
 
-        // mark tile visually (server)
+        // mark tile visually
         farmTilemap.SetTile(cell, seedTile);
 
         // Propagar tile change a clientes
-        RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.PlantedSeed);
+        if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.PlantedSeed);
 
         SpawnPlant(cell, playerIndex, plantPrefab);
     }
 
-    // server-side wrapper used by gameplay logic - returns true if irrigated
-    [Server]
+    // returns true if irrigated
     public bool TryIrrigatePlant(Vector3Int cell)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (plantsByCell.TryGetValue(cell, out var plant))
         {
             plant.WaterPlant();
@@ -197,9 +204,11 @@ public class FarmManager : NetworkBehaviour
         return false;
     }
 
-    [Server]
     public bool TryFertilizePlant(Vector3Int cell)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (plantsByCell.TryGetValue(cell, out var plant))
         {
             plant.FertilizePlant();
@@ -211,7 +220,6 @@ public class FarmManager : NetworkBehaviour
 
     #region Internal Spawn & Remove
 
-    [Server]
     private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
     {
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
@@ -220,8 +228,9 @@ public class FarmManager : NetworkBehaviour
         GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
         plantObj.transform.SetParent(parentRoot, false);
 
-        // spawn networked object
-        NetworkServer.Spawn(plantObj);
+        // spawn as a networked object only when server-authoritative (online)
+        if (isServer)
+            NetworkServer.Spawn(plantObj);
 
         Plant plant = plantObj.GetComponent<Plant>();
         if (plant != null)
@@ -232,13 +241,21 @@ public class FarmManager : NetworkBehaviour
         }
     }
 
-    [Server]
     public void RemovePlant(Vector3Int cell)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return;
 
-        NetworkServer.Destroy(plant.gameObject);
+        // NetworkServer.Destroy() is a no-op without an active server, so fall back
+        // to a plain Destroy() offline or the plant object would never disappear.
+        if (isServer)
+            NetworkServer.Destroy(plant.gameObject);
+        else
+            Destroy(plant.gameObject);
+
         plantsByCell.Remove(cell);
         occupiedCells.Remove(cell);
 
@@ -246,13 +263,15 @@ public class FarmManager : NetworkBehaviour
         {
             farmTilemap.SetTile(cell, preparedTile);
             // propagar a clientes
-            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
-    [Server]
     public void NotifyPlantDeath(Vector3Int cell)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (!plantsByCell.ContainsKey(cell))
             return;
 
@@ -261,13 +280,15 @@ public class FarmManager : NetworkBehaviour
         if (farmTilemap != null)
         {
             farmTilemap.SetTile(cell, preparedTile);
-            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
-    [Server]
     public bool TryRemovePlant(Vector3Int cell, int requesterPlayerIndex)
     {
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return false;
+
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return false;
 
