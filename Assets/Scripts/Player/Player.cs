@@ -12,6 +12,7 @@ public class Player : Entity
     public TileInteraction tile { get; private set; }
     public Player_SFX sfx { get; private set; }
     public HotbarSystem inventory { get; private set; }
+    private Player_ActionCooldownVisual actionCooldownVisual;
     #endregion
 
     #region States
@@ -83,12 +84,30 @@ public class Player : Entity
     {
         base.Awake();
         input = GetComponent<PlayerInput>();
-        input.enabled = false;
+
+        // Online only: keep input disabled until OnStartLocalPlayer() enables it, so remote
+        // players' ghost objects don't process local input. Offline, PlayerInput.Instantiate()
+        // already pairs the requested device/control scheme synchronously inside its own
+        // OnEnable() - disabling here would run BEFORE that OnEnable ever fires (Awake always
+        // runs before OnEnable on a freshly instantiated object), and re-enabling later in
+        // Start() would re-trigger OnEnable() after Unity already cleared Instantiate()'s
+        // requested index/scheme/device, so it silently falls back to generic auto-pairing
+        // (this was why player 1 always ended up on keyboard regardless of the device used).
+        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
+        if (isNetworkActive)
+            input.enabled = false;
+
+        Debug.Log($"[Player.Awake] {name} isNetworkActive={isNetworkActive} input.enabled={input.enabled} playerIndex={input.playerIndex} scheme={input.currentControlScheme} devices=[{string.Join(", ", input.devices)}]");
 
         vfx = GetComponentInChildren<Player_VFX>();
         tile = GetComponentInChildren<TileInteraction>();
         sfx = GetComponent<Player_SFX>();
         inventory = GetComponent<HotbarSystem>();
+
+        // Built at runtime so none of the 5 character prefabs need manual editing.
+        actionCooldownVisual = GetComponent<Player_ActionCooldownVisual>();
+        if (actionCooldownVisual == null)
+            actionCooldownVisual = gameObject.AddComponent<Player_ActionCooldownVisual>();
 
         idleState = new Player_IdleState(this, stateMachine, "idle");
         irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");
@@ -108,6 +127,8 @@ public class Player : Entity
         bool isNetworkActive = NetworkServer.active || NetworkClient.active;
         bool isNetworkSpawnedObject = isServer || isClient;
 
+        Debug.Log($"[Player.Start] {name} isNetworkActive={isNetworkActive} input.enabled(before)={input.enabled} playerIndex={input.playerIndex} scheme={input.currentControlScheme} devices=[{string.Join(", ", input.devices)}]");
+
         // In local mode or local-only objects under an active Mirror session,
         // Mirror ownership callbacks do not grant local authority.
         if (!isNetworkActive || !isNetworkSpawnedObject)
@@ -115,6 +136,8 @@ public class Player : Entity
             input.enabled = true;
             canControl = true;
         }
+
+        Debug.Log($"[Player.Start] {name} input.enabled(after)={input.enabled} playerIndex={input.playerIndex} scheme={input.currentControlScheme} devices=[{string.Join(", ", input.devices)}]");
     }
 
     protected override void Update()
@@ -211,6 +234,9 @@ public class Player : Entity
         if (!isNetworkActive || isServer)
             canControl = false;
     }
+
+    public void SetActionCooldownVisible(bool visible) => actionCooldownVisual?.SetVisible(visible);
+    public void SetActionCooldownProgress(float t) => actionCooldownVisual?.SetProgress(t);
 
     public void OnMovement(InputValue inputValue)
     {

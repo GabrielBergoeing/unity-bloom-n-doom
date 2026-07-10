@@ -6,8 +6,16 @@ public class GameSceneLoader : MonoBehaviour
 {
     private void Start()
     {
+        // The PlayerInputManager is kept enabled through the lobby -> gameplay transition
+        // (see UI_MatchMenu.StartMatch) so local players can still join. Left enabled here,
+        // any stray button/key press races our manual PlayerInput.Instantiate() calls below
+        // and can auto-join a phantom keyboard player that steals index 0 - which is why
+        // player 1 would end up locked to keyboard even when using a controller.
+        if (PlayerInputManager.instance != null)
+            PlayerInputManager.instance.DisableJoining();
+
         var service = PlayerInputService.instance;
-        
+
         if (service == null)
         {
             Debug.LogError("[GameSceneLoader] PlayerInputService not found!");

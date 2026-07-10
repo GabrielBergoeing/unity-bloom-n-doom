@@ -186,6 +186,8 @@ public class PlayerInputService : MonoBehaviour
                 selectedCharacter = p.GetComponent<UI_CharacterSelector>()?.SelectedCharacter
             });
 
+            Debug.Log($"[PlayerInputService] Captured slot {configs.Count - 1}: device={p.devices[0].displayName} ({p.devices[0].path}), scheme={p.currentControlScheme}, allDevices=[{string.Join(", ", p.devices)}]");
+
             Destroy(p.gameObject);
         }
 
@@ -255,6 +257,8 @@ public class PlayerInputService : MonoBehaviour
     // ======================================================
     public PlayerInput SpawnGameplayPlayer(int index, GameObject charPrefab, string scheme, InputDevice dev)
     {
+        Debug.Log($"[PlayerInputService] Spawning index={index} requestedScheme={scheme} requestedDevice={(dev != null ? $"{dev.displayName} ({dev.path})" : "NULL")}");
+
         PlayerInput pi = PlayerInput.Instantiate(
             charPrefab,
             index,
@@ -262,6 +266,8 @@ public class PlayerInputService : MonoBehaviour
             -1,
             dev
         );
+
+        Debug.Log($"[PlayerInputService] Spawned index={index} -> pi.playerIndex={pi.playerIndex} currentScheme={pi.currentControlScheme} devices=[{string.Join(", ", pi.devices)}]");
 
         // Insert exactly in its slot
         if (index >= players.Count)

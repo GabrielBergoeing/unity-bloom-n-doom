@@ -67,6 +67,10 @@ public class Plant : NetworkBehaviour
         if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
 
         stage = GrowthStage.Seed;
+        // stage is already GrowthStage.Seed by default, so the SyncVar hook above won't fire
+        // (Mirror only invokes hooks on an actual value change) - update the sprite directly
+        // or it stays on whatever was serialized on the prefab (often the mature sprite).
+        UpdateStageVisual(GrowthStage.Seed);
         currentInteractions = 0;
         health = maxHealth;
         timer = witheringTime;
@@ -212,6 +216,11 @@ public class Plant : NetworkBehaviour
             stage = GrowthStage.Mature;
         else if (stage == GrowthStage.Seed)
             stage = GrowthStage.Growing;
+
+        // Mirror's SyncVar hooks only auto-fire when NetworkServer.activeHost is true,
+        // so offline (no active Mirror session) OnStageChanged never runs - update the
+        // sprite directly instead of relying on it.
+        UpdateStageVisual(stage);
     }
 
     public void WaterPlant()
@@ -234,6 +243,8 @@ public class Plant : NetworkBehaviour
             stage = GrowthStage.Mature;
         else if (stage == GrowthStage.Seed)
             stage = GrowthStage.Growing;
+
+        UpdateStageVisual(stage);
     }
 
     public void FertilizePlant()
@@ -247,6 +258,8 @@ public class Plant : NetworkBehaviour
         stage = GrowthStage.Mature;
         timer = witheringTime;
         timerSync = timer;
+
+        UpdateStageVisual(stage);
     }
 
     public void SetOnFire()
@@ -257,6 +270,7 @@ public class Plant : NetworkBehaviour
         if (isOnFire) return;
         isOnFire = true;
         fireTimer = fireDuration;
+        UpdateFireVisuals(isOnFire);
     }
 
     public void ExtinguishFire()
@@ -266,6 +280,7 @@ public class Plant : NetworkBehaviour
 
         isOnFire = false;
         fireTimer = 0f;
+        UpdateFireVisuals(isOnFire);
     }
 
     public virtual void TakeDamage(float damage)

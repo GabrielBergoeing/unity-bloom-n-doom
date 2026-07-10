@@ -10,29 +10,24 @@ public class Player_PickState : Player_ActionState
     {
         base.Enter();
 
+        // Picking up an item shouldn't freeze the player like planting/watering does - apply
+        // it instantly and return to idle the same frame instead of running it through
+        // ExecuteAction, which locks movement/control for pickFrame + pickCooldown seconds.
         if (player.tile.CanRefillWater())
         {
             sfx.PlayOnRefill();
-            player.StartCoroutine(ExecuteAction(player.pickFrame, player.pickCooldown, _ => { player.waterSupply += 10; }));
+            player.waterSupply += 10;
         }
-
         else
         {
             Pickup pickup = player.GetPickupNearby();
-            if (pickup != null)
+            if (pickup != null && player.inventory.AddItem(pickup.gameObject))
             {
-                player.StartCoroutine(
-                    ExecuteAction(player.pickFrame, player.pickCooldown, _ =>
-                    {
-                        if (player.inventory.AddItem(pickup.gameObject))
-                        {
-                            sfx.PlayOnPick();
-                            pickup.Pick(player);
-                        }
-                    }));
+                sfx.PlayOnPick();
+                pickup.Pick(player);
             }
-            else
-                stateMachine.ChangeState(player.idleState);
         }
+
+        stateMachine.ChangeState(player.idleState);
     }
 }

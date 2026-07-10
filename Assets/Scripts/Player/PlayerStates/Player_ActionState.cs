@@ -35,30 +35,39 @@ public class Player_ActionState : PlayerState
         float cooldown,
         System.Action<Vector3Int> applyAction //Stores function with parameters
     ){
-        player.FlipPlayerControlFlag();
+        // Explicit set instead of FlipPlayerControlFlag()'s toggle: this state object is a
+        // reused singleton, so if ExecuteAction is ever re-entered before a previous run
+        // finished, a toggle's parity breaks and canControl can get stuck false forever
+        // (player permanently frozen). An explicit Disable/Enable pair can't desync that way.
+        player.DisableControl();
+        player.SetActionCooldownVisible(true);
+        player.SetActionCooldownProgress(0f);
 
         // Safe execution just in case
-        try 
+        try
         {
             // The actual action performed (cut/plant/prepare/etc)
             applyAction(tile.CurrentCell);
-        } 
-        catch (System.Exception e) 
+        }
+        catch (System.Exception e)
         {
             Debug.LogError($"[Player_ActionState] Error during action: {e}");
         }
 
-        // Animation time
-        yield return new WaitForSeconds(duration);
-
-        // Cooldown (sabotage tools, etc). Control stays locked until this finishes too,
-        // otherwise the player could immediately re-trigger the same action again.
-        if (cooldown > 0)
+        // Animation time + cooldown (sabotage tools, etc), ticked frame-by-frame instead of
+        // two WaitForSeconds calls so the visual bar can show live progress while control
+        // stays locked (otherwise the player could immediately re-trigger the same action).
+        float total = duration + Mathf.Max(0f, cooldown);
+        float elapsed = 0f;
+        while (elapsed < total)
         {
-            yield return new WaitForSeconds(cooldown);
+            elapsed += Time.deltaTime;
+            player.SetActionCooldownProgress(total > 0f ? elapsed / total : 1f);
+            yield return null;
         }
 
-        player.FlipPlayerControlFlag();
+        player.SetActionCooldownVisible(false);
+        player.EnableControl();
         isPerformingAction = false;
     }
 }

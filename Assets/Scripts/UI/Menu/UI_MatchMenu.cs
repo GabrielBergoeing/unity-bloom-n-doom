@@ -159,9 +159,12 @@ public class UI_MatchMenu : MonoBehaviour
         }
         else
         {
-            // Local: PlayerInputManager debe estar activo para joins; la escena de juego har� spawn local con PlayerInputService
+            // Local: el roster ya quedó fijado en StoreLobbyPlayers() de arriba; GameSceneLoader
+            // hace spawn manual desde esos configs, no depende del join system. Dejarlo habilitado
+            // aquí permitía que cualquier botón presionado en MapSelector (p.ej. confirmar el mapa
+            // con un control) auto-uniera un jugador fantasma y le robara el slot 0 al jugador real.
             if (PlayerInputManager.instance != null)
-                PlayerInputManager.instance.enabled = true;
+                PlayerInputManager.instance.enabled = false;
         }
 
         GameManager.instance.StartMatchScene("MapSelector");
