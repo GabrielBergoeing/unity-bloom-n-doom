@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData3
   m_EditorClassIdentifier: 
   jsonFileName: ThirdLevel.json
-  matchDuration: 300
+  matchDuration: 180
   playerSpawnPositions:
   - {x: 11, y: 22}
   - {x: 11, y: 17}
@@ -29,4 +29,3 @@ MonoBehaviour:
   rarePrefabs:
   - {fileID: 5840447366612253708, guid: 5b4babd5aadc080479127448fa28cefc, type: 3}
   - {fileID: 2558169981995761550, guid: 93650a7fc1d7d06d2aee2bf624998d6d, type: 3}
-  - {fileID: 460052263863196248, guid: 8a41f54831bfb6f4890ca2537ea98d1e, type: 3}

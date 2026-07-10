@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "com.amazonaws.gamelift": "file:com.amazonaws.gamelift",
-    "com.amazonaws.gameliftserver.sdk": "file:C:/Users/nacho/Desktop/amazon-gamelift-plugin-unity-release-3.2.1/com.amazonaws.gameliftserver.sdk-5.4.0.tgz",
+    "com.amazonaws.gameliftserver.sdk": "file:com.amazonaws.gameliftserver.sdk-5.4.0.tgz",
     "com.unity.collab-proxy": "2.11.4",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.39",

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData1
   m_EditorClassIdentifier: 
   jsonFileName: FirstLevel.json
-  matchDuration: 300
+  matchDuration: 180
   playerSpawnPositions:
   - {x: 14, y: 14}
   - {x: 14, y: 25}
@@ -23,7 +23,6 @@ MonoBehaviour:
   seedPrefabs:
   - {fileID: 2558169981995761550, guid: 09cf66939d1464141a7907b7e47ac7fc, type: 3}
   - {fileID: 6445088790610930207, guid: efb202bd4dead634c9fdfefa8dc37831, type: 3}
-  - {fileID: 460052263863196248, guid: 8a41f54831bfb6f4890ca2537ea98d1e, type: 3}
   toolPrefabs:
   - {fileID: 3485547710261962795, guid: a9dd71347878ab242836d22b98d90c79, type: 3}
   - {fileID: 2003958750646805177, guid: c1cb0d70acf0bda48bcabc6f2085e522, type: 3}

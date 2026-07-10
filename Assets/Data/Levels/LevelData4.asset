@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData4
   m_EditorClassIdentifier: 
   jsonFileName: FourthLevel.json
-  matchDuration: 300
+  matchDuration: 180
   playerSpawnPositions:
   - {x: 14, y: 13}
   - {x: -10, y: 38}
@@ -30,4 +30,3 @@ MonoBehaviour:
   rarePrefabs:
   - {fileID: 391816432929291485, guid: 157cfe018ef02506191fce66d3e1bc73, type: 3}
   - {fileID: 2558169981995761550, guid: 28cf2b92a8a19af01a61a92bb3748841, type: 3}
-  - {fileID: 460052263863196248, guid: 8a41f54831bfb6f4890ca2537ea98d1e, type: 3}

@@ -9,7 +9,7 @@
       }
     },
     "com.amazonaws.gameliftserver.sdk": {
-      "version": "file:C:/Users/nacho/Desktop/amazon-gamelift-plugin-unity-release-3.2.1/com.amazonaws.gameliftserver.sdk-5.4.0.tgz",
+      "version": "file:com.amazonaws.gameliftserver.sdk-5.4.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -34,7 +34,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.aseprite": {
-      "version": "1.1.10",
+      "version": "1.1.11",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -160,7 +160,7 @@
         "com.unity.2d.spriteshape": "10.0.7",
         "com.unity.2d.tilemap": "1.0.0",
         "com.unity.2d.tilemap.extras": "4.1.0",
-        "com.unity.2d.aseprite": "1.1.10"
+        "com.unity.2d.aseprite": "1.1.11"
       }
     },
     "com.unity.ide.rider": {
