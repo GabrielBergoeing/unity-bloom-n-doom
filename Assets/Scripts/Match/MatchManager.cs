@@ -77,10 +77,10 @@ public class MatchManager : MonoBehaviour
         isPlayingMatch = true;
 
         // Self-bootstrap instead of requiring a manually-placed GameObject in the scene.
-        if (OfflineMetrics.instance == null)
-            new GameObject("OfflineMetrics").AddComponent<OfflineMetrics>();
+        if (TelemetryLogger.instance == null)
+            new GameObject("TelemetryLogger").AddComponent<TelemetryLogger>();
 
-        OfflineMetrics.instance.StartRecording();
+        TelemetryLogger.instance.StartCapture();
     }
 
     private void SpawnPlayers()
@@ -184,7 +184,7 @@ public class MatchManager : MonoBehaviour
 
         hasPrintResults = true;
 
-        if (OfflineMetrics.instance != null)
-            OfflineMetrics.instance.StopRecording();
+        if (TelemetryLogger.instance != null)
+            TelemetryLogger.instance.StopCapture();
     }
 }

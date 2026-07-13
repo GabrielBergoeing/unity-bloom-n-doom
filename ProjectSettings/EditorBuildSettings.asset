@@ -15,9 +15,6 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 6c81c431253ac3428a6b3ce3c7070537
   - enabled: 1
-    path: Assets/Scenes/PlayMenu.unity
-    guid: 0ef62619cfdac7340b125d4e12ea8c67
-  - enabled: 1
     path: Assets/Scenes/MatchMenu.unity
     guid: 697c33c376133f97f95f978cd5b49444
   - enabled: 1
@@ -29,12 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CharacterSelectorOnline.unity
     guid: 092a259dad4aa5e4fb15a6968b744367
-  - enabled: 0
-    path: Assets/Scenes/ControlConfig.unity
-    guid: fb9e51fd163a85d48b2a1c2b01a9ba41
-  - enabled: 0
-    path: Assets/Scenes/ControlConfig2.unity
-    guid: c0dbfe9bb38674440b44a9a3f4f84696
   - enabled: 1
     path: Assets/Scenes/LevelScene.unity
     guid: f276915050a56fe4eb638352068efbc7

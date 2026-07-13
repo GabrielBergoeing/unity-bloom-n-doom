@@ -22,7 +22,13 @@ public class WeaponRotation : MonoBehaviour
 		Vector2 move = Vector2.zero;
 		if (player != null)
 		{
-			move = player.moveInput;
+			// player.moveInput is never synced (server-only field, no [SyncVar]) - it only
+			// ever holds real data on whichever instance is actually the server, so every
+			// client (including the one holding this weapon) always read it as zero/stale,
+			// causing rotation to desync from what the host actually sees. xFacingDir/
+			// yFacingDir are SyncVars and already drive animation facing, so they're
+			// replicated correctly to everyone.
+			move = new Vector2(player.xFacingDir, player.yFacingDir);
 		}
 		else if (moveAction != null)
 		{

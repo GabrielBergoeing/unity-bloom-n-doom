@@ -23,7 +23,7 @@ public class UI_MatchMenuOnline : MonoBehaviour
 
     [Header("Match Settings")]
     [Range(2, 4)] [SerializeField] private int minimumPlayers = 2;
-    [SerializeField] private string gameplaySceneName = "MapSelector";
+    [SerializeField] private string gameplaySceneName = "MapSelectorOnline";
 
     [Header("Local Input")]
     [SerializeField] private float navCooldown   = 0.25f;

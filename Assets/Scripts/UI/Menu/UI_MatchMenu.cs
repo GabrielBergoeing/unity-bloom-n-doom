@@ -167,7 +167,10 @@ public class UI_MatchMenu : MonoBehaviour
                 PlayerInputManager.instance.enabled = false;
         }
 
-        GameManager.instance.StartMatchScene("MapSelector");
+        // isOnlineMode is currently never set true from any scene (the live online flow goes
+        // through CharacterSelectorOnline/UI_MatchMenuOnline instead), but keep this correct
+        // in case it's ever exercised - the online map selector is a distinct scene.
+        GameManager.instance.StartMatchScene(isOnlineMode ? "MapSelectorOnline" : "MapSelector");
     }
 
     // callback from selector when state changes

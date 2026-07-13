@@ -6,7 +6,7 @@ public class UI_MainMenu : MonoBehaviour
     public void PlayBTN()
     {
         UI.sfx.PlayOnConfirm();
-        GameManager.instance.ChangeScene("PlayMenu");
+        GameManager.instance.ChangeScene("OnlineMenu");
     }
 
     public void PlayOfflineBTN()

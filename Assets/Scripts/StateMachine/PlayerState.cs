@@ -25,8 +25,12 @@ public abstract class PlayerState: EntityState
     public override void UpdateAnimationParameters()
     {
         base.UpdateAnimationParameters();
-        anim.SetFloat("xVelocity", player.moveInput.x);
-        anim.SetFloat("yVelocity", player.moveInput.y);
+        // player.moveInput is a plain field (no [SyncVar]) that only ever holds real data on
+        // the server instance, so on any client (including the one controlling this player)
+        // it silently reads zero, freezing the walk/idle blend tree. xFacingDir/yFacingDir
+        // are SyncVars and already replicate correctly to everyone, so use those instead.
+        anim.SetFloat("xVelocity", player.xFacingDir);
+        anim.SetFloat("yVelocity", player.yFacingDir);
 
         anim.SetFloat("xFacingDir", player.xFacingDir);
         anim.SetFloat("yFacingDir", player.yFacingDir);
