@@ -4,13 +4,11 @@ using Mirror;
 
 public class GameLiftPlayerAuthenticator : NetworkAuthenticator
 {
-    // Mensaje enviado por el cliente con su playerSessionId
     public struct AuthRequestMessage : NetworkMessage
     {
         public string playerSessionId;
     }
 
-    // Respuesta del servidor indicando éxito/fracaso
     public struct AuthResponseMessage : NetworkMessage
     {
         public bool success;
@@ -21,12 +19,15 @@ public class GameLiftPlayerAuthenticator : NetworkAuthenticator
     [Tooltip("PlayerSessionId que el cliente enviará al autenticar. Setear desde UI de pruebas.")]
     public string clientPlayerSessionId;
 
+    [Header("Desarrollo y Pruebas")]
+    [Tooltip("Activa esto para aceptar automáticamente las conexiones, ignorando GameLift.")]
+    public bool bypassAuthentication = false;
+
     void Awake()
     {
         // No-op
     }
 
-    // Se registran los handlers al arrancar servidor/cliente
     public override void OnStartServer()
     {
         NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
@@ -39,15 +40,11 @@ public class GameLiftPlayerAuthenticator : NetworkAuthenticator
         Debug.Log("[Authenticator] Client handler registrado.");
     }
 
-    // Cuando una conexión llega al servidor, Mirror llama a este método.
-    // Esperamos al mensaje AuthRequestMessage para validar.
     public override void OnServerAuthenticate(NetworkConnectionToClient conn)
     {
         Debug.Log($"[Authenticator] OnServerAuthenticate: connId={conn.connectionId}. Esperando AuthRequestMessage...");
-        // No aceptamos/rechazamos aquí; la validación ocurre en OnAuthRequestMessage.
     }
 
-    // Cuando el cliente inicia la autenticación, envía su playerSessionId
     public override void OnClientAuthenticate()
     {
         if (string.IsNullOrEmpty(clientPlayerSessionId))
@@ -68,8 +65,17 @@ public class GameLiftPlayerAuthenticator : NetworkAuthenticator
         string playerSessionId = msg.playerSessionId ?? string.Empty;
         Debug.Log($"[Authenticator] AuthRequestMessage recibido. connId={conn.connectionId}, playerSessionId='{playerSessionId}'");
 
+        // 1. Revisar si el bypass de pruebas está activo
+        if (bypassAuthentication)
+        {
+            conn.Send(new AuthResponseMessage { success = true, reason = "Bypass de pruebas activado" });
+            Debug.Log("[Authenticator] Modo Bypass: Aceptación automática ignorando GameLift.");
+            ServerAccept(conn);
+            return; // Detenemos la ejecución aquí
+        }
+
+        // 2. Lógica normal de validación de GameLift
 #if UNITY_SERVER
-        // En servidor compilado para GameLift: validar con GameLiftServerManager
         if (GameLiftServerManager.Instance != null)
         {
             bool accepted = false;
@@ -85,7 +91,6 @@ public class GameLiftPlayerAuthenticator : NetworkAuthenticator
 
             if (accepted)
             {
-                // Responder al cliente y aceptar la conexión en Mirror
                 conn.Send(new AuthResponseMessage { success = true, reason = string.Empty });
                 ServerAccept(conn);
                 Debug.Log($"[Authenticator] PlayerSession aceptada por GameLift. connId={conn.connectionId}");
@@ -99,13 +104,11 @@ public class GameLiftPlayerAuthenticator : NetworkAuthenticator
         }
         else
         {
-            // Si no hay manager (raro en build server), fallback a rechazo
             conn.Send(new AuthResponseMessage { success = false, reason = "GameLift manager no inicializado" });
             Debug.LogError("[Authenticator] GameLiftServerManager.Instance es null en servidor.");
             ServerReject(conn);
         }
 #else
-        // Modo local / P2P / Editor: aceptar automáticamente para facilitar pruebas
         conn.Send(new AuthResponseMessage { success = true, reason = "Local dev accept" });
         Debug.Log("[Authenticator] Modo local: aceptación automática.");
         ServerAccept(conn);

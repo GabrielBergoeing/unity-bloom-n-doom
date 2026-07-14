@@ -18,6 +18,9 @@ public class GameLiftServerManager : MonoBehaviour
 
     private NetworkManager networkManager;
 
+    private readonly object queueLock = new object();
+    private readonly Queue<Action> mainThreadActions = new Queue<Action>();
+
     // Mapea playerSessionId -> connectionId
     private readonly Dictionary<string, int> acceptedPlayerSessions = new Dictionary<string, int>();
 
@@ -40,8 +43,17 @@ public class GameLiftServerManager : MonoBehaviour
 
         try
         {
-            GameLiftServerAPI.InitSDK();
-            Debug.Log("[GameLift] SDK inicializado.");
+            // Parámetros manuales inyectados para pruebas locales con Anywhere
+            ServerParameters serverParams = new ServerParameters(
+                "wss://us-east-1.api.amazongamelift.com",    // 1. WebSocket URL
+                Guid.NewGuid().ToString(),                   // 2. Process ID (Generado aleatoriamente)
+                "Cito-WindowsPC",                            // 3. Host ID (Compute Name)
+                "fleet-72471bbe-1659-4eb0-a38a-c3075fcf6de1",// 4. Fleet ID
+                "179a4e11-10e7-4c29-8b39-ba7d642ebc19"       // 5. Auth Token
+            );
+
+            GameLiftServerAPI.InitSDK(serverParams);
+            Debug.Log("[GameLift] SDK inicializado con parámetros manuales.");
         }
         catch (Exception ex)
         {
@@ -54,10 +66,10 @@ public class GameLiftServerManager : MonoBehaviour
         // Registrar callbacks y marcar proceso listo
         ProcessParameters processParameters = new ProcessParameters(
             OnStartGameSession,
-            OnUpdateGameSession, // <- NUEVO
+            OnUpdateGameSession, 
             OnProcessTerminate,
             OnHealthCheck,
-            serverPort,          // <- NUEVO
+            serverPort,         
             new LogParameters(new string[] { Application.dataPath + "/server_log.txt" })
         );
 
@@ -68,39 +80,55 @@ public class GameLiftServerManager : MonoBehaviour
             Debug.LogError($"[GameLift] ProcessReady falló: {outcome.Error}");
     }
 
+    void Update()
+    {
+        lock (queueLock)
+        {
+            while (mainThreadActions.Count > 0)
+            {
+                mainThreadActions.Dequeue()?.Invoke();
+            }
+        }
+    }
+
     // Invocado por GameLift cuando se inicia una nueva GameSession
     private void OnStartGameSession(GameSession gameSession)
     {
         Debug.Log($"[GameLift] OnStartGameSession: ID={gameSession.GameSessionId}");
 
-        // Si GameLift asigna puertos de forma dinámica, extraer puerto
-        int assignedPort = 0;
-        try
+        // Enviamos la lógica al hilo principal de Unity
+        lock (queueLock)
         {
-            assignedPort = gameSession.Port;
+            mainThreadActions.Enqueue(() =>
+            {
+                int assignedPort = 0;
+                try
+                {
+                    assignedPort = gameSession.Port;
+                }
+                catch
+                {
+                    assignedPort = GetDefaultTransportPort();
+                }
+
+                bool portSet = TrySetPortOnTransport(networkManager.transport, (ushort)assignedPort);
+                portSet |= TrySetPortOnTransport(Transport.active, (ushort)assignedPort);
+
+                Debug.Log($"[GameLift] Puerto asignado: {assignedPort}, portSet={portSet}");
+
+                // Arrancar servidor Mirror
+                StartMirrorServer();
+
+                // Activar la sesión en GameLift (AHORA SÍ SE EJECUTARÁ)
+                var activateOutcome = GameLiftServerAPI.ActivateGameSession();
+                if (!activateOutcome.Success)
+                    Debug.LogError($"[GameLift] ActivateGameSession falló: {activateOutcome.Error}");
+                else
+                    Debug.Log("[GameLift] GameSession activada y lista.");
+            });
         }
-        catch
-        {
-            // Fallback a puerto por defecto si no existe
-            assignedPort = GetDefaultTransportPort();
-        }
-
-        // Ajustar transporte de Mirror al puerto asignado
-        bool portSet = TrySetPortOnTransport(networkManager.transport, (ushort)assignedPort);
-        portSet |= TrySetPortOnTransport(Transport.active, (ushort)assignedPort);
-
-        Debug.Log($"[GameLift] Puerto asignado: {assignedPort}, portSet={portSet}");
-
-        // Arrancar servidor Mirror para esta sesión
-        StartMirrorServer();
-
-        // Informar a GameLift que la sesión está activa (Se eliminó AcceptGameSession)
-        var activateOutcome = GameLiftServerAPI.ActivateGameSession();
-        if (!activateOutcome.Success)
-            Debug.LogError($"[GameLift] ActivateGameSession falló: {activateOutcome.Error}");
-        else
-            Debug.Log("[GameLift] GameSession activada.");
     }
+
     private void OnUpdateGameSession(UpdateGameSession updateGameSession)
     {
         Debug.Log($"[GameLift] OnUpdateGameSession recibido. Motivo: {updateGameSession.UpdateReason}");
@@ -117,16 +145,19 @@ public class GameLiftServerManager : MonoBehaviour
     {
         Debug.Log("[GameLift] OnProcessTerminate recibido. Preparando cierre...");
 
-        // Notificar GameLift que estamos terminando
         var outcome = GameLiftServerAPI.ProcessEnding();
         if (!outcome.Success)
             Debug.LogError($"[GameLift] ProcessEnding fallo: {outcome.Error}");
 
-        // Detener Mirror y limpiar
-        StopMirrorServer();
-
-        // Dejar breve margen para limpieza
-        Invoke(nameof(ShutdownUnity), 1.0f);
+        // El cierre también interactúa con Mirror y Unity, debe ir al hilo principal
+        lock (queueLock)
+        {
+            mainThreadActions.Enqueue(() =>
+            {
+                StopMirrorServer();
+                Invoke(nameof(ShutdownUnity), 1.0f);
+            });
+        }
     }
 
     private void ShutdownUnity()

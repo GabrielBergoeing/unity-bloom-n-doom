@@ -1,7 +1,8 @@
 version: 1
-LastOpenTab: Anywhere
 CurrentProfileName: default
 CurrentRegion: us-east-1
+CurrentBucketName: gamelift-bootstrap-132511547715-us-east-1
+LastOpenTab: Anywhere
 UserProfiles: >+
   - Region: sa-east-1
 
@@ -167,5 +168,4 @@ UserProfiles: >+
 
     DeploymentBuildFolderPath: 
 
-CurrentBucketName: gamelift-bootstrap-132511547715-us-east-1
 ...
