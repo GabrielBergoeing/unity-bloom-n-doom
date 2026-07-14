@@ -89,6 +89,17 @@ public class FarmManager : NetworkBehaviour
                 Debug.LogWarning("[FarmManager] No Tilemap encontrado en la escena durante OnStartClient.");
             }
         }
+        
+        // Solicita sincronización completa de tiles al servidor
+        CmdRequestTileSyncInitial();
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdRequestTileSyncInitial()
+    {
+        // El servidor envía todos los tiles preparados a este cliente
+        if (isServer)
+            RpcInitializeTileStates(0, 0, 0, (byte)TileState.Prepared);
     }
 
     public override void OnStopClient()
@@ -167,14 +178,26 @@ public class FarmManager : NetworkBehaviour
         bool isNetworkSpawnedObject = isServer || isClient;
         if (isNetworkSpawnedObject && !isServer) return;
 
-        Debug.Log($"[FarmManager][PrepareTile] Preparing tile at {cell} (farmTilemap={(farmTilemap==null?"NULL":"OK")})");
         if (farmTilemap == null) return;
 
         if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
         {
             farmTilemap.SetTile(cell, preparedTile);
             farmTilemap.RefreshTile(cell);
-            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            if (isServer) 
+                RpcSyncTileToClients(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+        }
+    }
+
+    [ClientRpc]
+    private void RpcSyncTileToClients(int x, int y, int z, byte state)
+    {
+        var cell = new Vector3Int(x, y, z);
+        Tile tileToSet = state == (byte)TileState.Prepared ? preparedTile : seedTile;
+        if (farmTilemap != null)
+        {
+            farmTilemap.SetTile(cell, tileToSet);
+            farmTilemap.RefreshTile(cell);
         }
     }
 
@@ -183,18 +206,19 @@ public class FarmManager : NetworkBehaviour
         bool isNetworkSpawnedObject = isServer || isClient;
         if (isNetworkSpawnedObject && !isServer) return;
 
-        Debug.Log($"[FarmManager] PlantSeed request cell={cell} playerIndex={playerIndex} prefab={(plantPrefab!=null?plantPrefab.name:"NULL")}");
+        Debug.Log($"[FarmManager] PlantSeed request cell={cell} playerIndex={playerIndex}");
         if (!farmTilemap.HasTile(cell) || IsOccupied(cell))
         {
             Debug.Log($"[FarmManager] PlantSeed aborted: no tile or occupied. HasTile={farmTilemap.HasTile(cell)} IsOccupied={IsOccupied(cell)}");
             return;
         }
 
-        // mark tile visually
+        // Marcar tile visualmente en el servidor
         farmTilemap.SetTile(cell, seedTile);
 
         // Propagar tile change a clientes
-        if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.PlantedSeed);
+        if (isServer)
+            RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.PlantedSeed);
 
         SpawnPlant(cell, playerIndex, plantPrefab);
     }
@@ -262,8 +286,6 @@ public class FarmManager : NetworkBehaviour
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return;
 
-        // NetworkServer.Destroy() is a no-op without an active server, so fall back
-        // to a plain Destroy() offline or the plant object would never disappear.
         if (isServer)
             NetworkServer.Destroy(plant.gameObject);
         else
@@ -275,8 +297,9 @@ public class FarmManager : NetworkBehaviour
         if (farmTilemap != null)
         {
             farmTilemap.SetTile(cell, preparedTile);
-            // propagar a clientes
-            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            // Propagar a clientes
+            if (isServer)
+                RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
@@ -293,7 +316,8 @@ public class FarmManager : NetworkBehaviour
         if (farmTilemap != null)
         {
             farmTilemap.SetTile(cell, preparedTile);
-            if (isServer) RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
+            if (isServer)
+                RpcSetTileState(cell.x, cell.y, cell.z, (byte)TileState.Prepared);
         }
     }
 
@@ -361,34 +385,39 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region RPCs
-    private void RpcSetTileState(int x, int y, int z, byte state)
+    [ClientRpc]
+    public void RpcSetTileState(int x, int y, int z, byte state)
     {
-        // En modo local (sin Mirror activo), ejecutar directamente
-        // En modo online, solo ejecutar en cliente
-        bool isNetworkActive = NetworkServer.active || NetworkClient.active;
-        if (isNetworkActive && isServer)
-        {
-            // Si estamos en servidor online, enviar RPC a clientes
-            if (isClient)
-                RpcSetTileStateClient(x, y, z, state);
-            return;
-        }
-
-        // Modo local: ejecutar directamente
-        RpcSetTileStateClient(x, y, z, state);
+        // Se ejecuta en TODOS los clientes + Host si existe
+        if (farmTilemap == null) return;
+        
+        var cell = new Vector3Int(x, y, z);
+        Tile tileToSet = null;
+        
+        if (state == (byte)TileState.Prepared)
+            tileToSet = preparedTile;
+        else if (state == (byte)TileState.PlantedSeed)
+            tileToSet = seedTile;
+        
+        farmTilemap.SetTile(cell, tileToSet);
+        farmTilemap.RefreshTile(cell);
+        
+        Debug.Log($"[FarmManager][RpcSetTileState] Tile {cell} actualizado a estado {state}");
     }
 
+    // Agrega este método en FarmManager para sincronizar estado inicial
     [ClientRpc]
-    private void RpcSetTileStateClient(int x, int y, int z, byte state)
+    public void RpcInitializeTileStates(int x, int y, int z, byte state)
     {
-        Debug.Log($"[FarmManager][RpcSetTileState] Received state={state} on client. farmTilemap={(farmTilemap==null?"NULL":"OK")}");
         if (farmTilemap == null) return;
         var cell = new Vector3Int(x, y, z);
+        
         Tile tileToSet = null;
         if (state == (byte)TileState.Prepared)
             tileToSet = preparedTile;
         else if (state == (byte)TileState.PlantedSeed)
             tileToSet = seedTile;
+        
         farmTilemap.SetTile(cell, tileToSet);
         farmTilemap.RefreshTile(cell);
     }
