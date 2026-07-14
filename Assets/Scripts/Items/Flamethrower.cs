@@ -19,27 +19,26 @@ public class Flamethrower : MonoBehaviour
     private float currentAmmo;
     private float nextFireTime;
 
-    private Player owner; // who currently holds it
+    // Who currently wields it: set through Pickup.holder (hand instances) or pickup events (offline).
+    private Player owner => pickup != null ? pickup.holder : null;
 
     public Items_SFX sfx { get; private set; }
 
     private void Awake()
     {
         sfx = GetComponent<Items_SFX>();
+        pickup = GetComponent<Pickup>();
     }
 
     private void Start()
     {
-        pickup = GetComponent<Pickup>();
         currentAmmo = maxAmmoSeconds;
-
-        pickup.OnPickup += (player) => owner = player;
-        pickup.OnDrop += (_) => owner = null;
     }
 
     private void Update()
     {
-        if (owner == null) return; // not held by player
+        if (owner == null) return;        // not held by a player
+        if (!owner.IsLocalOwner) return;  // remote hand visuals never have a holder, but be safe
 
         bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 
@@ -81,6 +80,10 @@ public class Flamethrower : MonoBehaviour
         float angleStep = spreadAngle / (projectilesPerShot - 1);
         float startAngle = -spreadAngle / 2;
 
+        int projectileId = GameSession.OnlineActive && NetworkAssets.Instance != null
+            ? NetworkAssets.Instance.ProjectileIdOf(firePrefab)
+            : -1;
+
         for (int i = 0; i < projectilesPerShot; i++)
         {
             float currentAngle = startAngle + (angleStep * i);
@@ -90,9 +93,19 @@ public class Flamethrower : MonoBehaviour
             if (owner != null)
             {
                 ownerVelocity = owner.rb.linearVelocity;
-            }   
+            }
+
+            if (GameSession.OnlineActive)
+            {
+                // Server simulates the authoritative projectile; every peer spawns a visual copy.
+                if (projectileId >= 0)
+                    GameSession.Instance?.RequestProjectileServerRpc(
+                        projectileId, fireSpawnPoint.position, rotation, ownerVelocity);
+                continue;
+            }
+
             GameObject fireInstance = Instantiate(firePrefab, fireSpawnPoint.position, rotation);
-            
+
             //Esto es feito pero funciona
             Fire fireScript = fireInstance.GetComponent<Fire>();
             if (fireScript != null)

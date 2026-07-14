@@ -10,6 +10,17 @@ public class Player : Entity
     public TileInteraction tile { get; private set; }
     public Player_SFX sfx { get; private set; }
     public HotbarSystem inventory { get; private set; }
+    public NetworkPlayer net { get; private set; }
+    #endregion
+
+    #region Network Helpers
+    // True when this player instance is controlled on this machine.
+    public bool IsLocalOwner => !GameSession.OnlineActive || (net != null && net.IsOwner);
+
+    // Stable match-wide index (0..3). Online it is assigned by the server.
+    public int PlayerIndex => GameSession.OnlineActive && net != null
+        ? net.Index
+        : (input != null ? input.playerIndex : 0);
     #endregion
 
     #region States
@@ -68,6 +79,7 @@ public class Player : Entity
     {
         base.Awake();
         input = GetComponent<PlayerInput>();
+        net = GetComponent<NetworkPlayer>();
         vfx = GetComponentInChildren<Player_VFX>();
         tile = GetComponentInChildren<TileInteraction>();
         sfx = GetComponent<Player_SFX>();
@@ -91,6 +103,10 @@ public class Player : Entity
 
     protected override void Update()
     {
+        // Remote copies are driven by the network (transform + animator), not by local logic.
+        if (GameSession.OnlineActive && net != null && !net.IsOwner)
+            return;
+
         base.Update();
     }
     #endregion
@@ -117,14 +133,26 @@ public class Player : Entity
     #region Public Functions
     public void OnEnable() // Enable player control after spawn
     {
+        if (GameSession.OnlineActive) return; // NetworkPlayer decides who gets control
         if (canControl) return;
         FlipPlayerControlFlag();
     }
 
     public void OnDisable() // Disable player control
     {
+        if (GameSession.OnlineActive) return;
         if (!canControl) return;
         FlipPlayerControlFlag();
+    }
+
+    public void SetControl(bool value) => canControl = value;
+
+    // Applied on remote copies from the owner's synced state (facing drives the hand/hold position).
+    public void ApplyRemoteState(Vector2 move, int xFacing, int yFacing)
+    {
+        moveInput = move;
+        xFacingDir = xFacing;
+        yFacingDir = yFacing;
     }
 
     public void OnMovement(InputValue input)
@@ -174,7 +202,9 @@ public class Player : Entity
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject == this.gameObject) return;
-        
+        if (!IsLocalOwner) return; // separation is handled by each player's owner
+
+
         Player otherPlayer = collision.gameObject.GetComponent<Player>();
         if (otherPlayer != null)
         {
@@ -206,36 +236,35 @@ public class Player : Entity
     #region First To Be Refactor
     public void DropCurrentItem(bool consume = false, bool thrown = false)
     {
+        if (inventory == null || inventory.GetCurrentItemId() < 0) return;
+
         sfx.PlayOnRemove();
-        var item = inventory.GetCurrentItem();
-        if (item == null) return;
 
-        // Inventory handles slot removal & reparenting
-        inventory.RemoveItem(item, consume);
-
-        // Re-enable pickup collider & drop in world
-        var pickup = item.GetComponent<Pickup>();
-        pickup?.Drop(this);
-
-        item.transform.parent = null;
-        item.transform.position = transform.position;
+        if (consume)
+            inventory.ConsumeCurrent();
+        else
+            inventory.DropCurrent(); // spawns the world item (server-side when online)
     }
     #endregion
 
     #region Cheat Functions
-    public void SpawnScissors()
-    {
-        if (scissors != null)
-        {
-            Instantiate(scissors, transform.position, Quaternion.identity);
-        }
-    }
+    public void SpawnScissors() => CheatSpawn(scissors);
 
-    public void SpawnFlamethrower()
+    public void SpawnFlamethrower() => CheatSpawn(flamethrower);
+
+    private void CheatSpawn(GameObject prefab)
     {
-        if (flamethrower != null)
+        if (prefab == null) return;
+
+        if (GameSession.OnlineActive)
         {
-            Instantiate(flamethrower, transform.position, Quaternion.identity);
+            int itemId = NetworkAssets.Instance != null ? NetworkAssets.Instance.ItemIdOf(prefab) : -1;
+            if (itemId >= 0)
+                GameSession.Instance?.RequestSpawnItemServerRpc(itemId, transform.position);
+        }
+        else
+        {
+            Instantiate(prefab, transform.position, Quaternion.identity);
         }
     }
     #endregion

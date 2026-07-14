@@ -19,6 +19,9 @@ public class Watergun : MonoBehaviour
     [SerializeField] private float pushDuration = 0.5f;
     [SerializeField] private Pickup pickup;
 
+    /// <summary>Online, gameplay effects only run on the server's copy; other peers get visual-only clones.</summary>
+    [HideInInspector] public bool authoritative = true;
+
     private Rigidbody2D rb;
     private Vector2 inheritedVelocity = Vector2.zero;
 
@@ -42,6 +45,8 @@ public class Watergun : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!authoritative) return; // visual-only clone
+
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {
@@ -59,6 +64,14 @@ public class Watergun : MonoBehaviour
     private void PushPlayer(Player player)
     {
         Vector2 pushDirection = (player.transform.position - transform.position).normalized;
+
+        if (GameSession.OnlineActive && player.net != null)
+        {
+            // Push is applied by the player's owner (movement is owner-authoritative).
+            player.net.ApplyPushClientRpc(pushDirection, pushForce);
+            return;
+        }
+
         player.ForceIdleState();
         player.ApplyPushForce(pushDirection, pushForce);
     }

@@ -92,6 +92,23 @@ public class PlayerInputService : MonoBehaviour
     // ======================================================
     private void HandlePlayerJoined(PlayerInput pi)
     {
+        // Network-spawned players enable their PlayerInput on the owning client,
+        // which fires this join event — never treat them as local lobby joins.
+        if (pi.GetComponent<NetworkPlayer>() != null)
+            return;
+
+        if (GameSession.OnlineActive)
+        {
+            // UI PlayerInputs (pause menu, etc.) may join freely; only block
+            // local GAMEPLAY players from joining an online session.
+            if (pi.GetComponent<Player>() != null)
+            {
+                Debug.Log("[PlayerInputService] Local player join blocked (online session).");
+                Destroy(pi.gameObject);
+            }
+            return;
+        }
+
         if (MatchManager.instance != null && MatchManager.instance.isMatchRunning)
         {
             Debug.Log("[PlayerInputService] Player join blocked (match is running).");

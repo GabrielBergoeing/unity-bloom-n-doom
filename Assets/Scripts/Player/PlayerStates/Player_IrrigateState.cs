@@ -30,6 +30,7 @@ public class Player_IrrigateState : Player_ActionState
 
                 player.vfx.transform.rotation = Quaternion.Euler(0, 0, angle);
                 player.vfx.TriggerVFX("Irrigate");
+                player.net?.BroadcastIrrigateVfx(angle); // let other clients see the splash
             }
 
             tile.IrrigateInCell();

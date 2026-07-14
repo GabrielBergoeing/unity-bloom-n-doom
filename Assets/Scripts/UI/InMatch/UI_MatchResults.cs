@@ -57,15 +57,9 @@ public class UI_MatchResults : MonoBehaviour
         results.Sort((a, b) => b.score.CompareTo(a.score));
         var winner = results[0];
 
-        // Validate player index
-        if (winner.playerIndex < 0 || winner.playerIndex >= characterDB.characters.Length)
-        {
-            Debug.LogError($"[UI_MatchResults] Invalid winner index {winner.playerIndex}, CharacterDB has {characterDB.characters.Length} characters!");
-            return;
-        }
-
-        // Safe to use
-        CharacterData data = characterDB.characters[winner.playerIndex];
+        // Portrait comes from the character the winner picked
+        int charIndex = Mathf.Clamp(winner.characterId, 0, characterDB.characters.Length - 1);
+        CharacterData data = characterDB.characters[charIndex];
 
         imgPortrait.sprite = data.portrait;
         txtScore.text = winner.score + " pts";
@@ -79,25 +73,25 @@ public class UI_MatchResults : MonoBehaviour
     #endregion
 
     #region Buttons
-    public void GoToCharacterSelect()
-    {
-        UI.sfx.PlayOnConfirm();
-        AudioManager.instance.StartBGM("bgm_menu");
-        GameManager.instance.ChangeScene("MatchMenu");
-    }
+    public void GoToCharacterSelect() => LeaveOrChangeScene("MatchMenu");
 
-    public void GoToStageSelect()
-    {
-        UI.sfx.PlayOnConfirm();
-        AudioManager.instance.StartBGM("bgm_menu");
-        GameManager.instance.ChangeScene("MapSelector");
-    }
+    public void GoToStageSelect() => LeaveOrChangeScene("MapSelector");
 
-    public void GoToMainMenu()
+    public void GoToMainMenu() => LeaveOrChangeScene("MainMenu");
+
+    private void LeaveOrChangeScene(string sceneName)
     {
         UI.sfx.PlayOnConfirm();
         AudioManager.instance.StartBGM("bgm_menu");
-        GameManager.instance.ChangeScene("MainMenu");
+
+        if (GameSession.OnlineActive)
+        {
+            // Online the session ends here; everyone returns to the main menu.
+            ConnectionManager.Instance?.Leave();
+            return;
+        }
+
+        GameManager.instance.ChangeScene(sceneName);
     }
     #endregion
 }

@@ -6,6 +6,10 @@ public class GameSceneLoader : MonoBehaviour
 {
     private void Start()
     {
+        // Online, the server spawns networked players (GameSession); the local
+        // config-based spawning below is only for the legacy offline path.
+        if (GameSession.OnlineActive) return;
+
         PlayerInputService.instance.ResetForGameplay(); // reset runtime list
         var players = SpawnPlayersFromConfig();         // get gameplay players
         MatchManager.instance.InitializePlayers(players);

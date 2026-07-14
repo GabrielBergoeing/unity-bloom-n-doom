@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+/// <summary>
+/// Local farm state (tilemaps + dictionaries) kept in sync on every peer.
+/// Online, mutation requests are routed to the server through GameSession;
+/// the server validates against its own copy and mirrors the result to all
+/// clients via the Apply* methods (called from ClientRpcs).
+/// </summary>
 public class FarmManager : MonoBehaviour
 {
     public static FarmManager instance;
@@ -90,32 +96,48 @@ public class FarmManager : MonoBehaviour
 
         return null;
     }
+
+    /// <summary>Server-side validation for the prepare request.</summary>
+    public bool CanPrepareServer(Vector3Int cell) =>
+        tileStates.TryGetValue(cell, out var state) && state == TileState.NotPrepared;
     #endregion
 
-    #region Actions: Prepare / Plant / Water
+    #region Actions: Prepare / Plant / Water (request entry points)
     public void PrepareTile(Vector3Int cell)
     {
+        if (GameSession.OnlineActive)
+        {
+            NetworkPlayer.LocalPlayer?.RequestPrepareTile(cell);
+            return;
+        }
+
         if (!tileStates.TryGetValue(cell, out var state) || state != TileState.NotPrepared)
             return;
 
-        farmTilemap.SetTile(cell, preparedTile);
-        farmTilemap.RefreshTile(cell);
-        tileStates[cell] = TileState.Prepared;
+        ApplyPrepareTile(cell);
     }
 
     public void PlantSeed(Vector3Int cell, int playerIndex, GameObject plantPrefab)
     {
+        // Online planting goes through Seed.Use -> NetworkPlayer.RequestPlantSeed.
+        if (GameSession.OnlineActive) return;
+
         if (!tileStates.ContainsKey(cell) || !IsPrepared(cell) || IsOccupied(cell))
             return;
 
-        tileStates[cell] = TileState.PlantedSeed;
-        farmTilemap.SetTile(cell, seedTile);
-
-        SpawnPlant(cell, playerIndex, plantPrefab);
+        ApplySeedTile(cell);
+        SpawnPlantLocal(cell, playerIndex, plantPrefab);
     }
 
     public bool TryIrrigatePlant(Vector3Int cell)
     {
+        if (GameSession.OnlineActive)
+        {
+            if (!HasPlant(cell)) return false;
+            NetworkPlayer.LocalPlayer?.RequestIrrigate(cell);
+            return true;
+        }
+
         if (plantsByCell.TryGetValue(cell, out var plant))
         {
             plant.WaterPlant();
@@ -126,6 +148,13 @@ public class FarmManager : MonoBehaviour
 
     public bool TryFertilizePlant(Vector3Int cell)
     {
+        if (GameSession.OnlineActive)
+        {
+            if (!HasPlant(cell)) return false;
+            NetworkPlayer.LocalPlayer?.RequestFertilize(cell);
+            return true;
+        }
+
         if (plantsByCell.TryGetValue(cell, out var plant))
         {
             plant.FertilizePlant();
@@ -135,9 +164,63 @@ public class FarmManager : MonoBehaviour
     }
     #endregion
 
-    #region Internal Spawn & Remove
+    #region Server-side helpers (executed where the simulation runs)
+    public void ServerIrrigate(Vector3Int cell)
+    {
+        if (plantsByCell.TryGetValue(cell, out var plant))
+            plant.WaterPlant();
+    }
 
-    private void SpawnPlant(Vector3Int cell, int playerIndex, GameObject prefab)
+    public void ServerFertilize(Vector3Int cell)
+    {
+        if (plantsByCell.TryGetValue(cell, out var plant))
+            plant.FertilizePlant();
+    }
+    #endregion
+
+    #region Mirrored state application (runs on every peer via ClientRpc)
+    public void ApplyPrepareTile(Vector3Int cell)
+    {
+        farmTilemap.SetTile(cell, preparedTile);
+        farmTilemap.RefreshTile(cell);
+        tileStates[cell] = TileState.Prepared;
+    }
+
+    public void ApplySeedTile(Vector3Int cell)
+    {
+        farmTilemap.SetTile(cell, seedTile);
+        tileStates[cell] = TileState.PlantedSeed;
+    }
+
+    public void ApplyClearTile(Vector3Int cell)
+    {
+        farmTilemap.SetTile(cell, preparedTile);
+        tileStates[cell] = TileState.Prepared;
+    }
+
+    /// <summary>Called by networked plants when they spawn on this peer.</summary>
+    public void RegisterPlant(Plant plant)
+    {
+        if (plant == null) return;
+        plantsByCell[plant.cellPos] = plant;
+        occupiedCells.Add(plant.cellPos);
+        tileStates[plant.cellPos] = TileState.PlantedSeed;
+    }
+
+    /// <summary>Called by networked plants when they despawn on this peer.</summary>
+    public void UnregisterPlant(Plant plant)
+    {
+        if (plant == null) return;
+        if (plantsByCell.TryGetValue(plant.cellPos, out var registered) && registered == plant)
+        {
+            plantsByCell.Remove(plant.cellPos);
+            occupiedCells.Remove(plant.cellPos);
+        }
+    }
+    #endregion
+
+    #region Internal Spawn & Remove
+    private void SpawnPlantLocal(Vector3Int cell, int playerIndex, GameObject prefab)
     {
         Vector3 worldPos = farmTilemap.GetCellCenterWorld(cell);
         GameObject plantObj = Instantiate(prefab, worldPos, Quaternion.identity);
@@ -153,6 +236,14 @@ public class FarmManager : MonoBehaviour
 
     public void RemovePlant(Vector3Int cell)
     {
+        if (GameSession.OnlineActive)
+        {
+            // Sabotage-style removal (scissors): the server allows cutting any plant.
+            if (!HasPlant(cell)) return;
+            NetworkPlayer.LocalPlayer?.RequestRemovePlant(cell, sabotage: true);
+            return;
+        }
+
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return;
 
@@ -177,6 +268,14 @@ public class FarmManager : MonoBehaviour
 
     public bool TryRemovePlant(Vector3Int cell, int requesterPlayerIndex)
     {
+        if (GameSession.OnlineActive)
+        {
+            if (!HasPlant(cell)) return false;
+            if (GetPlantOwner(cell) != requesterPlayerIndex) return false;
+            NetworkPlayer.LocalPlayer?.RequestRemovePlant(cell, sabotage: false);
+            return true;
+        }
+
         if (!plantsByCell.TryGetValue(cell, out var plant))
             return false;
 

@@ -1,69 +1,42 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
+/// <summary>
+/// Per-player camera. Online there is no split screen: the local player's camera
+/// renders full screen and remote players' cameras are disabled entirely
+/// (NetworkPlayer calls ConfigureAsLocal / DisableAsRemote on spawn).
+/// </summary>
 [RequireComponent(typeof(Camera))]
 public class Player_ScreenCamera : MonoBehaviour
 {
     private Camera cam;
-    private PlayerInput player;  // Now stored
-    private int index;
-    private int totalPlayers;
 
     private void Awake()
     {
         cam = GetComponent<Camera>();
-
-        // Wait for PlayerInput to exist
-        StartCoroutine(WaitForPlayerInput());
-
-        // Update camera layout when new players join
-        if (PlayerInputManager.instance != null)
-            PlayerInputManager.instance.onPlayerJoined += HandlePlayerJoined;
     }
 
-    private System.Collections.IEnumerator WaitForPlayerInput()
+    public void ConfigureAsLocal()
     {
-        // Wait until PlayerInput exists on parent
-        while (player == null)
+        cam.rect = new Rect(0f, 0f, 1f, 1f);
+        cam.depth = 10f; // render above any leftover scene camera
+        cam.enabled = true;
+
+        var myListener = GetComponent<AudioListener>();
+        if (myListener != null) myListener.enabled = true;
+
+        // Unity wants exactly one active listener; mute the scene camera's.
+        foreach (var other in FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
         {
-            player = GetComponentInParent<PlayerInput>();
-            yield return null;
+            if (other != myListener && other.enabled)
+                other.enabled = false;
         }
-
-        index = player.playerIndex;
-        totalPlayers = PlayerInput.all.Count;
-        cam.depth = index;
-
-        SetupCamera();
     }
 
-    private void HandlePlayerJoined(PlayerInput obj)
+    public void DisableAsRemote()
     {
-        totalPlayers = PlayerInput.all.Count;
-        SetupCamera();
-    }
+        cam.enabled = false;
 
-    private void SetupCamera()
-    {
-        if (totalPlayers <= 0 || cam == null) return;
-
-        if (totalPlayers == 1)
-            cam.rect = new Rect(0, 0, 1, 1);
-        else if (totalPlayers == 2)
-            cam.rect = new Rect(index == 0 ? 0 : 0.5f, 0, 0.5f, 1);
-        else if (totalPlayers == 3)
-            cam.rect = new Rect(
-                index == 0 ? 0 : (index == 1 ? 0.5f : 0),
-                index < 2 ? 0.5f : 0,
-                index < 2 ? 0.5f : 1,
-                0.5f
-            );
-        else
-            cam.rect = new Rect(
-                (index % 2) * 0.5f,
-                index < 2 ? 0.5f : 0,
-                0.5f,
-                0.5f
-            );
+        var listener = GetComponent<AudioListener>();
+        if (listener != null) listener.enabled = false;
     }
 }

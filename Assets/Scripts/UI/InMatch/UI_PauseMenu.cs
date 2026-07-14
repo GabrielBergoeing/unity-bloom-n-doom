@@ -52,7 +52,11 @@ public class UI_PauseMenu : MonoBehaviour
 
 
         btnStage?.Select();
-        Time.timeScale = 0f;
+
+        // Online the world keeps running (other players are still playing);
+        // freezing time would stall the host's simulation for everyone.
+        if (!GameSession.OnlineActive)
+            Time.timeScale = 0f;
     }
 
     public void ResumeGame()
@@ -65,9 +69,23 @@ public class UI_PauseMenu : MonoBehaviour
     }
 
     // ------- Buttons -------
-    public void GoToCharacterSelect() { ForceResume(); GameManager.instance.ChangeScene("MatchMenu"); }
-    public void GoToStageSelect()     { ForceResume(); GameManager.instance.ChangeScene("MapSelector"); }
-    public void GoToMainMenu()        { ForceResume(); GameManager.instance.ChangeScene("MainMenu"); }
+    public void GoToCharacterSelect() { LeaveOrChangeScene("MatchMenu"); }
+    public void GoToStageSelect()     { LeaveOrChangeScene("MapSelector"); }
+    public void GoToMainMenu()        { LeaveOrChangeScene("MainMenu"); }
+
+    private void LeaveOrChangeScene(string sceneName)
+    {
+        ForceResume();
+
+        if (GameSession.OnlineActive)
+        {
+            // Leaving an online match disconnects (host leaving ends the session).
+            ConnectionManager.Instance?.Leave();
+            return;
+        }
+
+        GameManager.instance.ChangeScene(sceneName);
+    }
 
     private void ForceResume()
     {

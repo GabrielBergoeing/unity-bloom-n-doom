@@ -19,6 +19,8 @@ public class Cactus : Plant
     {
         base.Update();
 
+        if (!IsSimAuthority) return; // only the server simulates water storage online
+
         if (currentWaterStorage > 0 && IsFullyGrown())
             DrinkWater();
     }
@@ -32,14 +34,20 @@ public class Cactus : Plant
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject == this.gameObject || !IsFullyGrown()) return;
+        if (!IsSimAuthority) return; // server decides who loses water
 
-        Debug.Log($"Collision: {collision.gameObject.name}");
         Player otherPlayer = collision.gameObject.GetComponent<Player>();
-        if (otherPlayer != null && otherPlayer.input.playerIndex != ownerPlayerIndex)
+        if (otherPlayer != null && otherPlayer.PlayerIndex != ownerPlayerIndex)
         {
-            // Steal water
+            // Steal water (otherPlayer.waterSupply is mirrored from its owner over the network)
             float waterToSteal = Mathf.Min(waterStealRate, otherPlayer.waterSupply);
-            otherPlayer.waterSupply -= waterToSteal;
+            if (waterToSteal <= 0f) return;
+
+            if (GameSession.OnlineActive && otherPlayer.net != null)
+                otherPlayer.net.StealWaterClientRpc(waterToSteal); // the owner applies the loss
+            else
+                otherPlayer.waterSupply -= waterToSteal;
+
             currentWaterStorage = Mathf.Min(currentWaterStorage + waterToSteal, maxWaterStorage);
         }
     }

@@ -1,7 +1,12 @@
+using Unity.Netcode;
 using UnityEngine;
 
-//Para la entrega final habra que hacer la clase planta ser heredado desde Entity
-public class Plant : MonoBehaviour
+/// <summary>
+/// Online: spawned by the server as a NetworkObject. The server simulates growth,
+/// withering, fire and health; clients only render state mirrored through
+/// NetworkVariables (stage, fire, wither ratio) + an init RPC (owner, cell).
+/// </summary>
+public class Plant : NetworkBehaviour
 {
     public enum GrowthStage { Seed, Growing, Mature }
     protected Rigidbody2D rb;
@@ -40,7 +45,66 @@ public class Plant : MonoBehaviour
     [Header("Scoring")]
     [Range(0, 5)][SerializeField] private int score = 3;
 
+    // ---------------- Netcode ----------------
+    public NetworkVariable<int> netStage = new(0);
+    public NetworkVariable<bool> netFire = new(false);
+    public NetworkVariable<float> netWither = new(1f);
+
+    private float witherSyncTimer;
+    private bool isDying;
+
+    /// <summary>True when this plant is a live networked object.</summary>
+    protected bool IsNetworked => GameSession.OnlineActive && IsSpawned;
+
+    /// <summary>True on the peer that simulates this plant (server online, everyone offline).</summary>
+    protected bool IsSimAuthority => !IsNetworked || IsServer;
+
     protected virtual void Awake() => rb = GetComponent<Rigidbody2D>();
+
+    // ======================================================
+    //  INIT
+    // ======================================================
+    /// <summary>Server-side init, called right before Spawn().</summary>
+    public void ServerPrepareInit(int ownerIndex, Vector3Int gridCell)
+    {
+        ownerPlayerIndex = ownerIndex;
+        cellPos = gridCell;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        netStage.OnValueChanged += OnStageChanged;
+        netFire.OnValueChanged += OnFireChanged;
+
+        if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (IsServer)
+        {
+            Init(ownerPlayerIndex, cellPos);
+        }
+        else
+        {
+            ApplyStageVisual((GrowthStage)netStage.Value);
+            if (netFire.Value) OnFireChanged(false, true);
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        netStage.OnValueChanged -= OnStageChanged;
+        netFire.OnValueChanged -= OnFireChanged;
+        FarmManager.instance?.UnregisterPlant(this);
+    }
+
+    [ClientRpc]
+    public void InitClientRpc(int ownerIndex, Vector3Int gridCell)
+    {
+        ownerPlayerIndex = ownerIndex;
+        cellPos = gridCell;
+        if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
+        FarmManager.instance?.RegisterPlant(this);
+    }
+
     public void Init(int ownerIndex, Vector3Int gridCell, int? requiredInteractions = null)
     {
         ownerPlayerIndex = ownerIndex;
@@ -52,15 +116,31 @@ public class Plant : MonoBehaviour
             interactionsToMature = Mathf.Max(1, interactionsToMature); // ensure prefab can't be 0
 
         if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
-        
+
         SetStage(GrowthStage.Seed);
     }
 
+    // ======================================================
+    //  STAGE
+    // ======================================================
     private void SetStage(GrowthStage newStage)
+    {
+        ApplyStageVisual(newStage);
+
+        health = maxHealth;
+        timer = witheringTime;
+
+        if (IsNetworked && IsServer)
+            netStage.Value = (int)newStage;
+    }
+
+    private void ApplyStageVisual(GrowthStage newStage)
     {
         stage = newStage;
 
-        // Sprites por etapa
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+
         if (spriteRenderer)
         {
             var s = stage switch
@@ -72,34 +152,44 @@ public class Plant : MonoBehaviour
             };
             spriteRenderer.sprite = s;
         }
-
-        health = maxHealth;
-        timer = witheringTime;
-
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void OnStageChanged(int oldValue, int newValue) =>
+        ApplyStageVisual((GrowthStage)newValue);
+
+    // ======================================================
+    //  SIMULATION
+    // ======================================================
     protected virtual void Update()
     {
+        if (IsNetworked && !IsServer)
+        {
+            // Clients only animate the fire flicker; state comes from the server.
+            if (isOnFire)
+                UpdateFireVisuals();
+            return;
+        }
+
         timer -= Time.deltaTime;
 
         if (isOnFire)
         {
             fireTimer -= Time.deltaTime;
             UpdateFireVisuals();
-            
-            if (Mathf.FloorToInt(Time.time) != Mathf.FloorToInt(Time.time - Time.deltaTime))
-            {
-                Debug.Log($"{gameObject.name} is burning! Fire timer: {fireTimer:F1}, Health: {health:F1}");
-            }
-            
+
             TakeDamage(fireDamagePerSecond * Time.deltaTime);
-        
+
             if (!burnUntilDeath && fireTimer <= 0f)
-            {
-                Debug.Log($"{gameObject.name} fire extinguished");
                 ExtinguishFire();
+        }
+
+        if (IsNetworked && IsServer)
+        {
+            witherSyncTimer -= Time.deltaTime;
+            if (witherSyncTimer <= 0f)
+            {
+                witherSyncTimer = 0.25f;
+                netWither.Value = Mathf.Clamp01(timer / witheringTime);
             }
         }
 
@@ -112,9 +202,9 @@ public class Plant : MonoBehaviour
         if (!spriteRenderer || !isOnFire) return;
         float time = Time.time * fireFlickerSpeed;
         float cycle = time % 3f;
-        
+
         Color fireColor;
-        
+
         if (cycle < 1f)
         {
             fireColor = Color.Lerp(originalColor, Color.red, cycle);
@@ -129,12 +219,22 @@ public class Plant : MonoBehaviour
             float t = cycle - 2f;
             fireColor = Color.Lerp(Color.yellow, originalColor, t);
         }
-        
+
         spriteRenderer.color = fireColor;
     }
 
     private void Die()
     {
+        if (isDying) return;
+        isDying = true;
+
+        if (IsNetworked)
+        {
+            // Server clears the tile everywhere and despawns this object.
+            GameSession.Instance?.ServerDespawnPlant(this);
+            return;
+        }
+
         if (FarmManager.instance != null)
         {
             FarmManager.instance.NotifyPlantDeath(cellPos);
@@ -145,8 +245,12 @@ public class Plant : MonoBehaviour
 
     protected bool IsFullyGrown() => stage == GrowthStage.Mature;
 
+    // ======================================================
+    //  INTERACTIONS (authority only — routed via GameSession online)
+    // ======================================================
     public void Interact()
     {
+        if (!IsSimAuthority) return;
         if (IsFullyGrown()) return;
 
         currentInteractions++;
@@ -159,6 +263,7 @@ public class Plant : MonoBehaviour
 
     public void WaterPlant()
     {
+        if (!IsSimAuthority) return;
 
         if (isOnFire)
         {
@@ -177,18 +282,24 @@ public class Plant : MonoBehaviour
     }
 
     public void FertilizePlant()
-    {        
-        if (stage == GrowthStage.Mature) 
+    {
+        if (!IsSimAuthority) return;
+
+        if (stage == GrowthStage.Mature)
         {
             return;
         }
-        
+
         currentInteractions = interactionsToMature;
         SetStage(GrowthStage.Mature);
         timer = witheringTime;
     }
 
-    public virtual void TakeDamage(float damage) => health -= damage;
+    public virtual void TakeDamage(float damage)
+    {
+        if (!IsSimAuthority) return;
+        health -= damage;
+    }
 
     public virtual int GetScoring()
     {
@@ -201,31 +312,63 @@ public class Plant : MonoBehaviour
         };
     }
 
-    public float GetWitherRatio() => Mathf.Clamp01(timer / witheringTime);
+    public float GetWitherRatio() =>
+        IsNetworked && !IsServer
+            ? Mathf.Clamp01(netWither.Value)
+            : Mathf.Clamp01(timer / witheringTime);
 
+    // ======================================================
+    //  FIRE
+    // ======================================================
     public void SetOnFire()
     {
-        
-        if (isOnFire) 
-        {
-            return;
-        }
+        if (!IsSimAuthority) return;
+        if (isOnFire) return;
+
         isOnFire = true;
         fireTimer = fireDuration;
-        
+        CaptureOriginalColor();
+
+        if (IsNetworked && IsServer)
+            netFire.Value = true;
+    }
+
+    public void ExtinguishFire()
+    {
+        if (!IsSimAuthority) return;
+
+        isOnFire = false;
+        fireTimer = 0f;
+
+        if (spriteRenderer && health > 0)
+            spriteRenderer.color = originalColor;
+
+        if (IsNetworked && IsServer)
+            netFire.Value = false;
+    }
+
+    private void OnFireChanged(bool oldValue, bool newValue)
+    {
+        if (IsServer) return; // the server already applied its own visuals
+
+        isOnFire = newValue;
+
+        if (newValue)
+        {
+            CaptureOriginalColor();
+        }
+        else if (spriteRenderer)
+        {
+            spriteRenderer.color = originalColor;
+        }
+    }
+
+    private void CaptureOriginalColor()
+    {
         if (spriteRenderer)
         {
             if (originalColor == Color.clear || originalColor == default(Color))
                 originalColor = spriteRenderer.color;
         }
-    }
-
-    public void ExtinguishFire()
-    {
-        isOnFire = false;
-        fireTimer = 0f;
-        
-        if (spriteRenderer && health > 0)
-            spriteRenderer.color = originalColor;
     }
 }

@@ -11,6 +11,9 @@ public class Fire : MonoBehaviour
     [Range(0f, 45f)]
     [SerializeField] private float spreadAngle = 15f;
 
+    /// <summary>Online, gameplay effects only run on the server's copy; other peers get visual-only clones.</summary>
+    [HideInInspector] public bool authoritative = true;
+
     private Rigidbody2D rb;
     private Vector2 inheritedVelocity = Vector2.zero;
 
@@ -34,6 +37,8 @@ public class Fire : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!authoritative) return; // visual-only clone
+
         Plant plant = other.gameObject.GetComponent<Plant>();
         if (plant != null)
         {

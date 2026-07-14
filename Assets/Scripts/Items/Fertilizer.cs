@@ -3,25 +3,22 @@ using UnityEngine;
 public class Fertilizer : MonoBehaviour
 {
     [SerializeField] private Pickup pickup;
-    private Player owner;
+
+    // Who currently wields it: set through Pickup.holder on the hand instance.
+    private Player owner => pickup != null ? pickup.holder : null;
 
     public Items_SFX sfx { get; private set; }
 
     private void Awake()
     {
         sfx = GetComponent<Items_SFX>();
-    }
-
-    private void Start()
-    {
         pickup = GetComponent<Pickup>();
-        pickup.OnPickup += (player) => owner = player;
-        pickup.OnDrop += (_) => owner = null;
     }
 
     private void Update()
     {
         if (owner == null) return;
+        if (!owner.IsLocalOwner) return;
 
         bool isUsing = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 

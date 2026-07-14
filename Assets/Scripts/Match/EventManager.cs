@@ -41,6 +41,15 @@ public class EventManager : MonoBehaviour
 
     private void Update()
     {
+        // Online, only the server spawns items, and only while the match runs.
+        if (GameSession.OnlineActive)
+        {
+            if (GameSession.Instance == null ||
+                !Unity.Netcode.NetworkManager.Singleton.IsServer ||
+                GameSession.Instance.State != GameSession.SessionState.Playing)
+                return;
+        }
+
         seedTimer += Time.deltaTime;
         toolTimer += Time.deltaTime;
         rarityTimer += Time.deltaTime;
@@ -72,6 +81,17 @@ public class EventManager : MonoBehaviour
             return;
 
         GameObject prefab = itemList[Random.Range(0, itemList.Count)];
+
+        if (GameSession.OnlineActive)
+        {
+            int itemId = NetworkAssets.Instance != null ? NetworkAssets.Instance.ItemIdOf(prefab) : -1;
+            if (itemId >= 0)
+                GameSession.Instance.ServerSpawnWorldItem(itemId, spawnPos.Value);
+            else
+                Debug.LogWarning($"[EventManager] '{prefab.name}' is not registered in NetworkAssets.items; skipping spawn.");
+            return;
+        }
+
         Instantiate(prefab, spawnPos.Value, Quaternion.identity);
     }
 

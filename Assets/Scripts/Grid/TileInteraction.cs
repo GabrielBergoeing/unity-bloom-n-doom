@@ -65,12 +65,12 @@ public class TileInteraction : MonoBehaviour
     public bool CanPrepare() => !CellIsPrepared() && !CellIsOccupied();
     public bool CanPlant() => CellIsPrepared() && !CellIsOccupied();
     public bool CanIrrigate() => CellIsOccupied();
-    public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
-    public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(input.playerIndex);
+    public bool CanRemove() => CellIsOccupied() && IsCellOwner(player.PlayerIndex);
+    public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(player.PlayerIndex);
     public bool CanRefillWater() => farmManager.IsWaterTile(currentCell);
 
 
     public void IrrigateInCell() => farmManager.TryIrrigatePlant(currentCell);
     public void FertilizeInCell() => farmManager.TryFertilizePlant(currentCell);
-    public void RemoveInCell() => farmManager.TryRemovePlant(currentCell, input.playerIndex);
+    public void RemoveInCell() => farmManager.TryRemovePlant(currentCell, player.PlayerIndex);
 }

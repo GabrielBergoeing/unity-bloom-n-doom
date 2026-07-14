@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6263866854795462359}
   - component: {fileID: 6695270640106779132}
   - component: {fileID: 5604063309545410721}
+  - component: {fileID: 6771019454876999661}
   m_Layer: 8
   m_Name: Plant_Cactus
   m_TagString: Plant
@@ -103,6 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a7ab2feef7f70447bed13f37bbbc0ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   ownerPlayerIndex: -1
   cellPos: {x: 0, y: 0, z: 0}
   interactionsToMature: 2
@@ -120,6 +122,12 @@ MonoBehaviour:
   burnUntilDeath: 1
   isOnFire: 0
   score: 1
+  netStage:
+    m_InternalValue: 0
+  netFire:
+    m_InternalValue: 0
+  netWither:
+    m_InternalValue: 1
   maxWaterStorage: 50
   waterConsumptionRate: 0.01
   waterStealRate: 5
@@ -207,3 +215,28 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.3
+--- !u!114 &6771019454876999661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5654476984458142201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0

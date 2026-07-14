@@ -30,6 +30,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // Debug shortcuts would desync networked scenes — disabled while online.
+        if (GameSession.OnlineActive) return;
+
         // For testing scene changes
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
@@ -77,6 +80,14 @@ public class GameManager : MonoBehaviour
 
     public void ChangeScene(string sceneName)
     {
+        // While online, scene transitions must go through the network
+        // (GameSession / NetworkSceneManager) or they would desync clients.
+        if (GameSession.OnlineActive)
+        {
+            Debug.LogWarning($"[GameManager] Ignored local scene change to '{sceneName}' during an online session.");
+            return;
+        }
+
         StartCoroutine(ChangeSceneCo(sceneName));
     }
 

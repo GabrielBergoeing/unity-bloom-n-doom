@@ -1,28 +1,40 @@
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Id + count based hotbar. Slots store item ids (indices into NetworkAssets.items)
+/// instead of live GameObjects; the currently selected slot materializes a LOCAL
+/// visual instance in the player's hand (never a networked object). The held item
+/// id is replicated to other clients through NetworkPlayer so they can render it.
+/// </summary>
 public class HotbarSystem : MonoBehaviour
 {
-    public GameObject[] slots;
+    public int numberOfSlots = 4;
+    public int[] itemIds;      // -1 == empty
     public int[] stackCounts;
     public int currentSlot = 0;
-    public int numberOfSlots = 4;
+
+    private GameObject handInstance; // local visual of the current slot's item
     private Transform playerHand;
-    private Transform playerInventory;
     private PlayerInput playerInput;
+    private Player player;
 
-    void Start()
+    private void Awake()
     {
-    slots = new GameObject[numberOfSlots];
-    stackCounts = new int[numberOfSlots];
-    playerInput = GetComponent<PlayerInput>();
-    playerHand = transform.Find("OnHand");
+        itemIds = new int[numberOfSlots];
+        stackCounts = new int[numberOfSlots];
+        for (int i = 0; i < numberOfSlots; i++)
+            itemIds[i] = -1;
 
+        playerInput = GetComponent<PlayerInput>();
+        player = GetComponent<Player>();
+        playerHand = transform.Find("OnHand");
     }
 
-    void Update()
+    private void Update()
     {
+        if (playerInput == null || !playerInput.isActiveAndEnabled) return;
+
         if (playerInput.actions["Slot1"].triggered) SelectSlot(0);
         if (playerInput.actions["Slot2"].triggered) SelectSlot(1);
         if (playerInput.actions["Slot3"].triggered) SelectSlot(2);
@@ -31,107 +43,147 @@ public class HotbarSystem : MonoBehaviour
 
     private void SelectSlot(int slotIndex)
     {
-        if (slots[currentSlot] != null)
+        if (slotIndex == currentSlot) return;
+        currentSlot = slotIndex;
+        RebuildHandVisual();
+    }
+
+    private void RebuildHandVisual()
+    {
+        if (handInstance != null)
         {
-            slots[currentSlot].SetActive(false);
+            Destroy(handInstance);
+            handInstance = null;
         }
 
-        currentSlot = slotIndex;
-
-        if (slots[currentSlot] != null)
+        int id = itemIds[currentSlot];
+        if (id >= 0)
         {
-            slots[currentSlot].SetActive(true);
-            slots[currentSlot].transform.SetParent(playerHand);
-            slots[currentSlot].transform.localPosition = Vector3.zero;
-            slots[currentSlot].transform.localRotation = Quaternion.identity;
+            var prefab = NetworkAssets.Instance != null ? NetworkAssets.Instance.GetItemPrefab(id) : null;
+            if (prefab != null && playerHand != null)
+            {
+                handInstance = Instantiate(prefab, playerHand);
+                handInstance.transform.localPosition = Vector3.zero;
+                handInstance.transform.localRotation = Quaternion.identity;
+                ConfigureAsHeld(handInstance);
+            }
+        }
+
+        // Replicate what we're holding so other clients can draw it in our hand.
+        player?.net?.SetHeldItem(id);
+    }
+
+    private void ConfigureAsHeld(GameObject go)
+    {
+        foreach (var col in go.GetComponentsInChildren<Collider2D>(true))
+            col.enabled = false;
+
+        var rb = go.GetComponent<Rigidbody2D>();
+        if (rb != null) rb.simulated = false;
+
+        var pickup = go.GetComponent<Pickup>();
+        if (pickup != null)
+        {
+            pickup.isPickedUp = true;
+            pickup.canPickup = false;
+            pickup.holder = player; // lets tool scripts (Flamethrower etc.) know who wields them
         }
     }
 
-    public bool AddItem(GameObject item)
+    // ======================================================
+    //  INVENTORY OPERATIONS
+    // ======================================================
+    public bool AddItem(int itemId)
     {
-        Pickup pickup = item.GetComponent<Pickup>();
-        if (pickup != null && pickup.stackable)
+        if (itemId < 0) return false;
+
+        var prefab = NetworkAssets.Instance != null ? NetworkAssets.Instance.GetItemPrefab(itemId) : null;
+        var pickupData = prefab != null ? prefab.GetComponent<Pickup>() : null;
+
+        // Stack onto an existing slot first
+        if (pickupData != null && pickupData.stackable)
         {
-            for (int i = 0; i < slots.Length; i++)
+            for (int i = 0; i < itemIds.Length; i++)
             {
-                if (slots[i] != null && slots[i].GetComponent<Pickup>().itemId == pickup.itemId && stackCounts[i] < pickup.maxStackCount)
+                if (itemIds[i] == itemId && stackCounts[i] < pickupData.maxStackCount)
                 {
                     stackCounts[i]++;
-                    Destroy(item);
                     return true;
                 }
             }
         }
 
-        for (int i = 0; i < slots.Length; i++)
+        // Otherwise take the first free slot
+        for (int i = 0; i < itemIds.Length; i++)
         {
-            if (slots[i] == null)
+            if (itemIds[i] < 0)
             {
-                slots[i] = item;
+                itemIds[i] = itemId;
                 stackCounts[i] = 1;
-
-                if (i != currentSlot)
-                {
-                    item.SetActive(false);
-                }
-                else
-                {
-                    item.transform.SetParent(playerHand);
-                    item.transform.localPosition = Vector3.zero;
-                    item.transform.localRotation = Quaternion.identity;
-                }
+                if (i == currentSlot)
+                    RebuildHandVisual();
                 return true;
             }
         }
-        return false;
+
+        return false; // hotbar full
     }
 
-    public void RemoveItem(GameObject item, bool consume = false)
+    /// <summary>Remove one unit of the current item without dropping it into the world.</summary>
+    public void ConsumeCurrent()
     {
-        for (int i = 0; i < slots.Length; i++)
+        int i = currentSlot;
+        if (itemIds[i] < 0) return;
+
+        stackCounts[i]--;
+        if (stackCounts[i] <= 0)
         {
-            if (slots[i] == item)
-            {
-                stackCounts[i]--;
+            itemIds[i] = -1;
+            stackCounts[i] = 0;
+        }
+        RebuildHandVisual();
+    }
 
-                // If items still in stack
-                if (stackCounts[i] > 0)
-                {
-                    if (!consume)
-                    {
-                        GameObject droppedCopy = Instantiate(item, transform.position, Quaternion.identity);
-                        droppedCopy.GetComponent<Pickup>().stackable = true;
-                    }
-                }
-                else
-                {
-                    slots[i] = null;
-                    stackCounts[i] = 0;
+    /// <summary>Remove one unit of the current item and spawn it back into the world.</summary>
+    public void DropCurrent()
+    {
+        int i = currentSlot;
+        int id = itemIds[i];
+        if (id < 0) return;
 
-                    // Last item consumed → destroy it
-                    if (consume)
-                    {
-                        Destroy(item);
-                    }
-                    else
-                    {
-                        item.transform.SetParent(null);
-                        item.SetActive(true);
-                    }
-                }
+        stackCounts[i]--;
+        if (stackCounts[i] <= 0)
+        {
+            itemIds[i] = -1;
+            stackCounts[i] = 0;
+        }
+        RebuildHandVisual();
 
-                return; // ✅ stop here
-            }
+        if (GameSession.OnlineActive)
+        {
+            GameSession.Instance?.RequestSpawnItemServerRpc(id, transform.position);
+        }
+        else
+        {
+            var prefab = NetworkAssets.Instance != null ? NetworkAssets.Instance.GetItemPrefab(id) : null;
+            if (prefab != null)
+                Instantiate(prefab, transform.position, Quaternion.identity);
         }
     }
 
-    public int GetCurrentSlot()
-    {
-        return currentSlot;
-    }
+    // ======================================================
+    //  QUERIES
+    // ======================================================
+    public int GetCurrentSlot() => currentSlot;
 
-    public GameObject GetCurrentItem()
-    {
-        return slots[currentSlot];
-    }
+    /// <summary>The live hand instance of the selected item (local visual), or null.</summary>
+    public GameObject GetCurrentItem() => handInstance;
+
+    public int GetCurrentItemId() => itemIds[currentSlot];
+
+    public int GetSlotItemId(int slot) =>
+        slot >= 0 && slot < itemIds.Length ? itemIds[slot] : -1;
+
+    public int GetStackCount(int slot) =>
+        slot >= 0 && slot < stackCounts.Length ? stackCounts[slot] : 0;
 }

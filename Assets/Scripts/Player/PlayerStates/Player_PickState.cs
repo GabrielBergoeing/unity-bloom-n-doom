@@ -24,10 +24,16 @@ public class Player_PickState : Player_ActionState
                 player.StartCoroutine(
                     ExecuteAction(player.pickFrame, player.pickCooldown, _ =>
                     {
-                        if (player.inventory.AddItem(pickup.gameObject))
+                        if (GameSession.OnlineActive)
+                        {
+                            // Server despawns the world item and grants it back to us.
+                            player.net?.RequestPickup(pickup);
+                        }
+                        else if (player.inventory.AddItem(pickup.itemId))
                         {
                             sfx.PlayOnPick();
                             pickup.Pick(player);
+                            Object.Destroy(pickup.gameObject);
                         }
                     }));
             }
