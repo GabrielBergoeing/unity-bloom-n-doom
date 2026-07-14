@@ -9,6 +9,7 @@ public class LevelEditorWindow : EditorWindow
 {
     private GridData currentLevel = new GridData();
     private string fileName = "leveltest.json";
+    private string levelsFolder = "StreamingAssets/Levels";
 
     private TilePlacementHandler wall;
     private TilePlacementHandler land;
@@ -54,7 +55,7 @@ public class LevelEditorWindow : EditorWindow
     // ----------------------------------------------------------
     private void LoadLevel()
     {
-        string path = Path.Combine(Application.dataPath, "Levels", fileName);
+        string path = Path.Combine(Application.dataPath, levelsFolder, fileName);
         if (!File.Exists(path))
         {
             Debug.LogError("JSON file not found: " + path);
@@ -92,7 +93,7 @@ public class LevelEditorWindow : EditorWindow
         SaveEntriesFrom(water, LevelObjectType.Water);
         SaveEntriesFrom(concrete, LevelObjectType.Concrete);
 
-        string path = Path.Combine(Application.dataPath, "Levels", fileName);
+        string path = Path.Combine(Application.dataPath, levelsFolder, fileName);
         Directory.CreateDirectory(Path.GetDirectoryName(path));
 
         File.WriteAllText(path, JsonUtility.ToJson(currentLevel, true));

@@ -20,6 +20,7 @@ public class MatchManager : MonoBehaviour
     [Header("Player Spawn Locations")]
     [SerializeField] private Vector3[] playerSpawns;
     private List<PlayerInput> players = new();
+    public IReadOnlyList<PlayerInput> Players => players;
 
     private void Awake()
     {
