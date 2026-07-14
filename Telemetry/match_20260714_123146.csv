@@ -1,0 +1,2 @@
+timestamp,fps,cpu_usage,gpu_usage,frame_time_ms,process_time,physics_time,memory_mb,object_count,node_count,draw_calls,latency_ms
+15984,2,1,15,57,10,00,474,66,-1,0000,-1,0000,506,40,144,41,-1,N/A

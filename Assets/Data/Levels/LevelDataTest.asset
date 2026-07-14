@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac2f5a564a18d9786be87023bf92b6c7, type: 3}
+  m_Name: LevelDataTest
+  m_EditorClassIdentifier: 
+  jsonFileName: TestLevel.json
+  setTestFormat: 1
+  matchDuration: 60
+  playerSpawnPositions:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  bgmTrackName: bgm_level1
+  seedPrefabs:
+  - {fileID: 2558169981995761550, guid: 0ce7159f44e6bf9b8aff0a44881b4133, type: 3}
+  toolPrefabs: []
+  rarePrefabs: []

@@ -7,6 +7,7 @@ public class UI_Timer : MonoBehaviour
 
     private float updateInterval = 1f;
     private float nextUpdateTime;
+    private float totalTime;
 
     private Color startColor = new Color(1f, 1f, 1f, 0.8f);
     private Color endColor = new Color(1f, 0.2f, 0.2f, 1f);
@@ -14,6 +15,7 @@ public class UI_Timer : MonoBehaviour
     private void Awake()
     {
         textMeshPro = GetComponent<TextMeshProUGUI>();
+        totalTime = GameManager.instance.currentLevel.matchDuration;
     }
 
     private void Update()
@@ -43,7 +45,7 @@ public class UI_Timer : MonoBehaviour
 
         textMeshPro.text = $"{minutes:00}:{seconds:00}";
 
-        float t = Mathf.InverseLerp(0f, 300f, remainingTime);
+        float t = Mathf.InverseLerp(0f, totalTime, remainingTime);
         textMeshPro.color = Color.Lerp(endColor, startColor, t);
     }
 }

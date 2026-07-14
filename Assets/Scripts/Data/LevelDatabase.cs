@@ -7,6 +7,9 @@ public class LevelData : ScriptableObject
     [Header("Level Layout (.json reference)")]
     public string jsonFileName;
 
+    [Header("Test Level")]
+    public bool setTestFormat = false;
+
     [Header("Match Settings")]
     [Tooltip("Match duration in seconds.")]
     public float matchDuration = 900f;
