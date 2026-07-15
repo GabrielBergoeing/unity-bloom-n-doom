@@ -179,6 +179,7 @@ public class FarmManager : NetworkBehaviour
         if (isNetworkSpawnedObject && !isServer) return;
 
         if (farmTilemap == null) return;
+        if (IsWaterTile(cell) || IsWallTile(cell) || IsConcreteTile(cell)) return;
 
         if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
         {
@@ -381,7 +382,56 @@ public class FarmManager : NetworkBehaviour
     #endregion
 
     #region Water Tile
-    public bool IsWaterTile(Vector3Int cell) => waterTilemap.HasTile(cell);
+    public bool IsWaterTile(Vector3Int cell) => waterTilemap != null && waterTilemap.HasTile(cell);
+    #endregion
+
+    #region Wall Tile
+    // No dedicated wallTilemap reference is wired up in the scene (unlike waterTilemap),
+    // so auto-discover it by name, same approach GridGraph uses for cockroach pathfinding.
+    private Tilemap wallTilemap;
+    private bool wallTilemapSearched = false;
+
+    public bool IsWallTile(Vector3Int cell)
+    {
+        if (!wallTilemapSearched)
+        {
+            wallTilemapSearched = true;
+            foreach (var tilemap in FindObjectsByType<Tilemap>(FindObjectsSortMode.None))
+            {
+                string name = tilemap.gameObject.name.ToLowerInvariant();
+                if (name.Contains("wall") || name.Contains("muro"))
+                {
+                    wallTilemap = tilemap;
+                    break;
+                }
+            }
+        }
+        return wallTilemap != null && wallTilemap.HasTile(cell);
+    }
+    #endregion
+
+    #region Concrete Tile
+    // Same auto-discovery approach as IsWallTile - no dedicated inspector reference wired up.
+    private Tilemap concreteTilemap;
+    private bool concreteTilemapSearched = false;
+
+    public bool IsConcreteTile(Vector3Int cell)
+    {
+        if (!concreteTilemapSearched)
+        {
+            concreteTilemapSearched = true;
+            foreach (var tilemap in FindObjectsByType<Tilemap>(FindObjectsSortMode.None))
+            {
+                string name = tilemap.gameObject.name.ToLowerInvariant();
+                if (name.Contains("concrete") || name.Contains("concreto"))
+                {
+                    concreteTilemap = tilemap;
+                    break;
+                }
+            }
+        }
+        return concreteTilemap != null && concreteTilemap.HasTile(cell);
+    }
     #endregion
 
     #region RPCs

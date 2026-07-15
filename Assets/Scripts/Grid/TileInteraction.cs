@@ -94,7 +94,11 @@ public class TileInteraction : MonoBehaviour
     public bool CellIsOccupied() => FarmManager.instance != null && FarmManager.instance.IsOccupied(CurrentCell);
     public bool IsCellOwner(int playerIndex) => FarmManager.instance != null && playerIndex == FarmManager.instance.GetPlantOwner(CurrentCell);
 
-    public bool CanPrepare() => !CellIsPrepared() && !CellIsOccupied();
+    public bool CanPrepare() => !CellIsPrepared() && !CellIsOccupied()
+        && FarmManager.instance != null
+        && !FarmManager.instance.IsWaterTile(CurrentCell)
+        && !FarmManager.instance.IsWallTile(CurrentCell)
+        && !FarmManager.instance.IsConcreteTile(CurrentCell);
     public bool CanPlant() => CellIsPrepared() && !CellIsOccupied();
     public bool CanIrrigate() => CellIsOccupied() && input != null && IsCellOwner(input.playerIndex);
     //public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
