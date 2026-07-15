@@ -26,33 +26,18 @@ public class StressTestSetup : MonoBehaviour
         farm = FarmManager.instance;
         game = GameManager.instance;
 
-        if (match == null)
+        if (match == null || farm == null || game == null)
         {
-            Debug.LogError("[StressTestSetup] MatchManager.instance not found. Aborting.");
-            enabled = false;
+            ToggleDisableError("Instance Dependancy not found. Aborting.");
             return;
         }
 
-        if (farm == null)
-        {
-            Debug.LogError("[StressTestSetup] FarmManager.instance is null. Aborting.");
-            enabled = false;
-            return;
-        }
-
-        if (game == null)
-        {
-            Debug.LogError("[StressTestSetup] GameManager.instance is null. Aborting.");
-            enabled = false;
-            return;
-        }
-
-        hasRun = game.currentLevel.setTestFormat;
+        enabled = game.currentLevel.setTestFormat;
         seedPrefabs = game.currentLevel.seedPrefabs;
+
         if (seedPrefabs == null || seedPrefabs.Count == 0)
         {
-            Debug.LogError("[StressTestSetup] No seed prefabs on currentLevel. Assign at least one. Aborting.");
-            enabled = false;
+            ToggleDisableError("No seed prefabs on currentLevel. Assign at least one. Aborting.");
             return;
         }
 
@@ -61,8 +46,11 @@ public class StressTestSetup : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log($"hasRun {hasRun} || match.isMatchRunning {match.isMatchRunning}");
         if (hasRun) return;
         if (match == null || !match.isMatchRunning) return;
+
+        Debug.Log("Reached Update");
 
         hasRun = true;
 
@@ -80,14 +68,18 @@ public class StressTestSetup : MonoBehaviour
 
     private void PopulateImmediate()
     {
-        Debug.Log("[StressTestSetup] Populating farm grid immediately...");
-
         List<Vector3Int> cells = CollectPreparedCells();
         List<int> players = GetRegisteredPlayerIndices();
 
-        if (players.Count == 0)
+        if (seedPrefabs == null)
         {
-            Debug.LogError("[StressTestSetup] No registered players found. Cannot assign plant ownership.");
+            ToggleDisableError("[StressTestSetup] seedPrefabs list is NULL.");
+            return;
+        }
+
+        if (players.Count == 0 || seedPrefabs.Count == 0)
+        {
+            ToggleDisableError("No registered players/seeds found.");
             return;
         }
 
@@ -97,11 +89,15 @@ public class StressTestSetup : MonoBehaviour
 
         foreach (var cell in cells)
         {
-            PlantAt(cell, players[playerIdx % players.Count], seedPrefabs[seedIdx % seedPrefabs.Count]);
+            int owner = players[playerIdx % players.Count];
+            var seed = seedPrefabs[seedIdx % seedPrefabs.Count];
+            var prefab = seed.GetComponent<Seed>().plantPrefab;
 
+            PlantAt(cell, owner, prefab);
+
+            planted++;
             seedIdx++;
             playerIdx++;
-            planted++;
         }
 
         Debug.Log($"[StressTestSetup] Done — {planted} plants placed across {cells.Count} prepared cells.");
@@ -166,6 +162,7 @@ public class StressTestSetup : MonoBehaviour
 
         foreach (var cell in bounds.allPositionsWithin)
         {
+            farm.PrepareTile(cell);
             if (farm.IsPrepared(cell) && !farm.IsOccupied(cell))
                 prepared.Add(cell);
         }
@@ -191,5 +188,11 @@ public class StressTestSetup : MonoBehaviour
         // network service. FarmManager's own isServer/isClient checks already
         // fall through cleanly when no Mirror session is active.
         farm.PlantSeed(cell, playerIndex, seedPrefab);
+    }
+
+    private void ToggleDisableError(string reason)
+    {
+        Debug.LogError($"[StressTestSetup] {reason}");
+        enabled = false;
     }
 }

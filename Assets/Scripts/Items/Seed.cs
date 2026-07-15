@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Pickup))]
 public class Seed : MonoBehaviour
 {
-    [SerializeField] private GameObject plantPrefab;
+    [SerializeField] public GameObject plantPrefab;
     [SerializeField] private Pickup pickup;
 
     private void Start()
