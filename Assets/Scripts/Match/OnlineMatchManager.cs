@@ -85,6 +85,16 @@ public class OnlineMatchManager : NetworkBehaviour
     {
         if (!isServer) return;
         syncedIsRunning = !pause;
+
+        foreach (var player in players)
+        {
+            if (player == null) continue;
+
+            if (pause)
+                player.DisableControl();
+            else
+                player.EnableControl();
+        }
     }
 
     public void PauseMatch()   => PauseMatch(true);

@@ -15,7 +15,7 @@ public class Seed : MonoBehaviour
     public void Use(Vector3Int cell, Player player)
     {
         if (player == null || FarmManager.instance == null) return;
-        FarmManager.instance.PlantSeed(cell, player.input.playerIndex, plantPrefab);
+        FarmManager.instance.PlantSeed(cell, player.OwnerIndex, plantPrefab);
         pickup.Consume(player);
     }
 }

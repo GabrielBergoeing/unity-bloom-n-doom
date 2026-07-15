@@ -219,6 +219,13 @@ public class OnlineCharacterLobby : MonoBehaviour
         }
 
         ApplyStateToSlots();
+
+        // Keep every machine's local selection cache (used by UI_MatchResults to show
+        // the right portrait) up to date - previously this was only ever stored on the
+        // server/host inside TryStartMatch, so remote clients never had it.
+        PlayerInputService inputService = PlayerInputService.instance;
+        if (inputService != null)
+            inputService.StoreOnlineSelections(BuildOrderedCharacterSelection());
     }
 
     private void OnLocalSlotAssigned(LocalSlotAssignmentMessage message)
@@ -372,9 +379,8 @@ public class OnlineCharacterLobby : MonoBehaviour
         if (manager == null || string.IsNullOrWhiteSpace(gameplaySceneName))
             return;
 
-        PlayerInputService inputService = PlayerInputService.instance;
-        if (inputService != null)
-            inputService.StoreOnlineSelections(BuildOrderedCharacterSelection());
+        // Selection cache is now kept up to date continuously in OnSelectionSnapshot,
+        // on every machine (host and clients alike) - no need to store it again here.
 
         startTriggered = true;
         manager.ServerChangeScene(gameplaySceneName);

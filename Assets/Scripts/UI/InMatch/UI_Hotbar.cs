@@ -11,6 +11,12 @@ public class UI_Hotbar : MonoBehaviour
 
     private void Start()
     {
+        // Only JohnPlayer's prefab has hotbarSystem wired via a property override;
+        // other character prefabs leave it unassigned, so fall back to resolving
+        // it from the parent hierarchy (UI_Hotbar is nested under the player root).
+        if (hotbarSystem == null)
+            hotbarSystem = GetComponentInParent<HotbarSystem>(true);
+
         // Setup UI transforms safely
         uiSlots = new Transform[4];
         stackCountTexts = new TextMeshProUGUI[4];

@@ -57,15 +57,12 @@ public class UI_MatchResults : MonoBehaviour
         results.Sort((a, b) => b.score.CompareTo(a.score));
         var winner = results[0];
 
-        // Validate player index
-        if (winner.playerIndex < 0 || winner.playerIndex >= characterDB.characters.Length)
+        CharacterData data = ResolveCharacterData(winner.playerIndex);
+        if (data == null)
         {
-            Debug.LogError($"[UI_MatchResults] Invalid winner index {winner.playerIndex}, CharacterDB has {characterDB.characters.Length} characters!");
+            Debug.LogError($"[UI_MatchResults] Could not resolve character for winner slot {winner.playerIndex}!");
             return;
         }
-
-        // Safe to use
-        CharacterData data = characterDB.characters[winner.playerIndex];
 
         imgPortrait.sprite = data.portrait;
         txtScore.text = winner.score + " pts";
@@ -75,6 +72,30 @@ public class UI_MatchResults : MonoBehaviour
         if (eventSystem != null) eventSystem.enabled = true;
 
         btnReturnCharacter?.Select();
+    }
+
+    // winner.playerIndex is the player's slot index, not a CharacterDatabase index -
+    // players can pick any character in any slot, so look up what was actually
+    // selected for that slot instead of assuming characterDB order matches slot order.
+    private CharacterData ResolveCharacterData(int slotIndex)
+    {
+        var service = PlayerInputService.instance;
+        if (service != null)
+        {
+            var online = service.OnlineSelectedCharacters;
+            if (online != null && slotIndex >= 0 && slotIndex < online.Count && online[slotIndex] != null)
+                return online[slotIndex];
+
+            var config = service.GetConfig(slotIndex);
+            if (config?.selectedCharacter != null)
+                return config.selectedCharacter;
+        }
+
+        // Fallback for setups with no recorded selection: assume characterDB order matches slot order.
+        if (characterDB != null && slotIndex >= 0 && slotIndex < characterDB.characters.Length)
+            return characterDB.characters[slotIndex];
+
+        return null;
     }
     #endregion
 

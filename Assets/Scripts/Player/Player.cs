@@ -37,7 +37,7 @@ public class Player : Entity
     public Vector2 moveInput { get; private set; }
 
     [Header("Irrigate variables")]
-    public float waterSupply = 100;
+    [SyncVar] public float waterSupply = 100;
     [Range(1, 20)] public int irrigateCost = 10;
 
     [Header("Action Active Frames")]
@@ -232,7 +232,16 @@ public class Player : Entity
     {
         bool isNetworkActive = NetworkServer.active || NetworkClient.active;
         if (!isNetworkActive || isServer)
+        {
             canControl = false;
+
+            // A player already holding a movement key won't fire another OnMovement
+            // event to naturally re-zero moveInput once canControl flips false, so
+            // whoever was mid-move when this is called would otherwise keep sliding
+            // (Player_MoveState.Update reapplies velocity from moveInput every frame).
+            moveInput = Vector2.zero;
+            SetVelocity(0, 0);
+        }
     }
 
     public void SetActionCooldownVisible(bool visible) => actionCooldownVisual?.SetVisible(visible);

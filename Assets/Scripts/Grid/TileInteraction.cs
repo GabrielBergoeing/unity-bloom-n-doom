@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class TileInteraction : MonoBehaviour
 {
@@ -12,8 +11,6 @@ public class TileInteraction : MonoBehaviour
     public GameObject tileOutlinePrefab;
     private GameObject currentOutline;
 
-    private PlayerInput input;
-    
     public Vector3Int CurrentCell
     {
         get
@@ -27,20 +24,11 @@ public class TileInteraction : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        // No dependemos de player.input aquí porque Player.Awake() podría no haber corrido aún.
-    }
-
     private void Start()
     {
         if (cam == null) cam = Camera.main;
 
         farmManager = FarmManager.instance;
-
-        // Intentar asignar input de forma segura (podría no estar listo en Awake)
-        if (player != null)
-            input = player.input ?? GetComponentInParent<Player>()?.input;
     }
 
     private void Update()
@@ -100,10 +88,9 @@ public class TileInteraction : MonoBehaviour
         && !FarmManager.instance.IsWallTile(CurrentCell)
         && !FarmManager.instance.IsConcreteTile(CurrentCell);
     public bool CanPlant() => CellIsPrepared() && !CellIsOccupied();
-    public bool CanIrrigate() => CellIsOccupied() && input != null && IsCellOwner(input.playerIndex);
-    //public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
-    public bool CanRemove() => CellIsOccupied() && input != null && IsCellOwner(input.playerIndex);
-    public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(input.playerIndex);
+    public bool CanIrrigate() => CellIsOccupied() && player != null && IsCellOwner(player.OwnerIndex);
+    public bool CanRemove() => CellIsOccupied() && player != null && IsCellOwner(player.OwnerIndex);
+    public bool CanSabotage() => CellIsOccupied() && player != null && !IsCellOwner(player.OwnerIndex);
     public bool CanRefillWater() => FarmManager.instance != null && FarmManager.instance.IsWaterTile(CurrentCell);
 
     // These are called server-side from the state machine, so call FarmManager directly.
@@ -122,7 +109,7 @@ public class TileInteraction : MonoBehaviour
     public void RemoveInCell()
     {
         if (FarmManager.instance == null) return;
-        int playerIndex = input != null ? input.playerIndex : -1;
+        int playerIndex = player != null ? player.OwnerIndex : -1;
         FarmManager.instance.TryRemovePlant(CurrentCell, playerIndex);
     }
 }
