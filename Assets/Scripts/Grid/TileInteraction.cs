@@ -40,8 +40,13 @@ public class TileInteraction : MonoBehaviour
 
         if (!player.canControl || !hasLocalControl)
             return;
-        
-        if (farmManager == null || farmManager.farmTilemap == null) 
+
+        // FarmManager.instance puede asignarse despues de nuestro Start
+        // (OnStartClient en online, o activacion tardia en builds offline)
+        if (farmManager == null)
+            farmManager = FarmManager.instance;
+
+        if (farmManager == null || farmManager.farmTilemap == null)
             return;
 
         Vector3Int cell = CurrentCell;

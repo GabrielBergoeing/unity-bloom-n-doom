@@ -18,6 +18,8 @@ public class LevelManager : MonoBehaviour
 
     private void Awake()
     {
+        ActivateSceneNetworkObjectsIfOffline();
+
         // Intentar obtener nivel desde GameManager
         if (GameManager.instance != null && GameManager.instance.currentLevel != null)
         {
@@ -32,7 +34,7 @@ public class LevelManager : MonoBehaviour
             
             if (currentLevel == null)
             {
-                Debug.LogWarning("[LevelManager] No se encontró LevelData. Usando configuración vacía.");
+                Debug.LogWarning("[LevelManager] No se encontrï¿½ LevelData. Usando configuraciï¿½n vacï¿½a.");
                 currentLevel = ScriptableObject.CreateInstance<LevelData>();
             }
         }
@@ -54,17 +56,40 @@ public class LevelManager : MonoBehaviour
         // Si estamos en modo red, esperar a que se sincronice
         if (NetworkServer.active || NetworkClient.active)
         {
-            Debug.Log("[LevelManager] Modo red detectado. Esperando sincronización...");
-            // Esperar a que FarmManager esté listo
+            Debug.Log("[LevelManager] Modo red detectado. Esperando sincronizaciï¿½n...");
+            // Esperar a que FarmManager estï¿½ listo
             if (FarmManager.instance == null)
             {
-                Debug.LogWarning("[LevelManager] FarmManager aún no inicializado. Esperando...");
+                Debug.LogWarning("[LevelManager] FarmManager aï¿½n no inicializado. Esperando...");
                 Invoke(nameof(LoadLevelData), 0.5f);
                 return;
             }
         }
 
         LoadLevelData();
+    }
+
+    // Mirror's NetworkScenePostProcess disables every scene object that has a
+    // NetworkIdentity when the player is BUILT, expecting the server to spawn
+    // (re-activate) them later. Offline there is no server, so objects like
+    // FarmManager stay inactive forever in builds - even though they work in the
+    // editor, where play-mode scene loads skip that post-process step.
+    private void ActivateSceneNetworkObjectsIfOffline()
+    {
+        if (NetworkServer.active || NetworkClient.active)
+            return;
+
+        foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+        {
+            foreach (NetworkIdentity identity in root.GetComponentsInChildren<NetworkIdentity>(true))
+            {
+                if (!identity.gameObject.activeSelf)
+                {
+                    Debug.Log($"[LevelManager] Modo offline: activando objeto de escena {identity.gameObject.name}");
+                    identity.gameObject.SetActive(true);
+                }
+            }
+        }
     }
 
     private void LoadLevelData()
@@ -79,22 +104,22 @@ public class LevelManager : MonoBehaviour
 
         if (loadedLevel == null)
         {
-            Debug.LogWarning("[LevelManager] No se pudo cargar archivo de nivel. Creando GridData vacío.");
+            Debug.LogWarning("[LevelManager] No se pudo cargar archivo de nivel. Creando GridData vacï¿½o.");
             loadedLevel = new GridData();
             loadedLevel.objects = new System.Collections.Generic.List<GridObjectData>();
         }
 
-        // Poblar objetos si no está vacío
+        // Poblar objetos si no estï¿½ vacï¿½o
         if (loadedLevel.objects != null && loadedLevel.objects.Count > 0)
         {
             PopulateObjects(loadedLevel);
         }
         else
         {
-            Debug.Log("[LevelManager] GridData vacío. Saltando PopulateObjects.");
+            Debug.Log("[LevelManager] GridData vacï¿½o. Saltando PopulateObjects.");
         }
 
-        // Signal que el nivel está cargado
+        // Signal que el nivel estï¿½ cargado
         OnLevelLoaded?.Invoke();
         Debug.Log("[LevelManager] Nivel cargado completamente.");
     }
