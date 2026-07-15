@@ -96,7 +96,7 @@ public class TileInteraction : MonoBehaviour
 
     public bool CanPrepare() => !CellIsPrepared() && !CellIsOccupied();
     public bool CanPlant() => CellIsPrepared() && !CellIsOccupied();
-    public bool CanIrrigate() => CellIsOccupied();
+    public bool CanIrrigate() => CellIsOccupied() && input != null && IsCellOwner(input.playerIndex);
     //public bool CanRemove() => CellIsOccupied() && IsCellOwner(input.playerIndex);
     public bool CanRemove() => CellIsOccupied() && input != null && IsCellOwner(input.playerIndex);
     public bool CanSabotage() => CellIsOccupied() && !IsCellOwner(input.playerIndex);
