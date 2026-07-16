@@ -1298,7 +1298,7 @@ PrefabInstance:
     - target: {fileID: 9015434000140754582, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: transport
       value: 
-      objectReference: {fileID: 1548599076}
+      objectReference: {fileID: 1548599082}
     - target: {fileID: 9015434000140754582, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: playerPrefab
       value: 
@@ -1412,23 +1412,15 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 1548599080}
+    - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1548599079}
     - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1548599078}
   m_SourcePrefab: {fileID: 100100000, guid: 41bb445a16442264db8251f65d24a175, type: 3}
---- !u!114 &1548599076 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4465545400555557883, guid: 41bb445a16442264db8251f65d24a175, type: 3}
-  m_PrefabInstance: {fileID: 1548599075}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1548599077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1548599077 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
@@ -1466,6 +1458,35 @@ MonoBehaviour:
       m_Calls: []
   clientPlayerSessionId: 
   bypassAuthentication: 1
+--- !u!114 &1548599080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548599077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad8c0b9da832528419ceb68a8a7b8016, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  signalingServerHost: 186.104.13.183
+  signalingServerPort: 9050
+  requestTimeoutSeconds: 3
+  hostKeepAliveInterval: 5
+  primingPacketCount: 5
+  primingPacketInterval: 0.15
+--- !u!114 &1548599082 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2733686564342138484, guid: 41bb445a16442264db8251f65d24a175, type: 3}
+  m_PrefabInstance: {fileID: 1548599075}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548599077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 284b6b76deca8ff4dac1fa829e3a95b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1648383139
 PrefabInstance:
   m_ObjectHideFlags: 0

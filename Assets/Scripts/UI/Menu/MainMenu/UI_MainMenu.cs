@@ -27,21 +27,6 @@ public class UI_MainMenu : MonoBehaviour
         UI.menu.QuitGame();
     }
 
-    //Online menu
-
-    public void HostBTN()
-    {
-        UI.sfx.PlayOnConfirm();
-        GameManager.instance.ChangeScene("OnlineLobby");
-    }
-
-    public void JoinBTN()
-    {
-        UI.sfx.PlayOnConfirm();
-        //LOGIC TO AUTO CONNECT TO SERVER
-        GameManager.instance.ChangeScene("OnlineLobby");
-    }
-
     public void BackBTN()
     {
         UI.sfx.PlayOnToggle();

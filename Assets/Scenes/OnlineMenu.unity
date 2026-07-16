@@ -791,12 +791,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   onlineLobbySceneName: CharacterSelectorOnline
-  hostPortInput: {fileID: 484567019}
-  defaultHostPort: 7777
-  joinIpInput: {fileID: 893648227}
-  joinPortInput: {fileID: 484567019}
-  defaultJoinIp: 127.0.0.1
-  defaultJoinPort: 7777
+  hostPort: 7777
+  hostCodeDisplay: {fileID: 484567019}
+  hostAddressOverrideInput: {fileID: 0}
+  joinCodeInput: {fileID: 893648227}
+  publicIpLookupUrl: https://api.ipify.org
+  publicIpTimeoutSeconds: 4
 --- !u!1 &1543850579 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4466586532888593332, guid: 1cc4da39cc30f294d95396cf49480fad, type: 3}

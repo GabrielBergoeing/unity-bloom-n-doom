@@ -2,6 +2,8 @@ using UnityEngine;
 using Mirror;
 using Steamworks;
 using System;
+using System.Collections;
+using System.Net;
 using System.Reflection;
 
 public class SteamLobby : MonoBehaviour
@@ -26,9 +28,22 @@ public class SteamLobby : MonoBehaviour
     [SerializeField] private string remoteHostAddress = "127.0.0.1";
     [Tooltip("Segundos de espera antes de intentar conectar como cliente.")]
     [SerializeField] private float joinDelay = 1.5f;
+    [Tooltip("Dirección alternativa (IP pública) a probar si la primera (LAN) falla - ver JoinDirect.")]
+    [SerializeField] private string fallbackHostAddress;
+    [Tooltip("Segundos a esperar por una dirección antes de probar la de respaldo.")]
+    [SerializeField] private float directConnectTimeout = 4f;
+
+    [Header("NAT / UPnP")]
+    [Tooltip("Al hostear directo, intenta abrir el puerto automáticamente en el router (UPnP). Best-effort: no todos los routers lo soportan.")]
+    [SerializeField] private bool autoPortForward = true;
+    private ushort lastMappedPort;
 
     // -------------------------------------------------------
     private NetworkManager networkManager;
+    private OnlineNetworkManager onlineNetworkManager; // for ClientConnectedOnline/ClientDisconnectedOnline, see JoinWithFallback
+    private HolePunchClient holePunchClient; // third fallback tier, see JoinWithFallback / HostDirect
+    private string roomCode; // shared join code, reused as the hole-punch signaling room id
+    private ushort gamePort = 7777;
     private bool preventHosting = false;
 
     protected Callback<LobbyCreated_t> lobbyCreated;
@@ -46,6 +61,8 @@ public class SteamLobby : MonoBehaviour
             Debug.LogError("[SteamLobby] No se encontró NetworkManager en el mismo GameObject.");
             return;
         }
+        onlineNetworkManager = networkManager as OnlineNetworkManager;
+        holePunchClient = GetComponent<HolePunchClient>();
 
         ApplyTransportOverride();
         ApplyRuntimeLaunchRequest();
@@ -90,10 +107,25 @@ public class SteamLobby : MonoBehaviour
             case NetworkLaunchRequest.LaunchMode.Join:
                 networkMode = NetworkMode.Join;
                 remoteHostAddress = string.IsNullOrWhiteSpace(launchData.address) ? remoteHostAddress : launchData.address;
+                fallbackHostAddress = launchData.fallbackAddress;
                 break;
 
             default:
                 return;
+        }
+
+        roomCode = launchData.roomCode;
+        if (launchData.port > 0)
+            gamePort = launchData.port;
+
+        // Forward the session token (if any) to the GameLift authenticator so a future
+        // GameLiftConnectionProvider can be validated server-side without any other
+        // wiring - no-op today since join codes never carry a token.
+        if (!string.IsNullOrEmpty(launchData.sessionToken))
+        {
+            var authenticator = GetComponent<GameLiftPlayerAuthenticator>();
+            if (authenticator != null)
+                authenticator.clientPlayerSessionId = launchData.sessionToken;
         }
 
         bool portSet = TrySetPortOnTransport(Transport.active, launchData.port);
@@ -158,16 +190,56 @@ public class SteamLobby : MonoBehaviour
         return false;
     }
 
+    private static bool TryGetPortFromTransport(Transport transport, out ushort port)
+    {
+        port = 0;
+        if (transport == null)
+            return false;
+
+        Type transportType = transport.GetType();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        foreach (string name in new[] { "Port", "port" })
+        {
+            PropertyInfo property = transportType.GetProperty(name, flags);
+            if (property != null && property.CanRead && TryConvertToUshort(property.GetValue(transport), out port))
+                return true;
+
+            FieldInfo field = transportType.GetField(name, flags);
+            if (field != null && TryConvertToUshort(field.GetValue(transport), out port))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConvertToUshort(object value, out ushort result)
+    {
+        result = 0;
+        if (value is ushort u) { result = u; return true; }
+        if (value is int i && i >= 0 && i <= ushort.MaxValue) { result = (ushort)i; return true; }
+        return false;
+    }
+
     // -------------------------------------------------------
     //  TRANSPORTE
     // -------------------------------------------------------
     private void ApplyTransportOverride()
     {
-        if (overrideTransport == null) return;
+        Transport preferred = overrideTransport;
 
-        Transport.active = overrideTransport;
-        networkManager.transport = overrideTransport;
-        Debug.Log($"[SteamLobby] Transporte activo: {overrideTransport.GetType().Name}");
+        // NAT hole punching (HolePunchClient) needs full control of the client's local
+        // UDP port, which isn't possible with the vendored kcp2k library (see
+        // PersonalizedTransport.preferredLocalPort) - prefer our own transport over
+        // KcpTransport when nothing was explicitly configured in the Inspector.
+        if (preferred == null)
+            preferred = GetComponent<PersonalizedTransport>();
+
+        if (preferred == null) return;
+
+        Transport.active = preferred;
+        networkManager.transport = preferred;
+        Debug.Log($"[SteamLobby] Transporte activo: {preferred.GetType().Name}");
     }
 
     // -------------------------------------------------------
@@ -212,14 +284,145 @@ public class SteamLobby : MonoBehaviour
         Debug.Log($"[SteamLobby] Iniciando Host directo. transport={Transport.active?.GetType().Name ?? "null"}");
         networkManager.StartHost();
         Debug.Log("[SteamLobby] Host iniciado.");
+
+        // Skip in-Editor: local/ParrelSync testing connects via loopback (see
+        // UI_OnlineDirectMenu), so none of this is needed, and it'd otherwise touch the
+        // developer's own router/firewall on every playtest for no benefit.
+        if (!Application.isEditor)
+        {
+            ushort port = TryGetPortFromTransport(Transport.active, out ushort detectedPort) ? detectedPort : (ushort)7777;
+
+            // Separate problem from router/NAT traversal (UPnP, hole punching below) -
+            // Windows can silently block inbound traffic on its own regardless of how
+            // it reached the network card, especially on networks marked "Public".
+            WindowsFirewallHelper.EnsureInboundUdpRule(port);
+
+            if (autoPortForward)
+            {
+                lastMappedPort = port;
+                StartCoroutine(UpnpPortMapper.TryMapPort(port, "BloomNDoom-GameHost", success =>
+                    Debug.Log(success
+                        ? $"[SteamLobby] UPnP: puerto {port} abierto automáticamente."
+                        : "[SteamLobby] UPnP: no se pudo abrir el puerto automáticamente (router sin UPnP o CGNAT). Puede necesitar forwarding manual.")));
+            }
+
+            // Register with the signaling server (if configured) so a joiner who can't
+            // reach us directly (UPnP failed, no manual forwarding) can still find us
+            // via NAT hole punching. No-ops silently if HolePunchClient isn't configured.
+            holePunchClient?.BeginHosting(roomCode);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (lastMappedPort != 0)
+            StartCoroutine(UpnpPortMapper.TryUnmapPort(lastMappedPort));
+
+        holePunchClient?.StopHosting();
     }
 
     private void JoinDirect()
     {
         Debug.Log($"[SteamLobby] Intentando Join directo a {remoteHostAddress} (transport={Transport.active?.GetType().Name ?? "null"})");
-        networkManager.networkAddress = remoteHostAddress;
+        StartCoroutine(JoinWithFallback());
+    }
+
+    // Tries remoteHostAddress first (typically the host's LAN IP - fast, doesn't depend
+    // on NAT/UPnP), then fallbackHostAddress (the host's public IP, in case UPnP/manual
+    // forwarding worked), and if both fail, asks the signaling server to resolve the
+    // room code via NAT hole punching as a last resort. Covers same-network testing and
+    // real friends-over-internet play with the same join code either way.
+    private IEnumerator JoinWithFallback()
+    {
+        bool connected = false;
+        yield return AttemptConnect(remoteHostAddress, null, success => connected = success);
+
+        if (connected)
+            yield break;
+
+        if (!string.IsNullOrEmpty(fallbackHostAddress) && fallbackHostAddress != remoteHostAddress)
+        {
+            Debug.LogWarning($"[SteamLobby] No se pudo conectar a {remoteHostAddress}. Reintentando con {fallbackHostAddress}...");
+            yield return AttemptConnect(fallbackHostAddress, null, success => connected = success);
+        }
+        else
+        {
+            Debug.LogWarning($"[SteamLobby] No se pudo conectar a {remoteHostAddress} y no hay dirección de respaldo directa.");
+        }
+
+        if (connected || holePunchClient == null || !holePunchClient.IsConfigured || string.IsNullOrEmpty(roomCode))
+            yield break;
+
+        Debug.LogWarning("[SteamLobby] Intentando conectar vía hole punching (servidor de señalización)...");
+
+        IPEndPoint punchedHost = null;
+        yield return holePunchClient.TryResolveHost(roomCode, gamePort, ep => punchedHost = ep);
+
+        if (punchedHost == null)
+        {
+            Debug.LogWarning("[SteamLobby] No se pudo resolver el host vía hole punching.");
+            yield break;
+        }
+
+        yield return AttemptConnect(punchedHost.Address.ToString(), (ushort)punchedHost.Port, success =>
+        {
+            if (!success)
+                Debug.LogWarning("[SteamLobby] Hole punching tampoco logró conectar.");
+        });
+    }
+
+    private IEnumerator AttemptConnect(string address, ushort? portOverride, Action<bool> onFinished)
+    {
+        if (portOverride.HasValue)
+            TrySetPortOnTransport(Transport.active, portOverride.Value);
+
+        bool finished = false;
+        bool succeeded = false;
+
+        void HandleConnected() { succeeded = true; finished = true; }
+        void HandleDisconnected() { finished = true; }
+
+        // NetworkClient.OnConnectedEvent/OnDisconnectedEvent can't be used here -
+        // NetworkManager.StartClient() overwrites them with `=` on every call, silently
+        // dropping this subscription. OnlineNetworkManager's events wrap Mirror's
+        // OnClientConnect/OnClientDisconnect virtual methods instead, which are the
+        // actual supported extension point and fire reliably (after authentication).
+        if (onlineNetworkManager != null)
+        {
+            onlineNetworkManager.ClientConnectedOnline += HandleConnected;
+            onlineNetworkManager.ClientDisconnectedOnline += HandleDisconnected;
+        }
+
+        networkManager.networkAddress = address;
         networkManager.StartClient();
-        Debug.Log($"[SteamLobby] Cliente conectando a {remoteHostAddress}...");
+        Debug.Log($"[SteamLobby] Cliente conectando a {address}...");
+
+        float elapsed = 0f;
+        while (!finished && elapsed < directConnectTimeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (onlineNetworkManager != null)
+        {
+            onlineNetworkManager.ClientConnectedOnline -= HandleConnected;
+            onlineNetworkManager.ClientDisconnectedOnline -= HandleDisconnected;
+        }
+
+        if (succeeded)
+        {
+            Debug.Log($"[SteamLobby] Conectado a {address}.");
+        }
+        else if (NetworkClient.active)
+        {
+            // Timed out (or disconnected before we could tell) - stop cleanly so a
+            // retry with a different address can start fresh.
+            networkManager.StopClient();
+            yield return null; // let Mirror's teardown finish before the next StartClient()
+        }
+
+        onFinished?.Invoke(succeeded);
     }
 
     // -------------------------------------------------------

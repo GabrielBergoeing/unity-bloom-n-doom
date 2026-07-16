@@ -56,8 +56,35 @@ public class PersonalizedTransport : Transport
     [SerializeField]
     private float handshakeRetryInterval = 0.5f;
 
+    // Optional: set before calling ClientConnect() to bind the client socket to a
+    // specific local port instead of letting the OS pick one. Required for UDP hole
+    // punching (see HolePunchClient) - the "punch" packets and the real game traffic
+    // need to share the same local port so the NAT mapping opened by the punch is
+    // reused by the actual connection, instead of the router assigning a fresh
+    // (unpunched) mapping for a different ephemeral port.
+    public ushort? preferredLocalPort;
+
     // --- VARIABLES DEL SERVIDOR ---
     private UdpClient server;
+
+    // Set by HolePunchClient while hosting, so ServerEarlyUpdate can tell packets from
+    // our own signaling server (Tools/SignalingServer) apart from real Mirror clients
+    // sharing the same listening socket/port. The signaling traffic HAS to share this
+    // socket rather than use a separate one - the whole point of hole punching is that
+    // the NAT mapping opened by talking to the signaling server from this exact port
+    // is the one that lets a joiner's traffic on this same port through.
+    public IPEndPoint signalingServerEndPoint;
+    public event Action<byte[], IPEndPoint> OnRawServerPacketFromSignaling;
+
+    // Lets HolePunchClient send arbitrary raw datagrams (signaling registration,
+    // NAT-priming packets) through this same server socket instead of a separate one.
+    public void ServerSendRaw(byte[] data, IPEndPoint target)
+    {
+        if (server == null || data == null || target == null)
+            return;
+
+        server.Send(data, data.Length, target);
+    }
 
     private Dictionary<IPEndPoint, int> connectedClients = new Dictionary<IPEndPoint, int>();
     private Dictionary<int, float> lastSeenTime = new Dictionary<int, float>();
@@ -186,7 +213,7 @@ public class PersonalizedTransport : Transport
         serverEndPoint = new IPEndPoint(ipAddress, port);
 
         // 2. Inicializamos y VINCULAMOS el socket directamente
-        client = new UdpClient();
+        client = preferredLocalPort.HasValue ? new UdpClient(preferredLocalPort.Value) : new UdpClient();
         client.Connect(serverEndPoint); // <--- ESTO ES NUEVO Y CRUCIAL
         clientHandshakeComplete = false;
         nextHandshakeAttemptTime = Time.unscaledTime;
@@ -478,6 +505,12 @@ public class PersonalizedTransport : Transport
             {
                 IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = server.Receive(ref sender);
+
+                if (signalingServerEndPoint != null && sender.Equals(signalingServerEndPoint))
+                {
+                    OnRawServerPacketFromSignaling?.Invoke(data, sender);
+                    continue;
+                }
 
                 int connectionId;
                 bool isNewClient = false;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
@@ -82,6 +83,27 @@ public class OnlineNetworkManager : NetworkManager
     {
         NetworkClient.UnregisterHandler<LevelSelectedMessage>();
         base.OnStopClient();
+    }
+
+    // SteamLobby's connect-with-fallback retry (JoinWithFallback) needs a reliable
+    // "did this attempt actually succeed" signal. NetworkClient.OnConnectedEvent/
+    // OnDisconnectedEvent can't be used for that - NetworkManager.StartClient()
+    // overwrites them with `=` (not `+=`) on every call, silently dropping any outside
+    // subscriber. These virtual methods are Mirror's intended extension point instead:
+    // OnClientConnect only fires after authentication succeeds, and isn't clobbered.
+    public event Action ClientConnectedOnline;
+    public event Action ClientDisconnectedOnline;
+
+    public override void OnClientConnect()
+    {
+        base.OnClientConnect();
+        ClientConnectedOnline?.Invoke();
+    }
+
+    public override void OnClientDisconnect()
+    {
+        base.OnClientDisconnect();
+        ClientDisconnectedOnline?.Invoke();
     }
 
     /// <summary>
