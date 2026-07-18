@@ -14,7 +14,7 @@ public class Player_SabotageState : Player_ActionState
         }
 
         player.StartCoroutine(
-            ExecuteAction(tool.CutDuration, tool.Cooldown, cell => tool.Use(cell))
+            ExecuteAction(tool.CutDuration, tool.Cooldown, cell => tool.Use(cell, player))
         );
     }
 }

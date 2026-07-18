@@ -6,6 +6,7 @@ public class Scissors : MonoBehaviour
     [Header("Scissors Durations (on frames)")]
     [SerializeField] private float cutDuration = 0f;
     [SerializeField] private float cooldown = 0f;
+    [SerializeField] private Pickup pickup;
     private bool isOnCooldown = false;
 
     public float CutDuration => cutDuration;
@@ -19,7 +20,7 @@ public class Scissors : MonoBehaviour
         sfx = GetComponent<Items_SFX>();
     }
 
-    public void Use(Vector3Int targetCell)
+    public void Use(Vector3Int targetCell, Player player)
     {
         if (isOnCooldown)
         {
@@ -37,7 +38,7 @@ public class Scissors : MonoBehaviour
         {
             Debug.Log("No hay planta para cortar.");
         }
-
+        pickup.Consume(player);
         isOnCooldown = true;
     }
 

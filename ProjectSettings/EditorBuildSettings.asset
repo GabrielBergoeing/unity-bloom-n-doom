@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 6c81c431253ac3428a6b3ce3c7070537
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/OnlineMenu.unity
     guid: 8e01639d1c177514abdb30e5dc3367fb
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/OnlineLobby.unity
     guid: 41e2c2ba0efb85449b2d3b0d8e89dcbb
   - enabled: 1
@@ -38,7 +38,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MapSelectorOnline.unity
     guid: 4e21b862bae2fa6499ed525fa7c2e8be
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SettingsMenu.unity
     guid: 0121d1e56d229b54484dd39f31d9f3f1
   m_configObjects:

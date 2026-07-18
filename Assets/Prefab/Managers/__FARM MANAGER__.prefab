@@ -50,7 +50,7 @@ MonoBehaviour:
   syncInterval: 0
   farmTilemap: {fileID: 0}
   waterTilemap: {fileID: 0}
-  preparedTile: {fileID: 11400000, guid: 2689b463ac947ea4fa35c007aec73cf5, type: 2}
+  preparedTile: {fileID: 11400000, guid: 191fedafad2495c4082d4df6b5f31475, type: 2}
   seedTile: {fileID: 11400000, guid: edecc9b58eb27b641984024d2156c7d1, type: 2}
   plantsRoot: {fileID: 0}
   startFarm: 0
