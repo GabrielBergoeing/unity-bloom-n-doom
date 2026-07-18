@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -83,9 +84,56 @@ public class UI_PauseMenu : MonoBehaviour
     }
 
     // ------- Buttons -------
-    public void GoToCharacterSelect() { ForceResume(); GameManager.instance.ChangeScene("MatchMenu"); }
-    public void GoToStageSelect()     { ForceResume(); GameManager.instance.ChangeScene("MapSelector"); }
-    public void GoToMainMenu()        { ForceResume(); GameManager.instance.ChangeScene("MainMenu"); }
+    private bool IsOnline => OnlineMatchManager.instance != null;
+
+    public void GoToCharacterSelect()
+    {
+        ForceResume();
+
+        if (IsOnline)
+        {
+            if (NetworkServer.active)
+                NetworkManager.singleton.ServerChangeScene("CharacterSelectorOnline");
+            else
+                Debug.Log("[UI_PauseMenu] Only the host can return to character select.");
+            return;
+        }
+
+        GameManager.instance.ChangeScene("MatchMenu");
+    }
+
+    public void GoToStageSelect()
+    {
+        ForceResume();
+
+        if (IsOnline)
+        {
+            if (NetworkServer.active)
+                NetworkManager.singleton.ServerChangeScene("MapSelectorOnline");
+            else
+                Debug.Log("[UI_PauseMenu] Only the host can return to stage select.");
+            return;
+        }
+
+        GameManager.instance.ChangeScene("MapSelector");
+    }
+
+    public void GoToMainMenu()
+    {
+        ForceResume();
+
+        if (IsOnline)
+        {
+            // OnlineNetworkManager.OnClientDisconnect navigates to MainMenu once stopped.
+            if (NetworkServer.active)
+                NetworkManager.singleton.StopHost();
+            else
+                NetworkManager.singleton.StopClient();
+            return;
+        }
+
+        GameManager.instance.ChangeScene("MainMenu");
+    }
 
     private void ForceResume()
     {

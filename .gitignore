@@ -104,3 +104,8 @@ InitTestScene*.unity*
 !/Tools/SignalingServer/*.csproj
 /Tools/SignalingServer/bin/
 /Tools/SignalingServer/obj/
+
+# Same as above, for the GameLift broker (Tools/GameLiftBroker).
+!/Tools/GameLiftBroker/*.csproj
+/Tools/GameLiftBroker/bin/
+/Tools/GameLiftBroker/obj/

@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: GameLift Server
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 85c92be75f4100248881e559d074e235, type: 2}
   m_sharedMaterial: {fileID: -8333395125288989853, guid: 85c92be75f4100248881e559d074e235, type: 2}
@@ -103,6 +103,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using Mirror;
 
@@ -35,8 +36,9 @@ public class NetworkMetrics : NetworkBehaviour
     [Tooltip("Tecla para iniciar/detener la captura de métricas")]
     public KeyCode toggleKey = KeyCode.F7;
 
-    [Tooltip("Iniciar captura automáticamente al conectar (si false, usa la tecla para empezar)")]
-    public bool autoStart = false;
+    [Header("Métricas centralizadas (Tools/SignalingServer)")]
+    [Tooltip("Además de guardar el CSV local, lo sube al servidor de señalización (mismo host que HolePunchClient, puerto HTTP separado) para tenerlo todo junto en un solo lugar. No-op si no hay HolePunchClient configurado en la escena (p.ej. sesiones GameLift).")]
+    [SerializeField] private ushort metricsUploadPort = 9051;
 
     // UI
     private GameObject canvasGO;
@@ -87,10 +89,10 @@ public class NetworkMetrics : NetworkBehaviour
         base.OnStartLocalPlayer();
 
         CreateHud();
-        if (autoStart)
-            StartRecording();
-        else
-            UpdateHud(); // show initial state
+        // Always record - a match's data shouldn't depend on remembering to press
+        // toggleKey before the timer starts. StopRecording()/toggleKey are still there
+        // for manually pausing capture mid-match if needed.
+        StartRecording();
     }
 
     public override void OnStopClient()
@@ -361,6 +363,8 @@ public class NetworkMetrics : NetworkBehaviour
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             lastExportPath = path;
             Debug.Log($"[NetworkMetrics] Exported {csvBuffer.Count} samples -> {path}");
+
+            StartCoroutine(UploadToSignalingServer(sb.ToString()));
         }
         catch (Exception ex)
         {
@@ -369,6 +373,38 @@ public class NetworkMetrics : NetworkBehaviour
         }
 
         return path;
+    }
+
+    // Best-effort: only runs when a HolePunchClient is present and configured (i.e. a
+    // direct P2P session), since that's the only case where the signaling server is a
+    // known, reachable rendezvous point for both sides. Silently no-ops for GameLift
+    // sessions or plain LAN testing - the local CSV file is written either way.
+    private IEnumerator UploadToSignalingServer(string csvContent)
+    {
+        var holePunch = FindObjectOfType<HolePunchClient>();
+        if (holePunch == null || !holePunch.IsConfigured)
+            yield break;
+
+        string room = string.IsNullOrEmpty(SteamLobby.ActiveRoomCode) ? "sin-sala" : SteamLobby.ActiveRoomCode;
+        string role = NetworkServer.active ? "Host" : "Client";
+        string player = netId.ToString();
+
+        string url = $"http://{holePunch.SignalingServerHost}:{metricsUploadPort}/metrics" +
+                     $"?room={UnityWebRequest.EscapeURL(room)}&role={UnityWebRequest.EscapeURL(role)}&player={UnityWebRequest.EscapeURL(player)}";
+
+        using UnityWebRequest request = new UnityWebRequest(url, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(csvContent)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        request.SetRequestHeader("Content-Type", "text/csv");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+            Debug.Log("[NetworkMetrics] CSV subido al servidor de señalización.");
+        else
+            Debug.LogWarning($"[NetworkMetrics] No se pudo subir el CSV al servidor de señalización: {request.error}");
     }
 
     private static string EscapeCsv(string value)

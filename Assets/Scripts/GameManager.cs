@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,8 +23,17 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+#if UNITY_SERVER
+        // Headless: there's no human host to click through the menu/character-select
+        // flow, so jump straight to the scene where NetworkManager/GameLiftServerManager
+        // live and start listening. Real players still go through the normal menu ->
+        // character select flow themselves on their own client builds - the dedicated
+        // server just needs to already be there and ready before anyone tries to join.
+        SceneManager.LoadScene("CharacterSelectorOnline");
+        return;
+#endif
         UI_FadeScreen fadeScreen = FindFadeScreenUI();
-        
+
         if (fadeScreen != null)
         {
             fadeScreen.FadeIn();
@@ -30,8 +42,10 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // For testing scene changes
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        // For testing scene changes. Legacy Input.GetKeyDown ignores UI focus, so this must
+        // not fire while the user is typing into a text field (e.g. join-code/IP inputs) or
+        // every backspace keystroke would kick them back to MainMenu mid-typing.
+        if (Input.GetKeyDown(KeyCode.Backspace) && !IsTextInputFocused())
         {
             Debug.Log("[GameManager] Scene Change to MainMenu!");
             ChangeScene("MainMenu");
@@ -41,6 +55,14 @@ public class GameManager : MonoBehaviour
             Debug.Log("[GameManager] App Closed!");
             Application.Quit();
         }
+    }
+
+    private bool IsTextInputFocused()
+    {
+        GameObject selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+        if (selected == null) return false;
+
+        return selected.GetComponent<TMP_InputField>() != null || selected.GetComponent<InputField>() != null;
     }
 
     private IEnumerator ChangeSceneCo(string sceneName)

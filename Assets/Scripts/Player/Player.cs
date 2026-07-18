@@ -333,19 +333,36 @@ public class Player : Entity
     [Command]
     public void CmdRequestShoot()
     {
-        if (!canControl) return;
+        int connId = connectionToClient != null ? connectionToClient.connectionId : -1;
 
-        if (inventory == null) return;
+        if (!canControl)
+        {
+            Debug.LogWarning($"[Player][CmdRequestShoot] Rejected: canControl=false connection={connId}");
+            return;
+        }
+
+        if (inventory == null)
+        {
+            Debug.LogWarning($"[Player][CmdRequestShoot] Rejected: no HotbarSystem on {name} connection={connId}");
+            return;
+        }
 
         GameObject currentItem = inventory.GetCurrentItem();
-        if (currentItem == null) return;
+        if (currentItem == null)
+        {
+            Debug.LogWarning($"[Player][CmdRequestShoot] Rejected: current slot ({inventory.GetCurrentSlot()}) is empty on server connection={connId}");
+            return;
+        }
 
         Flamethrower ft = currentItem.GetComponent<Flamethrower>();
-        if (ft != null)
+        if (ft == null)
         {
-            Vector2 ownerVelocity = rb != null ? rb.linearVelocity : Vector2.zero;
-            ft.ServerShoot(ownerVelocity);
+            Debug.LogWarning($"[Player][CmdRequestShoot] Rejected: current item '{currentItem.name}' has no Flamethrower component connection={connId}");
+            return;
         }
+
+        Vector2 ownerVelocity = rb != null ? rb.linearVelocity : Vector2.zero;
+        ft.ServerShoot(ownerVelocity);
     }
 
     [Command]
@@ -369,7 +386,7 @@ public class Player : Entity
     [Command]
     public void CmdIrrigateCell(int x, int y, int z)
     {
-        if (!isServer || FarmManager.instance == null) return;
+        if (!isServer || FarmManager.instance == null || !canControl) return;
         Vector3Int cell = new Vector3Int(x, y, z);
         FarmManager.instance.TryIrrigatePlant(cell);
     }
@@ -377,7 +394,7 @@ public class Player : Entity
     [Command]
     public void CmdFertilizeCell(int x, int y, int z)
     {
-        if (!isServer || FarmManager.instance == null) return;
+        if (!isServer || FarmManager.instance == null || !canControl) return;
         Vector3Int cell = new Vector3Int(x, y, z);
         FarmManager.instance.TryFertilizePlant(cell);
     }
@@ -385,7 +402,7 @@ public class Player : Entity
     [Command]
     public void CmdRemovePlant(int x, int y, int z)
     {
-        if (!isServer || FarmManager.instance == null) return;
+        if (!isServer || FarmManager.instance == null || !canControl) return;
         Vector3Int cell = new Vector3Int(x, y, z);
         int requesterIndex = OwnerIndex;
         FarmManager.instance.TryRemovePlant(cell, requesterIndex);

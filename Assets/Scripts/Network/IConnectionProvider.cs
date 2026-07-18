@@ -22,3 +22,13 @@ public interface IConnectionProvider
 {
     bool TryRequestConnection(string userInput, out ConnectionInfo info, out string error);
 }
+
+// Sibling of IConnectionProvider for providers whose connection request is inherently
+// asynchronous (a network round-trip to a broker/matchmaker), unlike
+// JoinCodeConnectionProvider's purely local, synchronous decode. Deliberately a
+// separate interface rather than changing IConnectionProvider itself, so the existing
+// synchronous contract (and everything already built on it) stays untouched.
+public interface IAsyncConnectionProvider
+{
+    System.Collections.IEnumerator TryRequestConnectionAsync(string userInput, System.Action<bool, ConnectionInfo, string> onComplete);
+}

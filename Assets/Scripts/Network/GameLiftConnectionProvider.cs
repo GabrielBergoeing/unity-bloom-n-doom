@@ -1,19 +1,80 @@
-// Placeholder for a future GameLift-backed IConnectionProvider - not wired into the
-// active UI yet. When the client-side GameLift matchmaking/game-session-request flow
-// gets built, it belongs here: call into the GameLift plugin backend (see
-// Packages/com.amazonaws.gamelift and the server-side half already in place at
-// Assets/Scripts/Network/GameLiftServerManager.cs), then return the session's
-// {ip/dnsName, port} plus a PlayerSessionId as ConnectionInfo.sessionToken - the same
-// shape JoinCodeConnectionProvider produces today. SteamLobby.ApplyRuntimeLaunchRequest
+using System;
+using System.Collections;
+using System.Text;
+using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.Networking;
+
+// Requests a game session from Tools/GameLiftBroker (never talks to AWS directly - the
+// broker is the only thing that holds AWS credentials, see its README for why). Returns
+// the session's {ip/dnsName, port} plus a PlayerSessionId as ConnectionInfo.sessionToken
+// - the same shape JoinCodeConnectionProvider produces. SteamLobby.ApplyRuntimeLaunchRequest
 // already forwards sessionToken into GameLiftPlayerAuthenticator.clientPlayerSessionId,
-// so once this class is implemented, UI_OnlineDirectMenu only needs to swap which
-// IConnectionProvider it uses - no other call site changes.
-public class GameLiftConnectionProvider : IConnectionProvider
+// so nothing else in the connect pipeline needs to change for this to work.
+//
+// Implements IAsyncConnectionProvider, not IConnectionProvider - requesting a session is
+// a network round-trip (broker -> AWS), unlike JoinCodeConnectionProvider's synchronous
+// local decode, so it can't honestly satisfy IConnectionProvider's synchronous contract.
+public class GameLiftConnectionProvider : IAsyncConnectionProvider
 {
-    public bool TryRequestConnection(string userInput, out ConnectionInfo info, out string error)
+    private readonly string brokerUrl;
+
+    public GameLiftConnectionProvider(string brokerUrl)
     {
-        info = default;
-        error = "GameLift matchmaking no está implementado todavía.";
-        return false;
+        this.brokerUrl = brokerUrl.TrimEnd('/');
+    }
+
+    public IEnumerator TryRequestConnectionAsync(string userInput, Action<bool, ConnectionInfo, string> onComplete)
+    {
+        using UnityWebRequest request = new UnityWebRequest($"{brokerUrl}/request-session", "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes("{}")),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            onComplete(false, default, $"No se pudo contactar al broker de GameLift: {request.error}");
+            yield break;
+        }
+
+        BrokerResponse response;
+        try
+        {
+            response = JsonConvert.DeserializeObject<BrokerResponse>(request.downloadHandler.text);
+        }
+        catch (JsonException ex)
+        {
+            onComplete(false, default, $"Respuesta inválida del broker: {ex.Message}");
+            yield break;
+        }
+
+        if (response == null || !response.success)
+        {
+            onComplete(false, default, response?.error ?? "Respuesta vacía del broker.");
+            yield break;
+        }
+
+        var info = new ConnectionInfo
+        {
+            address = response.address,
+            fallbackAddress = null, // GameLift ya entrega una dirección concreta y alcanzable
+            port = (ushort)response.port,
+            sessionToken = response.playerSessionId
+        };
+
+        onComplete(true, info, null);
+    }
+
+    private class BrokerResponse
+    {
+        public bool success;
+        public string address;
+        public int port;
+        public string playerSessionId;
+        public string error;
     }
 }

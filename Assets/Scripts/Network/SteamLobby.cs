@@ -43,6 +43,11 @@ public class SteamLobby : MonoBehaviour
     private OnlineNetworkManager onlineNetworkManager; // for ClientConnectedOnline/ClientDisconnectedOnline, see JoinWithFallback
     private HolePunchClient holePunchClient; // third fallback tier, see JoinWithFallback / HostDirect
     private string roomCode; // shared join code, reused as the hole-punch signaling room id
+
+    // Mirrors roomCode as a static so scripts on other GameObjects (NetworkMetrics on the
+    // Player prefab, in particular) can tag their data with the match's room code without
+    // needing a direct reference to this instance.
+    public static string ActiveRoomCode { get; private set; }
     private ushort gamePort = 7777;
     private bool preventHosting = false;
 
@@ -115,6 +120,7 @@ public class SteamLobby : MonoBehaviour
         }
 
         roomCode = launchData.roomCode;
+        ActiveRoomCode = roomCode;
         if (launchData.port > 0)
             gamePort = launchData.port;
 

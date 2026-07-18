@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -100,9 +101,25 @@ public class UI_MatchResults : MonoBehaviour
     #endregion
 
     #region Buttons
+    // OnlineMatchManager only exists while an online match/results screen is up (same test
+    // UI_PauseMenu already relies on), so it doubles as "are we in an online session" here.
+    private bool IsOnline => OnlineMatchManager.instance != null;
+
     public void GoToCharacterSelect()
     {
         UI.sfx.PlayOnConfirm();
+
+        if (IsOnline)
+        {
+            // Online scene changes must go through Mirror so every client follows along;
+            // only the host drives it, same convention as UI_MapSelectorOnline level picks.
+            if (NetworkServer.active)
+                NetworkManager.singleton.ServerChangeScene("CharacterSelectorOnline");
+            else
+                Debug.Log("[UI_MatchResults] Only the host can return to character select.");
+            return;
+        }
+
         AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MatchMenu");
     }
@@ -110,6 +127,16 @@ public class UI_MatchResults : MonoBehaviour
     public void GoToStageSelect()
     {
         UI.sfx.PlayOnConfirm();
+
+        if (IsOnline)
+        {
+            if (NetworkServer.active)
+                NetworkManager.singleton.ServerChangeScene("MapSelectorOnline");
+            else
+                Debug.Log("[UI_MatchResults] Only the host can return to stage select.");
+            return;
+        }
+
         AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MapSelector");
     }
@@ -117,6 +144,19 @@ public class UI_MatchResults : MonoBehaviour
     public void GoToMainMenu()
     {
         UI.sfx.PlayOnConfirm();
+
+        if (IsOnline)
+        {
+            // Just tear down the connection - OnlineNetworkManager.OnClientDisconnect
+            // (fires for voluntary and involuntary disconnects alike) handles navigating
+            // back to MainMenu once the client/host has actually stopped.
+            if (NetworkServer.active)
+                NetworkManager.singleton.StopHost();
+            else
+                NetworkManager.singleton.StopClient();
+            return;
+        }
+
         AudioManager.instance.StartBGM("bgm_menu");
         GameManager.instance.ChangeScene("MainMenu");
     }

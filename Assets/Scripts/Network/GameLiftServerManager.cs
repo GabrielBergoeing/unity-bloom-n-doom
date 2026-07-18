@@ -12,7 +12,7 @@ using Aws.GameLift.Server.Model;
 public class GameLiftServerManager : MonoBehaviour
 {
 #if UNITY_SERVER 
-    // ^^^ AÑADIDO AQUÍ: Todo este bloque hasta el final es solo para el servidor
+    // ^^^ Aï¿½ADIDO AQUï¿½: Todo este bloque hasta el final es solo para el servidor
 
     public static GameLiftServerManager Instance { get; private set; }
 
@@ -37,27 +37,43 @@ public class GameLiftServerManager : MonoBehaviour
         networkManager = FindObjectOfType<NetworkManager>();
         if (networkManager == null)
         {
-            Debug.LogError("[GameLift] No se encontró NetworkManager en la escena.");
+            Debug.LogError("[GameLift] No se encontrï¿½ NetworkManager en la escena.");
+            return;
+        }
+
+        // Config leÃ­da del entorno en vez de hardcodeada - el fleet ID/auth
+        // token/compute name son especÃ­ficos de cada compute registrado (y el auth
+        // token en particular expira - hay que pedir uno nuevo con
+        // "aws gamelift get-compute-auth-token" antes de cada lanzamiento). Aborta con
+        // un error claro en vez de caer silenciosamente en valores viejos/ajenos.
+        string websocketUrl = Environment.GetEnvironmentVariable("GAMELIFT_WEBSOCKET_URL");
+        string hostId = Environment.GetEnvironmentVariable("GAMELIFT_HOST_ID");
+        string fleetId = Environment.GetEnvironmentVariable("GAMELIFT_FLEET_ID");
+        string authToken = Environment.GetEnvironmentVariable("GAMELIFT_AUTH_TOKEN");
+
+        if (string.IsNullOrEmpty(websocketUrl) || string.IsNullOrEmpty(hostId) ||
+            string.IsNullOrEmpty(fleetId) || string.IsNullOrEmpty(authToken))
+        {
+            Debug.LogError("[GameLift] Faltan variables de entorno GAMELIFT_WEBSOCKET_URL/GAMELIFT_HOST_ID/GAMELIFT_FLEET_ID/GAMELIFT_AUTH_TOKEN.");
             return;
         }
 
         try
         {
-            // Parámetros manuales inyectados para pruebas locales con Anywhere
             ServerParameters serverParams = new ServerParameters(
-                "wss://us-east-1.api.amazongamelift.com",    // 1. WebSocket URL
-                Guid.NewGuid().ToString(),                   // 2. Process ID (Generado aleatoriamente)
-                "Cito-WindowsPC",                            // 3. Host ID (Compute Name)
-                "fleet-72471bbe-1659-4eb0-a38a-c3075fcf6de1",// 4. Fleet ID
-                "179a4e11-10e7-4c29-8b39-ba7d642ebc19"       // 5. Auth Token
+                websocketUrl,
+                Guid.NewGuid().ToString(), // Process ID - random por cada corrida
+                hostId,
+                fleetId,
+                authToken
             );
 
             GameLiftServerAPI.InitSDK(serverParams);
-            Debug.Log("[GameLift] SDK inicializado con parámetros manuales.");
+            Debug.Log("[GameLift] SDK inicializado.");
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[GameLift] InitSDK falló: {ex}");
+            Debug.LogError($"[GameLift] InitSDK fallï¿½: {ex}");
             return;
         }
 
@@ -77,7 +93,7 @@ public class GameLiftServerManager : MonoBehaviour
         if (outcome.Success)
             Debug.Log("[GameLift] Proceso listo (ProcessReady enviado).");
         else
-            Debug.LogError($"[GameLift] ProcessReady falló: {outcome.Error}");
+            Debug.LogError($"[GameLift] ProcessReady fallï¿½: {outcome.Error}");
     }
 
     void Update()
@@ -96,7 +112,7 @@ public class GameLiftServerManager : MonoBehaviour
     {
         Debug.Log($"[GameLift] OnStartGameSession: ID={gameSession.GameSessionId}");
 
-        // Enviamos la lógica al hilo principal de Unity
+        // Enviamos la lï¿½gica al hilo principal de Unity
         lock (queueLock)
         {
             mainThreadActions.Enqueue(() =>
@@ -119,10 +135,10 @@ public class GameLiftServerManager : MonoBehaviour
                 // Arrancar servidor Mirror
                 StartMirrorServer();
 
-                // Activar la sesión en GameLift (AHORA SÍ SE EJECUTARÁ)
+                // Activar la sesiï¿½n en GameLift (AHORA Sï¿½ SE EJECUTARï¿½)
                 var activateOutcome = GameLiftServerAPI.ActivateGameSession();
                 if (!activateOutcome.Success)
-                    Debug.LogError($"[GameLift] ActivateGameSession falló: {activateOutcome.Error}");
+                    Debug.LogError($"[GameLift] ActivateGameSession fallï¿½: {activateOutcome.Error}");
                 else
                     Debug.Log("[GameLift] GameSession activada y lista.");
             });
@@ -149,7 +165,7 @@ public class GameLiftServerManager : MonoBehaviour
         if (!outcome.Success)
             Debug.LogError($"[GameLift] ProcessEnding fallo: {outcome.Error}");
 
-        // El cierre también interactúa con Mirror y Unity, debe ir al hilo principal
+        // El cierre tambiï¿½n interactï¿½a con Mirror y Unity, debe ir al hilo principal
         lock (queueLock)
         {
             mainThreadActions.Enqueue(() =>
@@ -246,7 +262,7 @@ public class GameLiftServerManager : MonoBehaviour
             }
         }
 
-        Debug.LogWarning($"[GameLift] No se encontró campo/propiedad de puerto en transporte {transportType.Name}.");
+        Debug.LogWarning($"[GameLift] No se encontrï¿½ campo/propiedad de puerto en transporte {transportType.Name}.");
         return false;
     }
 
@@ -258,14 +274,14 @@ public class GameLiftServerManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(playerSessionId))
         {
-            Debug.LogWarning("[GameLift] playerSessionId vacío en TryAcceptPlayerSessionForConnection.");
+            Debug.LogWarning("[GameLift] playerSessionId vacï¿½o en TryAcceptPlayerSessionForConnection.");
             return false;
         }
 
         bool acceptSuccess = InvokeGameLiftAcceptPlayerSession(playerSessionId);
         if (!acceptSuccess)
         {
-            Debug.LogWarning($"[GameLift] AcceptPlayerSession falló para PlayerSessionId={playerSessionId}");
+            Debug.LogWarning($"[GameLift] AcceptPlayerSession fallï¿½ para PlayerSessionId={playerSessionId}");
             return false;
         }
 
@@ -296,14 +312,14 @@ public class GameLiftServerManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(playerSessionId))
         {
-            Debug.LogWarning("[GameLift] playerSessionId vacío en TryRemovePlayerSession.");
+            Debug.LogWarning("[GameLift] playerSessionId vacï¿½o en TryRemovePlayerSession.");
             return false;
         }
 
         bool removeSuccess = InvokeGameLiftRemovePlayerSession(playerSessionId);
         if (!removeSuccess)
         {
-            Debug.LogWarning($"[GameLift] RemovePlayerSession falló para PlayerSessionId={playerSessionId}");
+            Debug.LogWarning($"[GameLift] RemovePlayerSession fallï¿½ para PlayerSessionId={playerSessionId}");
         }
 
         if (acceptedPlayerSessions.TryGetValue(playerSessionId, out int connectionId))
@@ -315,13 +331,13 @@ public class GameLiftServerManager : MonoBehaviour
                     NetworkServer.Destroy(conn.identity.gameObject);
                 }
                 conn.Disconnect();
-                Debug.Log($"[GameLift] Conexión {connectionId} desconectada por RemovePlayerSession.");
+                Debug.Log($"[GameLift] Conexiï¿½n {connectionId} desconectada por RemovePlayerSession.");
             }
             acceptedPlayerSessions.Remove(playerSessionId);
         }
         else
         {
-            Debug.LogWarning($"[GameLift] No había mapping local para playerSessionId {playerSessionId}.");
+            Debug.LogWarning($"[GameLift] No habï¿½a mapping local para playerSessionId {playerSessionId}.");
         }
 
         return removeSuccess;
@@ -338,7 +354,7 @@ public class GameLiftServerManager : MonoBehaviour
             MethodInfo describeMethod = apiType.GetMethod("DescribePlayerSessions", BindingFlags.Public | BindingFlags.Static);
             if (describeMethod == null)
             {
-                Debug.LogWarning("[GameLift] DescribePlayerSessions no disponible en esta versión de API.");
+                Debug.LogWarning("[GameLift] DescribePlayerSessions no disponible en esta versiï¿½n de API.");
                 return null;
             }
 
@@ -369,7 +385,7 @@ public class GameLiftServerManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("[GameLift] No se encontró DescribePlayerSessionsRequest en la asamblea de GameLift.");
+                    Debug.LogWarning("[GameLift] No se encontrï¿½ DescribePlayerSessionsRequest en la asamblea de GameLift.");
                     return null;
                 }
             }
@@ -393,7 +409,7 @@ public class GameLiftServerManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[GameLift] DescribePlayerSessions falló: {ex}");
+            Debug.LogWarning($"[GameLift] DescribePlayerSessions fallï¿½: {ex}");
         }
 
         return null;
@@ -411,7 +427,7 @@ public class GameLiftServerManager : MonoBehaviour
             MethodInfo acceptMethod = apiType.GetMethod("AcceptPlayerSession", BindingFlags.Public | BindingFlags.Static);
             if (acceptMethod == null)
             {
-                Debug.LogWarning("[GameLift] AcceptPlayerSession no disponible en esta versión de API (reflection).");
+                Debug.LogWarning("[GameLift] AcceptPlayerSession no disponible en esta versiï¿½n de API (reflection).");
                 return false;
             }
 
@@ -457,7 +473,7 @@ public class GameLiftServerManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[GameLift] InvokeGameLiftAcceptPlayerSession excepción: {ex}");
+            Debug.LogWarning($"[GameLift] InvokeGameLiftAcceptPlayerSession excepciï¿½n: {ex}");
             return false;
         }
     }
@@ -470,7 +486,7 @@ public class GameLiftServerManager : MonoBehaviour
             MethodInfo removeMethod = apiType.GetMethod("RemovePlayerSession", BindingFlags.Public | BindingFlags.Static);
             if (removeMethod == null)
             {
-                Debug.LogWarning("[GameLift] RemovePlayerSession no disponible en esta versión de API (reflection).");
+                Debug.LogWarning("[GameLift] RemovePlayerSession no disponible en esta versiï¿½n de API (reflection).");
                 return false;
             }
 
@@ -516,7 +532,7 @@ public class GameLiftServerManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"[GameLift] InvokeGameLiftRemovePlayerSession excepción: {ex}");
+            Debug.LogWarning($"[GameLift] InvokeGameLiftRemovePlayerSession excepciï¿½n: {ex}");
             return false;
         }
     }

@@ -41,6 +41,11 @@ public class HolePunchClient : MonoBehaviour
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(signalingServerHost);
 
+    // Exposed so other scripts on a different GameObject (e.g. NetworkMetrics on the
+    // Player prefab) can reach the same signaling server host for their own purposes
+    // (metrics upload) without duplicating this config in the Inspector.
+    public string SignalingServerHost => signalingServerHost;
+
     private void Awake()
     {
         personalizedTransport = GetComponent<PersonalizedTransport>();

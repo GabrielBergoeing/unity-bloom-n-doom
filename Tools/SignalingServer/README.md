@@ -39,3 +39,28 @@ Una vez desplegado, hay que configurar su dirección (IP/dominio + puerto) en el
 Unity (`Assets/Scripts/Network/HolePunchClient.cs`). Si se deja vacío, el hole punching
 queda deshabilitado automáticamente y el flujo cae de nuevo al intento de IP pública
 directa (sin perforar NAT) como antes.
+
+## Métricas centralizadas (NetworkMetrics)
+
+Además del protocolo UDP, este proceso levanta un servidor HTTP aparte (puerto **9051**
+por defecto, configurable con la variable de entorno `SIGNALING_METRICS_PORT`) con un
+único endpoint: `POST /metrics?room=<roomCode>&role=<Host|Client>&player=<netId>`, body =
+el CSV crudo. Lo usa `Assets/Scripts/NetworkMetrics.cs` para subir su CSV automáticamente
+al terminar cada partida P2P (además de guardarlo local en
+`Application.persistentDataPath`, que sigue pasando siempre). Los archivos quedan en
+`Tools/SignalingServer/metrics/` (o al lado del ejecutable si corriste `dotnet publish`),
+nombrados `<room>_<role>_<player>_<timestamp>.csv` — todo junto en un solo lugar, sin
+andar copiando archivos de cada PC de prueba a mano.
+
+Es un no-op silencioso si `HolePunchClient` no está configurado (p.ej. sesiones GameLift o
+LAN sin hole punching) — el CSV local se sigue guardando igual, solo no se sube a ningún
+lado.
+
+**Para exponerlo junto con el puerto UDP**: agregar también el puerto TCP 9051 al
+forwarding del router (además del 9050/UDP), y en Windows:
+
+```powershell
+# Una sola vez, como Administrador (igual que con Tools/GameLiftBroker):
+netsh http add urlacl url=http://+:9051/ user=Everyone
+New-NetFirewallRule -DisplayName "SignalingServerMetrics" -Direction Inbound -Protocol TCP -LocalPort 9051 -Action Allow
+```

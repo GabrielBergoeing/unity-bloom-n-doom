@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
 // Minimal UPnP IGD (Internet Gateway Device) client, no external dependency. Best-effort:
 // asks the LAN router to forward an external UDP port straight to this machine, so the
@@ -28,6 +28,13 @@ public static class UpnpPortMapper
         public string ControlUrl;
         public string ServiceType;
     }
+
+    // Deliberately not UnityWebRequest: UPnP gateway description/control URLs are always
+    // plain http:// on the LAN (no consumer router serves this over HTTPS), which trips
+    // Unity's "Allow downloads over HTTP" Player Setting on some platforms/profiles
+    // (InvalidOperationException: Insecure connection not allowed) even though the actual
+    // traffic never leaves the local network. HttpClient isn't subject to that policy.
+    private static readonly HttpClient httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
 
     public static IEnumerator TryMapPort(ushort port, string description, Action<bool> onComplete = null)
     {
@@ -59,18 +66,18 @@ public static class UpnpPortMapper
             $"<NewPortMappingDescription>{description}</NewPortMappingDescription>" +
             "<NewLeaseDuration>0</NewLeaseDuration>");
 
-        using (UnityWebRequest request = BuildSoapRequest(gateway.ControlUrl, gateway.ServiceType, "AddPortMapping", body))
-        {
-            yield return request.SendWebRequest();
+        Task<(bool success, string error)> soapTask = Task.Run(() =>
+            PostSoapRequest(gateway.ControlUrl, gateway.ServiceType, "AddPortMapping", body));
+        while (!soapTask.IsCompleted)
+            yield return null;
 
-            bool success = request.result == UnityWebRequest.Result.Success;
-            if (success)
-                Debug.Log($"[UPnP] Puerto UDP {port} mapeado automáticamente en el router.");
-            else
-                Debug.LogWarning($"[UPnP] El router rechazó el mapeo de puerto ({request.error}). Puede necesitar forwarding manual.");
+        (bool success, string error) = soapTask.Result;
+        if (success)
+            Debug.Log($"[UPnP] Puerto UDP {port} mapeado automáticamente en el router.");
+        else
+            Debug.LogWarning($"[UPnP] El router rechazó el mapeo de puerto ({error}). Puede necesitar forwarding manual.");
 
-            onComplete?.Invoke(success);
-        }
+        onComplete?.Invoke(success);
     }
 
     public static IEnumerator TryUnmapPort(ushort port)
@@ -86,13 +93,15 @@ public static class UpnpPortMapper
             $"<NewExternalPort>{port}</NewExternalPort>" +
             "<NewProtocol>UDP</NewProtocol>");
 
-        using (UnityWebRequest request = BuildSoapRequest(gateway.ControlUrl, gateway.ServiceType, "DeletePortMapping", body))
-            yield return request.SendWebRequest();
+        Task<(bool success, string error)> soapTask = Task.Run(() =>
+            PostSoapRequest(gateway.ControlUrl, gateway.ServiceType, "DeletePortMapping", body));
+        while (!soapTask.IsCompleted)
+            yield return null;
     }
 
-    // SSDP discovery needs a blocking UDP receive, so it runs on a background thread;
-    // the description-XML fetch uses UnityWebRequest, which must run on the main thread -
-    // this coroutine bridges the two and hands back a GatewayInfo (or null) via callback.
+    // Both the SSDP discovery and the description-XML fetch run on a background thread
+    // (blocking UDP receive / blocking HttpClient call) - this coroutine bridges each one
+    // back to the main thread via polling and hands back a GatewayInfo (or null).
     private static IEnumerator DiscoverGateway(Action<GatewayInfo> onDiscovered)
     {
         Task<string> locationTask = Task.Run(() => DiscoverGatewayLocationUrl());
@@ -106,15 +115,53 @@ public static class UpnpPortMapper
             yield break;
         }
 
-        using (UnityWebRequest descriptionRequest = UnityWebRequest.Get(locationUrl))
+        Task<string> descriptionTask = Task.Run(() => FetchUrlBody(locationUrl));
+        while (!descriptionTask.IsCompleted)
+            yield return null;
+
+        string descriptionXml = descriptionTask.Result;
+        GatewayInfo gateway = !string.IsNullOrEmpty(descriptionXml)
+            ? ParseGatewayInfo(descriptionXml, locationUrl)
+            : null;
+
+        onDiscovered(gateway);
+    }
+
+    private static string FetchUrlBody(string url)
+    {
+        try
         {
-            yield return descriptionRequest.SendWebRequest();
+            // Not GetStringAsync: it parses the response's Content-Type charset to pick
+            // a decoder, and plenty of consumer router firmware sends a malformed one
+            // (quoting, casing) that makes HttpClient throw outright instead of just
+            // ignoring it. UPnP description XML is always UTF-8 (or plain ASCII, which
+            // decodes identically under UTF-8) regardless of what the header claims.
+            byte[] bytes = httpClient.GetByteArrayAsync(url).GetAwaiter().GetResult();
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[UPnP] No se pudo obtener la descripción del gateway: {ex.Message}");
+            return null;
+        }
+    }
 
-            GatewayInfo gateway = descriptionRequest.result == UnityWebRequest.Result.Success
-                ? ParseGatewayInfo(descriptionRequest.downloadHandler.text, locationUrl)
-                : null;
+    private static (bool success, string error) PostSoapRequest(string controlUrl, string serviceType, string action, string body)
+    {
+        try
+        {
+            using var content = new StringContent(body, Encoding.UTF8);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml") { CharSet = "utf-8" };
 
-            onDiscovered(gateway);
+            using var request = new HttpRequestMessage(HttpMethod.Post, controlUrl) { Content = content };
+            request.Headers.TryAddWithoutValidation("SOAPAction", $"\"{serviceType}#{action}\"");
+
+            using HttpResponseMessage response = httpClient.SendAsync(request).GetAwaiter().GetResult();
+            return (response.IsSuccessStatusCode, response.IsSuccessStatusCode ? null : $"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
         }
     }
 
@@ -208,16 +255,4 @@ public static class UpnpPortMapper
             "</s:Envelope>";
     }
 
-    private static UnityWebRequest BuildSoapRequest(string controlUrl, string serviceType, string action, string body)
-    {
-        byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
-        var request = new UnityWebRequest(controlUrl, "POST")
-        {
-            uploadHandler = new UploadHandlerRaw(bodyBytes),
-            downloadHandler = new DownloadHandlerBuffer()
-        };
-        request.SetRequestHeader("Content-Type", "text/xml; charset=\"utf-8\"");
-        request.SetRequestHeader("SOAPAction", $"\"{serviceType}#{action}\"");
-        return request;
-    }
 }

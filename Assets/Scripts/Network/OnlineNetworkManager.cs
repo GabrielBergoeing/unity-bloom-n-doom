@@ -104,6 +104,14 @@ public class OnlineNetworkManager : NetworkManager
     {
         base.OnClientDisconnect();
         ClientDisconnectedOnline?.Invoke();
+
+        // Fires for every disconnect, voluntary or not (Mirror funnels host-closed-lobby,
+        // dropped connection, and our own StopHost()/StopClient() calls through here alike -
+        // see NetworkManager.StopClient's own comment on this). Without this, only whichever
+        // player manually clicks "return to menu" leaves the (now-dead) session; everyone
+        // else is stuck looking at a scene whose server no longer exists.
+        if (GameManager.instance != null)
+            GameManager.instance.ChangeScene("MainMenu");
     }
 
     /// <summary>
@@ -170,6 +178,19 @@ public class OnlineNetworkManager : NetworkManager
         {
             GameManager.instance.currentLevel = chosen;
             Debug.Log($"[OnlineNetworkManager] Client received level: {chosen.name}");
+        }
+
+        // This handler also fires on the host (it's registered in OnStartClient, and the
+        // host runs its own local client via loopback). The host already switches its BGM
+        // through UI_MapSelectorOnline.SelectLevel's host-only path, so re-triggering it
+        // here too would call StopBGM()/StartBGM() a second time back-to-back and could
+        // leave the host's music faded to silence (StopBGM kills the in-flight SwitchBGMCo
+        // started by the first call, and StartBGM's same-track dedup then skips restarting
+        // it). Only genuine non-host clients need this call.
+        if (chosen != null && AudioManager.instance != null && !NetworkServer.active)
+        {
+            AudioManager.instance.StopBGM();
+            AudioManager.instance.StartBGM(chosen.bgmTrackName);
         }
     }
 }

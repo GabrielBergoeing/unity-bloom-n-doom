@@ -122,5 +122,18 @@ public class OnlineMatchManager : NetworkBehaviour
     private void RpcShowResults(List<ScoreResult> results)
     {
         FindObjectOfType<UI_MatchResults>(true)?.ShowResults(results);
+
+        // Stop/export right at match end rather than waiting for OnStopClient/OnDestroy -
+        // those only fire on disconnect or scene unload, which can happen much later
+        // (or not at all if the player lingers on the results screen still connected).
+        var metrics = NetworkClient.localPlayer != null
+            ? NetworkClient.localPlayer.GetComponent<NetworkMetrics>()
+            : null;
+
+        if (metrics != null)
+        {
+            metrics.StopRecording();
+            metrics.ExportToCsv();
+        }
     }
 }

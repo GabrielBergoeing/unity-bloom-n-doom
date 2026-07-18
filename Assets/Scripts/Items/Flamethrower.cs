@@ -17,10 +17,14 @@ public class Flamethrower : NetworkBehaviour
     [SerializeField] private float spreadAngle = 30f;
 
     [SerializeField] private float maxAmmoSeconds = 10f;
-    private float currentAmmo;
+
+    // Server-authoritative; synced to all clients so the client-side ammo gate
+    // (line below in Update) never drifts from what ServerShoot actually enforces.
+    [SyncVar] private float currentAmmo;
     private float nextFireTime;
 
     private Player owner; // who currently holds it
+    private bool loggedMissingOwner;
 
     public Items_SFX sfx { get; private set; }
 
@@ -49,8 +53,15 @@ public class Flamethrower : NetworkBehaviour
             if (owner == null)
             {
                 // not held by any player on this client -> nothing to do
+                if (!loggedMissingOwner && transform.parent != null)
+                {
+                    loggedMissingOwner = true;
+                    Debug.LogWarning($"[Flamethrower] '{name}' is parented under '{transform.parent.name}' but no Player component was found in its parents - shooting will never fire.");
+                }
                 return;
             }
+            loggedMissingOwner = false;
+            Debug.Log($"[Flamethrower] '{name}' resolved owner={owner.name} isLocalPlayer={owner.isLocalPlayer} isServer={owner.isServer} isClient={owner.isClient}");
         }
 
         // isLocalPlayer is never true offline (never Mirror-spawned), so gate on that
@@ -58,24 +69,27 @@ public class Flamethrower : NetworkBehaviour
         bool isNetworkSpawnedObject = owner.isServer || owner.isClient;
         if (isNetworkSpawnedObject && !owner.isLocalPlayer) return;
 
+        if (owner.input == null || !owner.input.enabled) return;
+
         bool isFiring = owner.input.actions["Shoot"].ReadValue<float>() > 0f;
 
-        if (isFiring && currentAmmo > 0f)
+        if (isFiring)
         {
-            if (isNetworkSpawnedObject)
-                owner.CmdRequestShoot(); // request server to shoot (Command on Player)
+            if (currentAmmo > 0f)
+            {
+                if (isNetworkSpawnedObject)
+                    owner.CmdRequestShoot(); // request server to shoot (Command on Player)
+                else
+                    ServerShoot(owner.rb != null ? owner.rb.linearVelocity : Vector2.zero);
+            }
             else
-                ServerShoot(owner.rb != null ? owner.rb.linearVelocity : Vector2.zero);
+            {
+                Debug.Log($"[Flamethrower] '{name}' fire pressed but currentAmmo={currentAmmo} - out of ammo.");
+            }
         }
 
-        // local cooldown of ammo (visual/UX). Actual ammo consumption enforced on server.
-        if (isFiring && currentAmmo > 0f)
-        {
-            currentAmmo -= Time.deltaTime;
-            if (currentAmmo < 0f) currentAmmo = 0f;
-        }
-
-        // On server the ServerShoot method enforces fireRate and ammo consumption.
+        // Ammo is consumed server-side in ServerShoot and replicated to all clients via
+        // the [SyncVar] above, so it is never predicted/decremented locally here anymore.
     }
 
     // Runs directly offline; server-authoritative online (see isNetworkSpawnedObject guard).
@@ -83,19 +97,32 @@ public class Flamethrower : NetworkBehaviour
     public void ServerShoot(Vector2 ownerVelocity)
     {
         bool isNetworkSpawnedObject = isServer || isClient;
-        if (isNetworkSpawnedObject && !isServer) return;
+        if (isNetworkSpawnedObject && !isServer)
+        {
+            Debug.LogWarning($"[Flamethrower][ServerShoot] '{name}' called on a non-server instance - ignoring.");
+            return;
+        }
 
-        if (nextFireTime > Time.time) return;
-        if (currentAmmo <= 0f) return;
+        if (nextFireTime > Time.time)
+        {
+            Debug.Log($"[Flamethrower][ServerShoot] '{name}' rejected: fireRate cooldown ({nextFireTime - Time.time:F3}s left).");
+            return;
+        }
+
+        if (currentAmmo <= 0f)
+        {
+            Debug.Log($"[Flamethrower][ServerShoot] '{name}' rejected: out of ammo on server (currentAmmo={currentAmmo}).");
+            return;
+        }
 
         nextFireTime = Time.time + fireRate;
         currentAmmo -= fireRate;
         if (currentAmmo < 0f) currentAmmo = 0f;
 
-        if (sfx != null)
-        {
+        if (isNetworkSpawnedObject)
+            RpcPlayFireSound();
+        else if (sfx != null)
             sfx.PlayOnUse();
-        }
 
         float angleStep = projectilesPerShot > 1 ? spreadAngle / (projectilesPerShot - 1) : 0f;
         float startAngle = -spreadAngle / 2;
@@ -122,5 +149,14 @@ public class Flamethrower : NetworkBehaviour
                 Debug.Log($"[Flamethrower] Spawned projectile '{firePrefab.name}' netId={nid} at {fireInstance.transform.position}");
             }
         }
+    }
+
+    // Server-only method (ServerShoot) plays it via this Rpc so remote clients (and the
+    // dedicated server, which has no ears) all hear the shot, not just the host.
+    [ClientRpc]
+    private void RpcPlayFireSound()
+    {
+        if (sfx != null)
+            sfx.PlayOnUse();
     }
 }

@@ -125,7 +125,7 @@ public class PersonalizedTransport : Transport
         }
 
         ReliableChannelState state = GetOrCreateServerReliable(connectionId);
-        SendReliable(state, segment, packet => server.Send(packet, packet.Length, endPoint));
+        SendReliable(state, segment, packet => server.Send(packet, packet.Length, endPoint), $"servidor->conn{connectionId}", logReliableChannel);
     }
 
     public override void ServerDisconnect(int connectionId)
@@ -234,7 +234,7 @@ public class PersonalizedTransport : Transport
             return;
         }
 
-        SendReliable(clientReliable, segment, packet => client.Send(packet, packet.Length));
+        SendReliable(clientReliable, segment, packet => client.Send(packet, packet.Length), "cliente->servidor", logReliableChannel);
     }
 
     public override void ClientDisconnect()
@@ -282,7 +282,14 @@ public class PersonalizedTransport : Transport
         return state;
     }
 
-    private static void SendReliable(ReliableChannelState state, ArraySegment<byte> segment, Action<byte[]> rawSend)
+    // Temporary diagnostic toggle - flip on before a real cross-network test to get a
+    // precise timeline of the reliable channel (send/receive/ack/resend per seq). Meant
+    // to be turned back off once the "Unknown message id" corruption bug is found; the
+    // volume is low (reliable is only spawn/RPC traffic, not per-frame movement).
+    [Header("Debug")]
+    [SerializeField] private bool logReliableChannel = true;
+
+    private static void SendReliable(ReliableChannelState state, ArraySegment<byte> segment, Action<byte[]> rawSend, string tag, bool log)
     {
         uint seq = state.nextSendSeq++;
         byte[] packet = BuildReliablePacket(seq, segment);
@@ -294,10 +301,12 @@ public class PersonalizedTransport : Transport
             resendCount = 0
         };
 
+        if (log) Debug.Log($"[Reliable:{tag}] TX seq={seq} payloadBytes={segment.Count} hex={BitConverter.ToString(segment.Array, segment.Offset, Math.Min(segment.Count, 64))}");
+
         rawSend(packet);
     }
 
-    private void ProcessResends(ReliableChannelState state, Action<byte[]> rawSend)
+    private void ProcessResends(ReliableChannelState state, Action<byte[]> rawSend, string tag)
     {
         if (state.pending.Count == 0) return;
 
@@ -318,6 +327,7 @@ public class PersonalizedTransport : Transport
 
             pending.lastSentTime = now;
             pending.resendCount++;
+            if (logReliableChannel) Debug.Log($"[Reliable:{tag}] RESEND seq={kvp.Key} intento={pending.resendCount}");
             rawSend(pending.data);
         }
 
@@ -337,7 +347,9 @@ public class PersonalizedTransport : Transport
         ReliableChannelState state,
         Action<ArraySegment<byte>> onUnreliable,
         Action<ArraySegment<byte>> onReliableInOrder,
-        Action<uint> sendAck)
+        Action<uint> sendAck,
+        string tag,
+        bool log)
     {
         if (data == null || data.Length < 1) return;
 
@@ -351,41 +363,50 @@ public class PersonalizedTransport : Transport
             {
                 if (data.Length < ReliableHeaderSize) return;
                 uint seq = ReadSeq(data);
+                if (log) Debug.Log($"[Reliable:{tag}] RX seq={seq} totalBytes={data.Length} expected={state.expectedRecvSeq}");
 
                 // Ack incondicionalmente (incluso duplicados) para que el emisor deje de reintentar.
                 sendAck(seq);
-                DeliverReliable(state, seq, data, onReliableInOrder);
+                DeliverReliable(state, seq, data, onReliableInOrder, tag, log);
                 break;
             }
 
             case PacketKind.Ack:
             {
                 if (data.Length < AckPacketSize) return;
-                state.pending.Remove(ReadSeq(data));
+                uint ackedSeq = ReadSeq(data);
+                bool wasPending = state.pending.Remove(ackedSeq);
+                if (log) Debug.Log($"[Reliable:{tag}] ACK seq={ackedSeq} wasPending={wasPending}");
                 break;
             }
         }
     }
 
-    private static void DeliverReliable(ReliableChannelState state, uint seq, byte[] data, Action<ArraySegment<byte>> onReliableInOrder)
+    private static void DeliverReliable(ReliableChannelState state, uint seq, byte[] data, Action<ArraySegment<byte>> onReliableInOrder, string tag, bool log)
     {
         if (seq < state.expectedRecvSeq)
+        {
+            if (log) Debug.Log($"[Reliable:{tag}] DUP seq={seq} (expected={state.expectedRecvSeq}), descartado.");
             return; // ya entregado antes; era un reintento del emisor.
+        }
 
         if (seq > state.expectedRecvSeq)
         {
             // Llegó fuera de orden: lo guardamos hasta que se llene el hueco.
             if (!state.outOfOrder.ContainsKey(seq))
                 state.outOfOrder[seq] = data;
+            if (log) Debug.Log($"[Reliable:{tag}] OUT-OF-ORDER seq={seq} bufferizado (expected={state.expectedRecvSeq}, bufferedCount={state.outOfOrder.Count})");
             return;
         }
 
+        if (log) Debug.Log($"[Reliable:{tag}] DELIVER seq={seq} payloadBytes={data.Length - ReliableHeaderSize} hex={BitConverter.ToString(data, ReliableHeaderSize, Math.Min(data.Length - ReliableHeaderSize, 64))}");
         onReliableInOrder(new ArraySegment<byte>(data, ReliableHeaderSize, data.Length - ReliableHeaderSize));
         state.expectedRecvSeq++;
 
         while (state.outOfOrder.TryGetValue(state.expectedRecvSeq, out byte[] buffered))
         {
             state.outOfOrder.Remove(state.expectedRecvSeq);
+            if (log) Debug.Log($"[Reliable:{tag}] DELIVER (desde buffer) seq={state.expectedRecvSeq} payloadBytes={buffered.Length - ReliableHeaderSize}");
             onReliableInOrder(new ArraySegment<byte>(buffered, ReliableHeaderSize, buffered.Length - ReliableHeaderSize));
             state.expectedRecvSeq++;
         }
@@ -435,8 +456,11 @@ public class PersonalizedTransport : Transport
 
         try
         {
-            // Mientras haya mensajes esperando en el buzón...
-            while (client.Available > 0)
+            // Mientras haya mensajes esperando en el buzón... (client se re-chequea en
+            // cada vuelta porque un mensaje puede disparar una desconexión síncrona -
+            // p.ej. Mirror rechazando un mensaje corrupto y llamando ClientDisconnect(),
+            // que deja client en null - seguir leyendo del socket viejo tiraría NRE).
+            while (client != null && client.Available > 0)
             {
                 // Preparamos una variable vacía para saber de dónde viene el paquete
                 IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
@@ -466,7 +490,9 @@ public class PersonalizedTransport : Transport
                 HandleIncomingPacket(data, clientReliable,
                     onUnreliable: payload => OnClientDataReceived?.Invoke(payload, Channels.Unreliable),
                     onReliableInOrder: payload => OnClientDataReceived?.Invoke(payload, Channels.Reliable),
-                    sendAck: seq => SendRaw(client, BuildAckPacket(seq)));
+                    sendAck: seq => SendRaw(client, BuildAckPacket(seq)),
+                    tag: "cliente",
+                    log: logReliableChannel);
             }
         }
         catch (SocketException ex)
@@ -474,7 +500,8 @@ public class PersonalizedTransport : Transport
             Debug.LogWarning($"[Cliente] Error de lectura (Socket): {ex.Message}");
         }
 
-        ProcessResends(clientReliable, packet => SendRaw(client, packet));
+        if (client != null)
+            ProcessResends(clientReliable, packet => SendRaw(client, packet), "cliente->servidor");
     }
 
     public override void ServerEarlyUpdate()
@@ -518,6 +545,17 @@ public class PersonalizedTransport : Transport
                 // ¿Es un cliente nuevo?
                 if (!connectedClients.TryGetValue(sender, out connectionId))
                 {
+                    // Solo un handshake real puede dar de alta una conexión nueva. Un
+                    // remitente desconocido puede llegar acá por los paquetes "PUNCH"
+                    // crudos de HolePunchClient, que a propósito comparten este mismo
+                    // socket/puerto para abrir el mapeo NAT antes del handshake real -
+                    // si los tratáramos como conexión nueva, el servidor empezaría a
+                    // mandar spawn/estado antes de que el cliente esté listo para
+                    // procesarlo, descuadrando el canal confiable (ack/seq) desde el
+                    // arranque.
+                    if (!IsControlPacket(data, ConnectHelloPacket))
+                        continue;
+
                     connectionId = nextConnectionId++;
                     connectedClients.Add(sender, connectionId);
                     connectionEndPoints[connectionId] = sender;
@@ -549,7 +587,9 @@ public class PersonalizedTransport : Transport
                 HandleIncomingPacket(data, state,
                     onUnreliable: payload => OnServerDataReceived?.Invoke(capturedConnectionId, payload, Channels.Unreliable),
                     onReliableInOrder: payload => OnServerDataReceived?.Invoke(capturedConnectionId, payload, Channels.Reliable),
-                    sendAck: seq => SendRaw(server, BuildAckPacket(seq), replyEndPoint));
+                    sendAck: seq => SendRaw(server, BuildAckPacket(seq), replyEndPoint),
+                    tag: $"servidor(conn{capturedConnectionId})",
+                    log: logReliableChannel);
             }
         }
         catch (SocketException ex)
@@ -566,7 +606,7 @@ public class PersonalizedTransport : Transport
         foreach (var kvp in serverReliable)
         {
             if (connectionEndPoints.TryGetValue(kvp.Key, out IPEndPoint endPoint))
-                ProcessResends(kvp.Value, packet => SendRaw(server, packet, endPoint));
+                ProcessResends(kvp.Value, packet => SendRaw(server, packet, endPoint), $"servidor->conn{kvp.Key}");
         }
     }
 

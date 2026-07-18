@@ -1,10 +1,6 @@
 using System;
 using UnityEngine;
 
-#if UNITY_STANDALONE_WIN
-using System.Diagnostics;
-#endif
-
 // Best-effort: opens the game's UDP port in Windows Defender Firewall when hosting.
 // Windows normally shows its own "Firewall blocked some features of this app, allow?"
 // popup automatically the first time an app listens on a port - but that notification
@@ -51,9 +47,9 @@ public static class WindowsFirewallHelper
     {
         try
         {
-            using var process = new Process
+            using var process = new System.Diagnostics.Process
             {
-                StartInfo = new ProcessStartInfo
+                StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = "netsh",
                     Arguments = $"advfirewall firewall show rule name=\"{ruleName}\"",
@@ -82,15 +78,15 @@ public static class WindowsFirewallHelper
     {
         try
         {
-            using var process = new Process
+            using var process = new System.Diagnostics.Process
             {
-                StartInfo = new ProcessStartInfo
+                StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = "netsh",
                     Arguments = $"advfirewall firewall add rule name=\"{ruleName}\" dir=in action=allow protocol=UDP localport={port}",
                     UseShellExecute = true,
                     Verb = "runas", // triggers a single UAC prompt for just this command
-                    WindowStyle = ProcessWindowStyle.Hidden
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
                 }
             };
             process.Start();

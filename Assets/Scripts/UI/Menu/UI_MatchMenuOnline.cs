@@ -101,6 +101,16 @@ public class UI_MatchMenuOnline : MonoBehaviour
 
     private void Update()
     {
+        // NetworkClient/NetworkServer wipe their own handler registries on
+        // Stop*()/Shutdown() - but don't tell us, so our "already registered" flags
+        // would otherwise go stale. SteamLobby's join flow calls StartClient()/
+        // StopClient() repeatedly while cascading through LAN -> public IP -> hole
+        // punch tiers, so this isn't a one-off: only the FIRST tier that's ever tried
+        // gets real handlers: RegisterHandler() below never re-runs for the actually-
+        // successful tier if it wasn't the first one Mirror wiped in between.
+        if (!NetworkClient.active) clientHandlerRegistered = false;
+        if (!NetworkServer.active) serverHandlerRegistered = false;
+
         EnsureHandlers();
 
         if (NetworkServer.active)

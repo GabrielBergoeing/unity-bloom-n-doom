@@ -13,6 +13,14 @@ public class UI_FadeScreen : MonoBehaviour
         fadeImage.color = new Color(0, 0, 0, 1);
     }
 
+    // Self-reveal so this panel never stays stuck opaque when a scene is entered without
+    // GameManager reaching its FadeIn() call (e.g. the scene opened directly in the Editor,
+    // or GameManager not yet present) - redundant, harmless if GameManager also calls FadeIn.
+    private void Start()
+    {
+        FadeIn();
+    }
+
     private void FadeEffect(float targetAlpha, float duration)
     {
         if (fadeEffectCo != null)
