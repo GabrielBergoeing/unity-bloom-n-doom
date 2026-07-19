@@ -40,20 +40,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Quick "back to menu" escape hatch, reachable from every scene (this object is
+    // DontDestroyOnLoad). Requires a deliberate hold, not a tap, so it can't fire from a
+    // single stray backspace while typing (also still blocked outright while a text field
+    // has focus) or from bumping the key once mid-match. There is no equivalent instant
+    // "quit app" shortcut anymore - MenuManager.QuitGame() (wired to the main menu's Quit
+    // button) is the only way to close the app, since a global hotkey for that was too easy
+    // to hit by accident.
+    private const float backspaceHoldSeconds = 1f;
+    private float backspaceHeldTime;
+    private bool backspaceTriggered;
+
     private void Update()
     {
-        // For testing scene changes. Legacy Input.GetKeyDown ignores UI focus, so this must
-        // not fire while the user is typing into a text field (e.g. join-code/IP inputs) or
-        // every backspace keystroke would kick them back to MainMenu mid-typing.
-        if (Input.GetKeyDown(KeyCode.Backspace) && !IsTextInputFocused())
+        if (Input.GetKey(KeyCode.Backspace) && !IsTextInputFocused())
         {
-            Debug.Log("[GameManager] Scene Change to MainMenu!");
-            ChangeScene("MainMenu");
+            backspaceHeldTime += Time.unscaledDeltaTime;
+
+            if (!backspaceTriggered && backspaceHeldTime >= backspaceHoldSeconds)
+            {
+                backspaceTriggered = true;
+                Debug.Log("[GameManager] Scene Change to MainMenu!");
+                ChangeScene("MainMenu");
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Escape))
+        else
         {
-            Debug.Log("[GameManager] App Closed!");
-            Application.Quit();
+            backspaceHeldTime = 0f;
+            backspaceTriggered = false;
         }
     }
 

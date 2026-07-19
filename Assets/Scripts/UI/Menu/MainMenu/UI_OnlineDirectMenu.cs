@@ -2,9 +2,11 @@ using System.Collections;
 using System.Net;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class UI_OnlineDirectMenu : MonoBehaviour
 {
@@ -40,6 +42,13 @@ public class UI_OnlineDirectMenu : MonoBehaviour
             hostCodeDisplay.readOnly = true;
 
         RefreshHostCode();
+
+        // Note: a gamepad user can navigate to and "press" joinCodeInput to enter edit
+        // mode, but there is currently no on-screen keyboard, so they still can't type
+        // actual characters into it - only a real keyboard can fill in a room code today.
+        var first = GetComponentInChildren<Selectable>(true);
+        if (first != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(first.gameObject);
     }
 
     public void HostButtonPressed()

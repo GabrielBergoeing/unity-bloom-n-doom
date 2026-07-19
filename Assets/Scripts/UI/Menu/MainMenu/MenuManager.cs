@@ -28,6 +28,10 @@ public class MenuManager : MonoBehaviour
         if (AudioManager.instance != null) AudioManager.instance.StartBGM("bgm_menu");
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
         if (settingsPanel != null) settingsPanel.SetActive(false);
+
+        // Without this, a gamepad/keyboard user lands on the main menu with nothing
+        // selected and Navigate does nothing until they touch a mouse first.
+        selectFirstGameObject(mainCanvas);
 #endif
     }
 

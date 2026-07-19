@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UI_MapSelector : MonoBehaviour
 {
@@ -7,6 +9,15 @@ public class UI_MapSelector : MonoBehaviour
     private UIService UI => UIService.instance;
     [Header("Levels Data")]
     [SerializeField] private List<LevelData> levels;
+
+    private void Start()
+    {
+        // Without this, a gamepad/keyboard user has nothing selected on entering this
+        // screen and Navigate does nothing until they touch a mouse first.
+        var first = GetComponentInChildren<Selectable>(true);
+        if (first != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(first.gameObject);
+    }
 
     public void Level1BTN() => SelectLevel(1);
     public void Level2BTN() => SelectLevel(2);

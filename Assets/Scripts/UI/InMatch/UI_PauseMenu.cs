@@ -81,6 +81,12 @@ public class UI_PauseMenu : MonoBehaviour
 
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
+
+        // Otherwise EventSystem.currentSelectedGameObject keeps pointing at a now-inactive
+        // pause button, which can leave a later menu (results screen, next pause) with
+        // nothing effectively selected for gamepad/keyboard navigation.
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 
     // ------- Buttons -------

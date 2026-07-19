@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -30,7 +31,15 @@ public class UI_MapSelectorOnline : MonoBehaviour
         }
 
         if (!isHost)
+        {
             Debug.Log("[MapSelectorOnline] Client: waiting for host to choose map.");
+            return;
+        }
+
+        // Without this, a gamepad/keyboard user has nothing selected on entering this
+        // screen and Navigate does nothing until they touch a mouse first.
+        if (mapButtons.Count > 0 && mapButtons[0] != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(mapButtons[0].gameObject);
     }
 
     // ── Called by UI buttons ──
