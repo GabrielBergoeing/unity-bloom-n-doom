@@ -94,9 +94,17 @@ public class OnlineNetworkManager : NetworkManager
     public event Action ClientConnectedOnline;
     public event Action ClientDisconnectedOnline;
 
+    // Tracks whether THIS connection attempt ever actually succeeded, so
+    // OnClientDisconnect can tell "we were in a real match and it died" apart from
+    // "SteamLobby's LAN -> public IP -> hole punch retry just tore down a failed tier
+    // to try the next one" - both call StopClient() and land here, but only the first
+    // should send everyone back to the main menu.
+    private bool hasBeenConnected;
+
     public override void OnClientConnect()
     {
         base.OnClientConnect();
+        hasBeenConnected = true;
         ClientConnectedOnline?.Invoke();
     }
 
@@ -105,12 +113,17 @@ public class OnlineNetworkManager : NetworkManager
         base.OnClientDisconnect();
         ClientDisconnectedOnline?.Invoke();
 
+        bool wasReallyConnected = hasBeenConnected;
+        hasBeenConnected = false;
+
         // Fires for every disconnect, voluntary or not (Mirror funnels host-closed-lobby,
         // dropped connection, and our own StopHost()/StopClient() calls through here alike -
         // see NetworkManager.StopClient's own comment on this). Without this, only whichever
         // player manually clicks "return to menu" leaves the (now-dead) session; everyone
-        // else is stuck looking at a scene whose server no longer exists.
-        if (GameManager.instance != null)
+        // else is stuck looking at a scene whose server no longer exists. Gated on
+        // wasReallyConnected so a failed retry tier (which never reached OnClientConnect)
+        // doesn't bounce the player mid-cascade.
+        if (wasReallyConnected && GameManager.instance != null)
             GameManager.instance.ChangeScene("MainMenu");
     }
 

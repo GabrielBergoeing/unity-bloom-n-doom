@@ -354,10 +354,13 @@ public class UI_MatchMenuOnline : MonoBehaviour
         return kb || gp;
     }
 
+    // Keyboard 'C' / Gamepad East match the shared UI "Cancel" action used elsewhere
+    // (UI_CharacterSelector/UI_PlayerSlot). This used to read Escape/Backspace, which
+    // collided with the unrelated global "quit"/"back to menu" shortcuts on this exact
+    // screen - pressing them only unlocks this player's selection, it doesn't leave.
     private bool ReadCancelInput()
     {
-        bool kb = Keyboard.current != null &&
-                  (Keyboard.current.escapeKey.wasPressedThisFrame || Keyboard.current.backspaceKey.wasPressedThisFrame);
+        bool kb = Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame;
         bool gp = Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame;
         return kb || gp;
     }

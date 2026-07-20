@@ -133,19 +133,13 @@ public class MatchManager : MonoBehaviour
     {
         isPlayingMatch = !pause;
 
+        // DeactivateInput() right after switching to "UI" used to turn the player's whole
+        // PlayerInput off, which meant the very gamepad/keyboard that opened the pause menu
+        // could no longer send it Navigate/Submit/Cancel - input needs to stay active,
+        // just routed to the "UI" map instead of "Player", so gameplay actions don't fire
+        // while the menu is open but menu navigation still works.
         foreach (var p in players)
-        {
-            if (pause)
-            {
-                EnsureInputReady(p);
-                p.SwitchCurrentActionMap("UI");
-                //p.ActivateInput();
-            }
-            else
-            {
-                EnableAndSwitchActionMap(p, "Player");
-            }
-        }
+            EnableAndSwitchActionMap(p, pause ? "UI" : "Player");
     }
 
     public void PauseMatch() => PauseMatch(true);
