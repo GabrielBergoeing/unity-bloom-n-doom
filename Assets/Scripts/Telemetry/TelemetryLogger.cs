@@ -5,6 +5,7 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
+using System.Globalization;
 
 /// <summary>
 /// Ported from the reference Godot TelemetryLogger (core/TelemetryLogger.cs) - same CSV
@@ -191,14 +192,17 @@ public class TelemetryLogger : MonoBehaviour
 
         double memoryMb = Profiler.GetTotalAllocatedMemoryLong() / (1024.0 * 1024.0);
 
-        int nodeCount = FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
-        int objectCount = FindObjectsByType<Component>(FindObjectsSortMode.None).Length;
+        int nodeCount = FindObjectsByType<GameObject>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            ).Length;
+        int objectCount = Resources.FindObjectsOfTypeAll<UnityEngine.Object>().Length;
 
         string latency = "N/A";
         if (NetworkClient.active && NetworkClient.isConnected)
             latency = (NetworkTime.rtt * 1000.0).ToString("F1");
 
-        return
+        /*return
             $"{timestamp}," +
             $"{fps:F1}," +
             $"{cpuUsage:F2}," +
@@ -210,6 +214,21 @@ public class TelemetryLogger : MonoBehaviour
             $"{objectCount}," +
             $"{nodeCount}," +
             $"{drawCalls}," +
-            $"{latency}";
+            $"{latency}";*/
+
+        return string.Join(",",
+            timestamp,
+            fps.ToString("F1", CultureInfo.InvariantCulture),
+            cpuUsage.ToString("F2", CultureInfo.InvariantCulture),
+            gpuUsage.ToString("F2", CultureInfo.InvariantCulture),
+            frameTimeMs.ToString("F2", CultureInfo.InvariantCulture),
+            processTime.ToString("F4", CultureInfo.InvariantCulture),
+            physicsTime.ToString("F4", CultureInfo.InvariantCulture),
+            memoryMb.ToString("F2", CultureInfo.InvariantCulture),
+            objectCount,
+            nodeCount,
+            drawCalls,
+            latency
+        );
     }
 }
