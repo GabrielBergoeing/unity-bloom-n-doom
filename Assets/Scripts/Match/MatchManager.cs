@@ -139,7 +139,7 @@ public class MatchManager : MonoBehaviour
             {
                 EnsureInputReady(p);
                 p.SwitchCurrentActionMap("UI");
-                p.DeactivateInput();
+                //p.ActivateInput();
             }
             else
             {
