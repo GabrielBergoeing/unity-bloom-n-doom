@@ -51,6 +51,13 @@ public class SteamLobby : MonoBehaviour
     private ushort gamePort = 7777;
     private bool preventHosting = false;
 
+    // Lets any UI (see UI_ConnectionStatus) show what the LAN -> public IP -> hole punch
+    // cascade is doing right now, instead of going silent for 15+ seconds with nothing
+    // on screen - that silence is what's been causing testers to assume it's frozen and
+    // close the app mid-attempt, or mash the Backspace-to-menu shortcut out of impatience.
+    public static event Action<string> OnConnectStatusChanged;
+    private static void SetStatus(string message) => OnConnectStatusChanged?.Invoke(message);
+
     protected Callback<LobbyCreated_t> lobbyCreated;
     protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
     protected Callback<LobbyEnter_t> lobbyEntered;
@@ -288,6 +295,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (preventHosting) return;
         Debug.Log($"[SteamLobby] Iniciando Host directo. transport={Transport.active?.GetType().Name ?? "null"}");
+        SetStatus("Hosteando. Esperando jugadores...");
         networkManager.StartHost();
         Debug.Log("[SteamLobby] Host iniciado.");
 
@@ -340,15 +348,20 @@ public class SteamLobby : MonoBehaviour
     // real friends-over-internet play with the same join code either way.
     private IEnumerator JoinWithFallback()
     {
+        SetStatus("Conectando (red local)...");
         bool connected = false;
         yield return AttemptConnect(remoteHostAddress, null, success => connected = success);
 
         if (connected)
+        {
+            SetStatus("¡Conectado!");
             yield break;
+        }
 
         if (!string.IsNullOrEmpty(fallbackHostAddress) && fallbackHostAddress != remoteHostAddress)
         {
             Debug.LogWarning($"[SteamLobby] No se pudo conectar a {remoteHostAddress}. Reintentando con {fallbackHostAddress}...");
+            SetStatus("Probando IP pública...");
             yield return AttemptConnect(fallbackHostAddress, null, success => connected = success);
         }
         else
@@ -356,10 +369,20 @@ public class SteamLobby : MonoBehaviour
             Debug.LogWarning($"[SteamLobby] No se pudo conectar a {remoteHostAddress} y no hay dirección de respaldo directa.");
         }
 
-        if (connected || holePunchClient == null || !holePunchClient.IsConfigured || string.IsNullOrEmpty(roomCode))
+        if (connected)
+        {
+            SetStatus("¡Conectado!");
             yield break;
+        }
+
+        if (holePunchClient == null || !holePunchClient.IsConfigured || string.IsNullOrEmpty(roomCode))
+        {
+            SetStatus("No se pudo conectar.");
+            yield break;
+        }
 
         Debug.LogWarning("[SteamLobby] Intentando conectar vía hole punching (servidor de señalización)...");
+        SetStatus("Perforando NAT (hole punching)...");
 
         IPEndPoint punchedHost = null;
         yield return holePunchClient.TryResolveHost(roomCode, gamePort, ep => punchedHost = ep);
@@ -367,13 +390,21 @@ public class SteamLobby : MonoBehaviour
         if (punchedHost == null)
         {
             Debug.LogWarning("[SteamLobby] No se pudo resolver el host vía hole punching.");
+            SetStatus("No se pudo conectar.");
             yield break;
         }
 
         yield return AttemptConnect(punchedHost.Address.ToString(), (ushort)punchedHost.Port, success =>
         {
-            if (!success)
+            if (success)
+            {
+                SetStatus("¡Conectado!");
+            }
+            else
+            {
                 Debug.LogWarning("[SteamLobby] Hole punching tampoco logró conectar.");
+                SetStatus("No se pudo conectar.");
+            }
         });
     }
 
