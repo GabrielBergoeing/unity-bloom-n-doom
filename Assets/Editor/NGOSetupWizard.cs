@@ -195,14 +195,23 @@ public static class NGOSetupWizard
     private static GameObject EnsureSessionPrefab()
     {
         var existing = AssetDatabase.LoadAssetAtPath<GameObject>(SessionPrefabPath);
-        if (existing != null &&
-            existing.GetComponent<NetworkObject>() != null &&
-            existing.GetComponent<GameSession>() != null)
-            return existing;
+        if (existing != null && existing.GetComponent<NetworkObject>() != null)
+        {
+            // Update in place: newer setup versions add components (telemetry etc).
+            using (var scope = new PrefabUtility.EditPrefabContentsScope(SessionPrefabPath))
+            {
+                var root = scope.prefabContentsRoot;
+                GetOrAdd<GameSession>(root);
+                GetOrAdd<NetworkMetrics>(root);
+            }
+            Debug.Log($"[NGOSetup] Updated {SessionPrefabPath}");
+            return AssetDatabase.LoadAssetAtPath<GameObject>(SessionPrefabPath);
+        }
 
         var go = new GameObject("GameSession");
         go.AddComponent<NetworkObject>();
         go.AddComponent<GameSession>();
+        go.AddComponent<NetworkMetrics>();
         var prefab = PrefabUtility.SaveAsPrefabAsset(go, SessionPrefabPath);
         Object.DestroyImmediate(go);
         Debug.Log($"[NGOSetup] Created {SessionPrefabPath}");
@@ -213,11 +222,24 @@ public static class NGOSetupWizard
     {
         var existing = AssetDatabase.LoadAssetAtPath<GameObject>(BootstrapPrefabPath);
         if (existing != null && existing.GetComponent<NetworkManager>() != null)
+        {
+            // Update in place: newer setup versions may add components (e.g. the
+            // custom PersonalizedTransport next to UnityTransport).
+            using var scope = new PrefabUtility.EditPrefabContentsScope(BootstrapPrefabPath);
+            var root = scope.prefabContentsRoot;
+            GetOrAdd<PersonalizedTransport>(root);
+            GetOrAdd<KcpNgoTransport>(root);
+            GetOrAdd<ConnectionManager>(root);
+            GetOrAdd<NetworkOverlayUI>(root);
+            Debug.Log($"[NGOSetup] Updated {BootstrapPrefabPath}");
             return;
+        }
 
         var go = new GameObject("NetworkBootstrap");
 
         var transport = go.AddComponent<UnityTransport>();
+        go.AddComponent<PersonalizedTransport>();
+        go.AddComponent<KcpNgoTransport>();
         var nm = go.AddComponent<NetworkManager>();
         nm.NetworkConfig = new NetworkConfig
         {

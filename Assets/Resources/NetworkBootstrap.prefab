@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 1026840565894538260}
   - component: {fileID: 4973764143213546406}
   - component: {fileID: 6201239859256974938}
+  - component: {fileID: 5191485310028722484}
+  - component: {fileID: 3044082991253906868}
   m_Layer: 0
   m_Name: NetworkBootstrap
   m_TagString: Untagged
@@ -59,7 +61,7 @@ MonoBehaviour:
   ConnectionData:
     Address: 127.0.0.1
     Port: 7777
-    ServerListenAddress: 
+    ServerListenAddress: 127.0.0.1
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
@@ -117,6 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4882fc31d47064f479b17fc3af9ff43e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transport: 0
 --- !u!114 &6201239859256974938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,3 +132,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e766ff97d241c9b459876ead4c9cfaf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5191485310028722484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8046680088967920066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 284b6b76deca8ff4dac1fa829e3a95b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  address: 127.0.0.1
+  port: 7777
+  reliableResendInterval: 0.3
+  reliableMaxResends: 20
+  handshakeRetryInterval: 0.5
+  keepaliveInterval: 2
+  connectTimeout: 10
+  timeoutDuration: 5
+--- !u!114 &3044082991253906868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8046680088967920066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54cbd216024296a41aced501156a6816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  address: 127.0.0.1
+  port: 7777
+  dualMode: 1
+  timeoutMs: 10000

@@ -27,6 +27,11 @@ Split screen is gone: every player runs their own client with a full-screen came
 1. Start the game — in the **MainMenu** scene an overlay appears (top-left):
    - **HOST**: starts listening on the chosen UDP port (default 7777).
    - **JOIN**: connects to the host's IP + port.
+   - **Net**: transport selection — `Unity (UTP)` (default), `Custom UDP`
+     (the hand-rolled `PersonalizedTransport`, ported from the Mirror branch), or
+     `KCP` (kcp2k, the same library Mirror's KCP transport uses, via an NGO
+     adapter). **Host and clients must pick the same transport** — they speak
+     different wire protocols, so a mismatch just times out.
 2. In the lobby each player picks a character with the `<` / `>` buttons.
    The host picks the map and presses **START MATCH**.
 3. The match plays like before: move, prepare ground, plant, water, pick up items,
@@ -59,6 +64,28 @@ Split screen is gone: every player runs their own client with a full-screen came
 Key scripts: `Assets/Scripts/Network/` (`ConnectionManager`, `GameSession`,
 `NetworkPlayer`, `NetworkAssets`, `NetworkOverlayUI`, `NetworkBootstrap`) and
 `Assets/Editor/NGOSetupWizard.cs`.
+
+## Telemetry (thesis measurements)
+
+`NetworkMetrics` (on the GameSession prefab, ported from the Mirror branch) records
+on every peer, from the lobby through the match:
+
+- **RTT / jitter / loss** via an RPC ping-pong (0.5s interval, 50-sample window,
+  jitter = sample standard deviation — same definitions as the Mirror module).
+- **Divergence_units**: distance between your local player and the server's
+  replicated view of it (echoed in each pong). Includes movement during ~RTT.
+- **Corrections_total / LastCorrection_units**: visual snap corrections detected
+  on remote players (frame jumps > 1.0 world units, configurable).
+- **ActionLatency_ms**: prepare/plant request → mirrored tile change applied locally.
+- **BytesSent/BytesRecv**: Custom UDP = wire bytes (headers, acks, resends
+  included); KCP = NGO payload bytes; UTP = not instrumented (-1).
+
+Keys: **F7** start/stop capture (auto-starts on connect), **F8** export CSV.
+Files land in `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
+as `NetworkMetrics_NGO_<transport>_<datetime>.csv`; export also runs automatically
+on disconnect. The first 8 CSV columns are identical to the Mirror-branch module
+so both frameworks can share one analysis script; NGO rows append
+`Framework,Transport,...` columns.
 
 ## Known limitations
 

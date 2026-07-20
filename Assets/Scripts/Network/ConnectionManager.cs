@@ -16,8 +16,16 @@ public class ConnectionManager : MonoBehaviour
     public const int MaxPlayers = 4;
     public const string MenuSceneName = "MainMenu";
 
+    public enum TransportKind { UnityTransport, Personalized, Kcp }
+
+    [Header("Transport (must match on host and clients)")]
+    public TransportKind transport = TransportKind.UnityTransport;
+
     public string StatusMessage { get; private set; } = "";
     public bool IsConnecting { get; private set; }
+
+    /// <summary>Endpoint of the current session, for telemetry ("host:port" or "ip:port").</summary>
+    public string LastAddress { get; private set; } = "(no address)";
 
     private bool prefabsRegistered;
     private bool pendingMenuFade;
@@ -81,8 +89,8 @@ public class ConnectionManager : MonoBehaviour
 
         RegisterNetworkPrefabs();
 
-        var utp = Nm.GetComponent<UnityTransport>();
-        utp.SetConnectionData("127.0.0.1", port, "0.0.0.0"); // listen on all interfaces
+        if (!ConfigureTransport("127.0.0.1", port, isServer: true))
+            return false;
 
         Nm.NetworkConfig.ConnectionApproval = true;
 
@@ -94,6 +102,8 @@ public class ConnectionManager : MonoBehaviour
 
         SpawnSession();
         OnOnlineSessionStarted();
+        LastAddress = $"host:{port}";
+        NetTrafficCounter.Reset();
         StatusMessage = $"Hosting on port {port}. Others join with your IP (port-forward {port}/UDP).";
         return true;
     }
@@ -104,8 +114,8 @@ public class ConnectionManager : MonoBehaviour
 
         RegisterNetworkPrefabs();
 
-        var utp = Nm.GetComponent<UnityTransport>();
-        utp.SetConnectionData(ip, port);
+        if (!ConfigureTransport(ip, port, isServer: false))
+            return false;
 
         Nm.NetworkConfig.ConnectionApproval = true;
 
@@ -117,6 +127,8 @@ public class ConnectionManager : MonoBehaviour
 
         IsConnecting = true;
         OnOnlineSessionStarted();
+        LastAddress = $"{ip}:{port}";
+        NetTrafficCounter.Reset();
         StatusMessage = $"Connecting to {ip}:{port} ...";
         return true;
     }
@@ -125,6 +137,54 @@ public class ConnectionManager : MonoBehaviour
     {
         if (Nm != null && Nm.IsListening)
             Nm.Shutdown();
+    }
+
+    /// <summary>
+    /// Points NetworkConfig at the selected transport component and configures its
+    /// address/port. Both peers must select the same transport in the overlay.
+    /// </summary>
+    private bool ConfigureTransport(string ip, ushort port, bool isServer)
+    {
+        if (transport == TransportKind.Personalized)
+        {
+            var custom = Nm.GetComponent<PersonalizedTransport>();
+            if (custom == null)
+            {
+                StatusMessage = "PersonalizedTransport missing on the bootstrap prefab. Re-run Tools > NGO Setup.";
+                return false;
+            }
+            custom.address = ip;
+            custom.port = port;
+            Nm.NetworkConfig.NetworkTransport = custom;
+            return true;
+        }
+
+        if (transport == TransportKind.Kcp)
+        {
+            var kcp = Nm.GetComponent<KcpNgoTransport>();
+            if (kcp == null)
+            {
+                StatusMessage = "KcpNgoTransport missing on the bootstrap prefab. Re-run Tools > NGO Setup.";
+                return false;
+            }
+            kcp.address = ip;
+            kcp.port = port;
+            Nm.NetworkConfig.NetworkTransport = kcp;
+            return true;
+        }
+
+        var utp = Nm.GetComponent<UnityTransport>();
+        if (utp == null)
+        {
+            StatusMessage = "UnityTransport missing on the bootstrap prefab. Re-run Tools > NGO Setup.";
+            return false;
+        }
+        if (isServer)
+            utp.SetConnectionData("127.0.0.1", port, "0.0.0.0"); // listen on all interfaces
+        else
+            utp.SetConnectionData(ip, port);
+        Nm.NetworkConfig.NetworkTransport = utp;
+        return true;
     }
 
     // ======================================================

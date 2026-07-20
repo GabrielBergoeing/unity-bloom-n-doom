@@ -211,11 +211,17 @@ public class NetworkPlayer : NetworkBehaviour
     // ======================================================
     //  OWNER -> SERVER REQUESTS
     // ======================================================
-    public void RequestPrepareTile(Vector3Int cell) =>
+    public void RequestPrepareTile(Vector3Int cell)
+    {
+        NetworkMetrics.NoteActionRequested(cell); // telemetry: action latency start
         GameSession.Instance?.RequestPrepareTileServerRpc(cell);
+    }
 
-    public void RequestPlantSeed(Vector3Int cell, int itemId) =>
+    public void RequestPlantSeed(Vector3Int cell, int itemId)
+    {
+        NetworkMetrics.NoteActionRequested(cell);
         GameSession.Instance?.RequestPlantSeedServerRpc(cell, itemId, Index);
+    }
 
     public void RequestIrrigate(Vector3Int cell) =>
         GameSession.Instance?.RequestIrrigateServerRpc(cell);

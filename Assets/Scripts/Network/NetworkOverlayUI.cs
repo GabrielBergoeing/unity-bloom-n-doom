@@ -74,6 +74,20 @@ public class NetworkOverlayUI : MonoBehaviour
         portText = GUILayout.TextField(portText, GUILayout.Width(80f));
         GUILayout.EndHorizontal();
 
+        // Transport selection — must match on host and clients.
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Net", labelStyle, GUILayout.Width(60f));
+        bool utpOn = Conn.transport == ConnectionManager.TransportKind.UnityTransport;
+        if (GUILayout.Toggle(utpOn, " Unity (UTP)") && !utpOn)
+            Conn.transport = ConnectionManager.TransportKind.UnityTransport;
+        bool customOn = Conn.transport == ConnectionManager.TransportKind.Personalized;
+        if (GUILayout.Toggle(customOn, " Custom UDP") && !customOn)
+            Conn.transport = ConnectionManager.TransportKind.Personalized;
+        bool kcpOn = Conn.transport == ConnectionManager.TransportKind.Kcp;
+        if (GUILayout.Toggle(kcpOn, " KCP") && !kcpOn)
+            Conn.transport = ConnectionManager.TransportKind.Kcp;
+        GUILayout.EndHorizontal();
+
         GUILayout.Space(8f);
 
         bool busy = Conn.IsConnecting;

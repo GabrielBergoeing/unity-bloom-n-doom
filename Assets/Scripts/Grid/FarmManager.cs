@@ -184,12 +184,14 @@ public class FarmManager : MonoBehaviour
         farmTilemap.SetTile(cell, preparedTile);
         farmTilemap.RefreshTile(cell);
         tileStates[cell] = TileState.Prepared;
+        NetworkMetrics.NoteActionApplied(cell); // telemetry: action latency end
     }
 
     public void ApplySeedTile(Vector3Int cell)
     {
         farmTilemap.SetTile(cell, seedTile);
         tileStates[cell] = TileState.PlantedSeed;
+        NetworkMetrics.NoteActionApplied(cell);
     }
 
     public void ApplyClearTile(Vector3Int cell)
