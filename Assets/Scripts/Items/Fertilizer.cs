@@ -15,13 +15,25 @@ public class Fertilizer : MonoBehaviour
     private void Start()
     {
         pickup = GetComponent<Pickup>();
+
+        // server-side owner assignment (remains useful for server logic)
         pickup.OnPickup += (player) => owner = player;
         pickup.OnDrop += (_) => owner = null;
     }
 
     private void Update()
     {
-        if (owner == null) return;
+        // Attempt to resolve owner locally if not set (useful for clients:
+        // HotbarSystem parentea el item bajo "OnHand" transform). Without this, owner is
+        // only ever set by the OnPickup event above, which is server-only (Pickup.Pick() is
+        // gated to isServer) - so on every client, including the one actually holding this
+        // item, owner stayed null forever and Update() bailed out on the line below,
+        // meaning the fertilizer never did anything online.
+        if (owner == null)
+        {
+            owner = GetComponentInParent<Player>();
+            if (owner == null) return;
+        }
 
         // isLocalPlayer is never true offline (never Mirror-spawned), so gate on that
         // only when actually networked; offline just needs local input handling.

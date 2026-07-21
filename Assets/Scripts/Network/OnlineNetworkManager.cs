@@ -152,7 +152,7 @@ public class OnlineNetworkManager : NetworkManager
             Debug.LogWarning($"[OnlineNetworkManager] No character data for conn {conn.connectionId} (slot {slotIndex}). Using playerPrefab.");
         }
 
-        Vector3 spawnPos = GetOnlineSpawnPosition(slotIndex);
+        Vector3 spawnPos = GetOnlineSpawnPosition(slotIndex, conn.connectionId);
         GameObject player = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity);
 
         // Set pre-spawn so the SyncVar is included in the initial spawn message.
@@ -167,7 +167,7 @@ public class OnlineNetworkManager : NetworkManager
     // ─────────────────────────────────────────────────────────────────
     //  Helpers
     // ─────────────────────────────────────────────────────────────────
-    private Vector3 GetOnlineSpawnPosition(int slotIndex)
+    private Vector3 GetOnlineSpawnPosition(int slotIndex, int connectionId)
     {
         LevelData level = GameManager.instance?.currentLevel;
 
@@ -177,11 +177,21 @@ public class OnlineNetworkManager : NetworkManager
             return level.playerSpawnPositions[slotIndex];
         }
 
-        // Fallback: use Mirror's registered start positions
-        if (startPositions.Count > 0)
-            return startPositions[slotIndex % startPositions.Count].position;
+        // slotIndex is -1 for any connection not in connectionSlots (joined/reconnected after
+        // StoreConnectionSlots already ran) - fall back to connectionId instead of the raw
+        // slotIndex so each unmapped player still gets spread across distinct start positions
+        // rather than everyone landing on the exact same spot. connectionId is always >= 0,
+        // slotIndex is not (C#'s % returns a negative result for a negative dividend, e.g.
+        // -1 % 4 == -1, which would throw indexing a List<Transform>), so use safe modulo too.
+        int fallbackIndex = slotIndex >= 0 ? slotIndex : connectionId;
 
-        return new Vector3(slotIndex * 2f, 0f, 0f);
+        if (startPositions.Count > 0)
+        {
+            int safeIndex = ((fallbackIndex % startPositions.Count) + startPositions.Count) % startPositions.Count;
+            return startPositions[safeIndex].position;
+        }
+
+        return new Vector3(fallbackIndex * 2f, 0f, 0f);
     }
 
     private void OnClientLevelSelected(LevelSelectedMessage msg)

@@ -31,6 +31,12 @@ public class Cactus : Plant
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Every other plant/pickup trigger handler in the project guards this way - this one
+        // didn't, so every client observing the overlap (not just the server) was locally
+        // decrementing otherPlayer.waterSupply, a [SyncVar] only the server should ever write.
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (collision.gameObject == this.gameObject || !IsFullyGrown()) return;
 
         Debug.Log($"Collision: {collision.gameObject.name}");

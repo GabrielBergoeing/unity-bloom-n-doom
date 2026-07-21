@@ -124,7 +124,7 @@ public class MatchManager : MonoBehaviour
 
     private void TogglePauseUI()
     {
-        UI_PauseMenu pauseUI = FindObjectOfType<UI_PauseMenu>(true);
+        UI_PauseMenu pauseUI = FindFirstObjectByType<UI_PauseMenu>(FindObjectsInactive.Include);
         if (pauseUI != null)
             pauseUI.TogglePause();
     }
@@ -173,7 +173,7 @@ public class MatchManager : MonoBehaviour
 
         List<ScoreResult> results = scoreTally.DeterminePlacements(players);
         
-        UI_MatchResults ui = FindObjectOfType<UI_MatchResults>(true);
+        UI_MatchResults ui = FindFirstObjectByType<UI_MatchResults>(FindObjectsInactive.Include);
         if (ui != null)
             ui.ShowResults(results);
 

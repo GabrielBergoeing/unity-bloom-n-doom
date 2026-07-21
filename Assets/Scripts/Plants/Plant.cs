@@ -24,7 +24,9 @@ public class Plant : NetworkBehaviour
 
     [Header("Health and Withering time (in seconds)")]
     [Range(0, 20)][SerializeField] protected float maxHealth = 10;
-    [Range(0f, 60f)][SerializeField] protected float witheringTime = 30f;
+    // Range raised from 60 - players were complaining plants died too fast, so every plant
+    // prefab's witheringTime got bumped up (~x1.5) and 60 was already the old ceiling.
+    [Range(0f, 90f)][SerializeField] protected float witheringTime = 45f;
     [SyncVar(hook = nameof(OnTimerChanged))] private float timerSync = 0f; // sincroniza resets de timer
     protected float health;
     protected float timer;
@@ -32,7 +34,6 @@ public class Plant : NetworkBehaviour
     [Header("Fire System")]
     [Range(0.1f, 10f)][SerializeField] private float fireDamagePerSecond = 0.5f;
     [Range(0.1f, 30f)][SerializeField] private float fireDuration = float.MaxValue;
-    [Range(0.5f, 5f)][SerializeField] private float fireFlickerSpeed = 1f;
     [SerializeField] private bool burnUntilDeath = true;
     [SyncVar(hook = nameof(OnFireChanged))] public bool isOnFire = false;
     private float fireTimer = 0f;

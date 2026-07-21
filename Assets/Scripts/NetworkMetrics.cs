@@ -365,6 +365,13 @@ public class NetworkMetrics : NetworkBehaviour
             Debug.Log($"[NetworkMetrics] Exported {csvBuffer.Count} samples -> {path}");
 
             StartCoroutine(UploadToSignalingServer(sb.ToString()));
+
+            // Match end (RpcShowResults) and the later OnStopClient/OnDestroy safety-net
+            // export both call this - without clearing, the second call re-exports the
+            // exact same samples under a new filename/timestamp, producing a near-duplicate
+            // CSV every match. Clearing here makes repeat calls no-ops (empty buffer) unless
+            // new samples were actually recorded since the last export.
+            csvBuffer.Clear();
         }
         catch (Exception ex)
         {
@@ -381,7 +388,7 @@ public class NetworkMetrics : NetworkBehaviour
     // sessions or plain LAN testing - the local CSV file is written either way.
     private IEnumerator UploadToSignalingServer(string csvContent)
     {
-        var holePunch = FindObjectOfType<HolePunchClient>();
+        var holePunch = FindFirstObjectByType<HolePunchClient>();
         if (holePunch == null || !holePunch.IsConfigured)
             yield break;
 

@@ -78,7 +78,7 @@ public class FarmManager : NetworkBehaviour
         
         if (farmTilemap == null)
         {
-            var any = FindObjectOfType<Tilemap>();
+            var any = FindFirstObjectByType<Tilemap>();
             if (any != null)
             {
                 farmTilemap = any;

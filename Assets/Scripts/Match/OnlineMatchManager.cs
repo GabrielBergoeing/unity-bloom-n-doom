@@ -121,7 +121,7 @@ public class OnlineMatchManager : NetworkBehaviour
     [ClientRpc]
     private void RpcShowResults(List<ScoreResult> results)
     {
-        FindObjectOfType<UI_MatchResults>(true)?.ShowResults(results);
+        FindFirstObjectByType<UI_MatchResults>(FindObjectsInactive.Include)?.ShowResults(results);
 
         // Stop/export right at match end rather than waiting for OnStopClient/OnDestroy -
         // those only fire on disconnect or scene unload, which can happen much later

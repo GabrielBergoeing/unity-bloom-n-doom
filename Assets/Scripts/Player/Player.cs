@@ -1,5 +1,6 @@
 using Mirror;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,6 +35,13 @@ public class Player : Entity
     #region Interface Variables
     [Header("Movement variables")]
     public float moveSpeed = 8;
+
+    // Player_MoveState ramps rb.linearVelocity toward/away from moveSpeed at these rates
+    // (units/sec^2) instead of snapping to it instantly - the instant-velocity version felt
+    // stiff/robotic, especially stopping dead the frame a key was released.
+    [Range(1f, 200f)] public float acceleration = 70f;
+    [Range(1f, 200f)] public float deceleration = 70f;
+
     public Vector2 moveInput { get; private set; }
 
     [Header("Irrigate variables")]
@@ -41,17 +49,21 @@ public class Player : Entity
     [Range(1, 20)] public int irrigateCost = 10;
 
     [Header("Action Active Frames")]
-    [Range(0, 10)] public float irrigateFrame = 2f;
+    // irrigateFrame/irrigateCooldown lowered from 2/2 - watering is done twice per plant
+    // (interactionsToMature=2), so the old 4s-per-watering lock made the full plant->water->
+    // water cycle take ~11s of pure input-lock time before travel, which is what players were
+    // calling out as "planting takes too long".
+    [Range(0, 10)] public float irrigateFrame = 1f;
     [Range(0, 10)] public float pickFrame = 1f;
     [Range(0, 10)] public float plantFrame = 1f;
     [Range(0, 10)] public float prepareGroundFrame = 1f;
     [Range(0, 10)] public float removeFrame = 2f;
 
     [Header("Action Cooldown (in frames)")]
-    [Range(0, 10)] public float irrigateCooldown = 2f;
+    [Range(0, 10)] public float irrigateCooldown = 1f;
     [Range(0, 10)] public float pickCooldown = 1f;
     [Range(0, 10)] public float plantCooldown = 0f;
-    [Range(0, 10)] public float prepareGroundCooldown = 1f;
+    [Range(0, 10)] public float prepareGroundCooldown = 0.5f;
     [Range(0, 10)] public float removeCooldown = 2f;
     #endregion
 
@@ -77,6 +89,16 @@ public class Player : Entity
     private bool sabotageRequested;
 
     public List<Pickup> pickupsInRange = new(); // Dynamic lists that stores detected pickups
+
+    // "PlayerCam" (a child of this prefab) drives the Screen Space - Camera HUD canvases
+    // (UI_Hotbar/UI_WaterSupply) - it's enabled by default on every prefab instance, with no
+    // local-vs-remote gating anywhere (unlike its sibling AudioListener, which is disabled by
+    // default in the prefab for exactly this reason). Online, every spawned Player - including
+    // every OTHER client's copy of every OTHER player - was carrying its own live, full-screen,
+    // same-depth camera, so whichever one happened to render last on a given machine silently
+    // overwrote everyone else's HUD - e.g. a client watering plants correctly server-side while
+    // staring at a remote copy of the host's water bar instead of their own.
+    private Camera playerCam;
     #endregion
 
     #region MonoBehaviour Functions
@@ -96,6 +118,13 @@ public class Player : Entity
         bool isNetworkActive = NetworkServer.active || NetworkClient.active;
         if (isNetworkActive)
             input.enabled = false;
+
+        // Same reasoning as input above: default this off online, then only OnStartLocalPlayer
+        // (or the offline fallback in Start()) turns it back on for whoever this machine's
+        // actual player is.
+        playerCam = GetComponentInChildren<Camera>(true);
+        if (isNetworkActive)
+            SetPlayerCamActive(false);
 
         Debug.Log($"[Player.Awake] {name} isNetworkActive={isNetworkActive} input.enabled={input.enabled} playerIndex={input.playerIndex} scheme={input.currentControlScheme} devices=[{string.Join(", ", input.devices)}]");
 
@@ -135,6 +164,7 @@ public class Player : Entity
         {
             input.enabled = true;
             canControl = true;
+            SetPlayerCamActive(true);
         }
 
         Debug.Log($"[Player.Start] {name} input.enabled(after)={input.enabled} playerIndex={input.playerIndex} scheme={input.currentControlScheme} devices=[{string.Join(", ", input.devices)}]");
@@ -175,6 +205,9 @@ public class Player : Entity
             else sabotageRequested = true;
         }
 
+#if UNITY_EDITOR
+        // Cheats only compiled into Editor builds now - they were reachable by any player
+        // in real builds (free water refill, free tools) via plain keybinds.
         if (input.actions["CheatRefill"].triggered)
         {
             if (useNetworkCommands) CmdCheatRefill();
@@ -186,6 +219,7 @@ public class Player : Entity
 
         if (input.actions["CheatFlamethrower"].triggered)
             CmdCheatSpawnFlamethrower();
+#endif
     }
     #endregion
 
@@ -194,7 +228,18 @@ public class Player : Entity
         if (moveInput == Vector2.zero)
             return; // No change if no input
 
-        if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
+        float absX = Mathf.Abs(moveInput.x);
+        float absY = Mathf.Abs(moveInput.y);
+
+        // Hysteresis: once an axis is dominant, require the other axis to clearly overtake
+        // it (not just barely edge ahead) before switching. Without this, holding a gamepad
+        // stick near a diagonal made the sprite flicker between two facings every frame from
+        // ordinary stick noise, since a plain ">" comparison flips on the tiniest fluctuation.
+        const float hysteresis = 0.15f;
+        bool xCurrentlyDominant = xFacingDir != 0;
+        bool xDominant = xCurrentlyDominant ? (absX >= absY - hysteresis) : (absX > absY + hysteresis);
+
+        if (xDominant)
         {
             // Horizontal movement dominates
             yFacingDir = 0;
@@ -280,7 +325,35 @@ public class Player : Entity
     {
         base.OnStartLocalPlayer();
         input.enabled = true;
+        SetPlayerCamActive(true);
+
+        // OnlineNetworkManager.OnServerAddPlayer spawns this object with no device/scheme
+        // info at all (the server has no way to know a remote client's local hardware), so
+        // re-enabling PlayerInput above falls back to Unity's generic "find a scheme
+        // matching any currently-unpaired device" detection - a keyboard is essentially
+        // always unpaired, so this reliably resolves to the Keyboard scheme even for a
+        // gamepad player. Explicitly (re)pairing to whichever device this client actually
+        // used most recently (the same signal UI_MatchMenuOnline's own Gamepad.current/
+        // Keyboard.current polling already relies on for lobby navigation) fixes it.
+        if (Gamepad.current != null)
+        {
+            input.SwitchCurrentControlScheme("Controller", Gamepad.current);
+        }
+        else if (Keyboard.current != null)
+        {
+            if (Mouse.current != null)
+                input.SwitchCurrentControlScheme("Keyboard", Keyboard.current, Mouse.current);
+            else
+                input.SwitchCurrentControlScheme("Keyboard", Keyboard.current);
+        }
+
         CmdSetControl(true);
+    }
+
+    private void SetPlayerCamActive(bool active)
+    {
+        if (playerCam != null)
+            playerCam.gameObject.SetActive(active);
     }
 
     public override void OnStartServer()
@@ -496,6 +569,14 @@ public class Player : Entity
     #region Physics Functions
     public void ForceIdleState() // Interrupt current action and force idle state
     {
+        // Every other state-mutating method on this class (ApplyPushForce, SetVelocity,
+        // DisableControl...) has this guard - this one didn't, so every client whose local
+        // physics detected a Watergun trigger overlap (not just the server) was locally
+        // yanking the player's own state machine back to idle, fighting the server's
+        // authoritative state on every remote client.
+        bool isNetworkSpawnedObject = isServer || isClient;
+        if (isNetworkSpawnedObject && !isServer) return;
+
         if (stateMachine != null && idleState != null)
         {
             stateMachine.ChangeState(idleState);
@@ -509,16 +590,55 @@ public class Player : Entity
 
         if (rb != null)
         {
-            RigidbodyType2D originalType = rb.bodyType;
             rb.bodyType = RigidbodyType2D.Dynamic;
-
             rb.linearVelocity = Vector2.zero;
-            rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
 
+            // Used to also call rb.AddForce(..., ForceMode2D.Impulse) here, but the very next
+            // line immediately overwrote rb.linearVelocity via SetVelocity before physics ever
+            // integrated that impulse - it was dead code, the real push was always just this.
             SetVelocity(direction.x * force * 0.3f, direction.y * force * 0.3f);
 
-
+            StartCoroutine(ValidatePushDestinationCo());
         }
+    }
+
+    // Knockback (e.g. Watergun) had no bounds/forbidden-tile check at all - a player could be
+    // shoved into water/wall/concrete tiles. A physics-based push makes the exact landing cell
+    // hard to predict up front, so this corrects after the fact instead: track the last cell
+    // that was still legal while the push plays out, then snap back to it if the player ends
+    // up somewhere illegal once it settles.
+    private IEnumerator ValidatePushDestinationCo()
+    {
+        const float settleTime = 0.35f;
+        Vector3 safePosition = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < settleTime)
+        {
+            elapsed += Time.deltaTime;
+
+            if (!IsCurrentCellForbidden())
+                safePosition = transform.position;
+
+            yield return null;
+        }
+
+        if (IsCurrentCellForbidden())
+        {
+            transform.position = safePosition;
+            if (rb != null) rb.linearVelocity = Vector2.zero;
+        }
+    }
+
+    private bool IsCurrentCellForbidden()
+    {
+        if (FarmManager.instance == null || FarmManager.instance.farmTilemap == null)
+            return false;
+
+        Vector3Int cell = FarmManager.instance.farmTilemap.WorldToCell(transform.position);
+        return FarmManager.instance.IsWaterTile(cell)
+            || FarmManager.instance.IsWallTile(cell)
+            || FarmManager.instance.IsConcreteTile(cell);
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

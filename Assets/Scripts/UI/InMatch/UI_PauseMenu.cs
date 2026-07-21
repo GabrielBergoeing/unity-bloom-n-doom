@@ -53,7 +53,7 @@ public class UI_PauseMenu : MonoBehaviour
     {
         if (!IsMatchRunning()) return;
 
-        UI_MatchResults results = FindObjectOfType<UI_MatchResults>(true);
+        UI_MatchResults results = FindFirstObjectByType<UI_MatchResults>(FindObjectsInactive.Include);
         if (results != null && results.gameObject.activeInHierarchy) return;
 
         if (isPaused) ResumeGame();

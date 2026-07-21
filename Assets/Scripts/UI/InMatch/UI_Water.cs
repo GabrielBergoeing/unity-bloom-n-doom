@@ -19,6 +19,8 @@ public class UI_Water : MonoBehaviour
 
         slider.maxValue = 100;
         slider.minValue = 0;
+
+        Debug.Log($"[UI_Water] Bound to player '{playerScript.name}' (isLocalPlayer={playerScript.isLocalPlayer} OwnerIndex={playerScript.OwnerIndex})");
     }
 
     void Update()

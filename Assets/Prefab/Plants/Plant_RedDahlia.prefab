@@ -118,7 +118,7 @@ MonoBehaviour:
   growingSprite: {fileID: 2292940995249346710, guid: f1697036f064db9488a5daade481907f, type: 3}
   matureSprite: {fileID: -974327416, guid: f1697036f064db9488a5daade481907f, type: 3}
   maxHealth: 9
-  witheringTime: 35
+  witheringTime: 53
   fireDamagePerSecond: 3
   fireDuration: 5
   fireFlickerSpeed: 1

@@ -9,9 +9,11 @@ public class Player_IrrigateState : Player_ActionState
     public override void Enter()
     {
         base.Enter();
+        Debug.Log($"[Player_IrrigateState] Enter on {player.name} (isServer={player.isServer} OwnerIndex={player.OwnerIndex}) waterSupply={player.waterSupply} irrigateCost={player.irrigateCost}");
+
         if (!player.CanPlayerIrrigate())
         {
-            Debug.Log("Not enough water");
+            Debug.Log($"[Player_IrrigateState] Not enough water on {player.name}: waterSupply={player.waterSupply} < irrigateCost={player.irrigateCost}");
             stateMachine.ChangeState(player.idleState);
             return;
         }
@@ -20,7 +22,9 @@ public class Player_IrrigateState : Player_ActionState
         player.StartCoroutine(ExecuteAction(player.irrigateFrame, player.irrigateCooldown, cell =>
         {
             sfx.PlayOnIrrigate();
+            float before = player.waterSupply;
             player.waterSupply -= player.irrigateCost;
+            Debug.Log($"[Player_IrrigateState] {player.name} waterSupply {before} -> {player.waterSupply}");
 
             // Rotate and play VFX
             if (player.vfx != null)

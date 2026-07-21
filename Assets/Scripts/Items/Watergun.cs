@@ -15,9 +15,6 @@ public class Watergun : NetworkBehaviour
     [Header("Player Push Settings")]
     [Range(1f, 50f)]
     [SerializeField] private float pushForce = 25f;
-
-    [Range(0.1f, 2f)]
-    [SerializeField] private float pushDuration = 0.5f;
     [SerializeField] private Pickup pickup;
 
     private Rigidbody2D rb;

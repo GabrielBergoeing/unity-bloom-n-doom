@@ -69,15 +69,15 @@ MonoBehaviour:
   moveSpeed: 8
   waterSupply: 100
   irrigateCost: 10
-  irrigateFrame: 2
+  irrigateFrame: 1
   pickFrame: 1
   plantFrame: 1
   prepareGroundFrame: 1
   removeFrame: 2
-  irrigateCooldown: 2
+  irrigateCooldown: 1
   pickCooldown: 1
   plantCooldown: 0
-  prepareGroundCooldown: 1
+  prepareGroundCooldown: 0.5
   removeCooldown: 2
   xFacingDir: 1
   yFacingDir: 1

@@ -22,6 +22,8 @@ public class Scissors : MonoBehaviour
 
     public void Use(Vector3Int targetCell, Player player)
     {
+        Debug.Log($"[Scissors] Use() called by {player.name} on cell {targetCell} (FarmManager.instance={(FarmManager.instance != null ? "ok" : "NULL")})");
+
         if (isOnCooldown)
         {
             Debug.Log("Scissors cooldown");

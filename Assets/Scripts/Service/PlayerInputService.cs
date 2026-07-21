@@ -98,7 +98,7 @@ public class PlayerInputService : MonoBehaviour
 
     private void RefreshUIInputModule()
     {
-        var uiModule = FindObjectOfType<UnityEngine.InputSystem.UI.InputSystemUIInputModule>(true);
+        var uiModule = FindFirstObjectByType<UnityEngine.InputSystem.UI.InputSystemUIInputModule>(FindObjectsInactive.Include);
         if (uiModule != null)
         {
             uiModule.actionsAsset = uiModule.actionsAsset; // force refresh
