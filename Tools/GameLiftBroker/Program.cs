@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using Amazon;
 using Amazon.GameLift;
 using Amazon.GameLift.Model;
@@ -23,6 +24,13 @@ public static class Program
     private static readonly TimeSpan SessionActivationTimeout = TimeSpan.FromSeconds(30);
 
     private static readonly AmazonGameLiftClient GameLiftClient = new(RegionEndpoint.GetBySystemName(Region));
+
+    // Guards the find-or-create decision below: two /request-session calls arriving before
+    // any GameSession is ACTIVE yet would otherwise both see "none found" and each create
+    // their own GameSession. Serializing just that check-then-act section (not the whole
+    // request) is enough - CreatePlayerSession itself is safe to run concurrently once a
+    // session already exists.
+    private static readonly SemaphoreSlim SessionLock = new(1, 1);
 
     public static async Task Main()
     {
@@ -70,21 +78,30 @@ public static class Program
 
     private static async Task<object> RequestSessionAsync()
     {
-        GameSession? session = await FindActiveSessionAsync();
-
-        if (session == null)
+        GameSession? session;
+        await SessionLock.WaitAsync();
+        try
         {
-            Console.WriteLine("[GameLiftBroker] No hay sesión activa, creando una nueva...");
-            session = await CreateAndWaitForActiveSessionAsync();
+            session = await FindActiveSessionAsync();
 
             if (session == null)
             {
-                return new
+                Console.WriteLine("[GameLiftBroker] No hay sesión activa, creando una nueva...");
+                session = await CreateAndWaitForActiveSessionAsync();
+
+                if (session == null)
                 {
-                    success = false,
-                    error = "Timeout esperando que el servidor dedicado active la sesión. ¿Está corriendo el proceso en el compute?"
-                };
+                    return new
+                    {
+                        success = false,
+                        error = "Timeout esperando que el servidor dedicado active la sesión. ¿Está corriendo el proceso en el compute?"
+                    };
+                }
             }
+        }
+        finally
+        {
+            SessionLock.Release();
         }
 
         CreatePlayerSessionResponse playerSessionResponse = await GameLiftClient.CreatePlayerSessionAsync(new CreatePlayerSessionRequest

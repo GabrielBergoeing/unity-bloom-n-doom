@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -65,6 +66,8 @@ public class NetworkMetrics : NetworkBehaviour
         public int windowSize;
         public string mode;
         public string serverAddress;
+        public string matchId;
+        public int playerSlot;
     }
 
     private readonly List<MetricSample> csvBuffer = new();
@@ -72,6 +75,7 @@ public class NetworkMetrics : NetworkBehaviour
 
     private Coroutine pingCoroutine;
     private bool isRecording = false;
+    private Player ownerPlayer;
 
     // stats cached
     private double lastRtt = 0;
@@ -81,8 +85,14 @@ public class NetworkMetrics : NetworkBehaviour
 
     void Awake()
     {
-        // nothing here - only start on local player
+        ownerPlayer = GetComponent<Player>();
     }
+
+    // Empty until a match's OnlineMatchManager.OnStartServer() generates one - every player
+    // (host + all clients) reads the same synced value, so files from the same match share
+    // an identical, exact-match-groupable string instead of relying on overlapping timestamps.
+    private string CurrentMatchId => OnlineMatchManager.instance != null ? OnlineMatchManager.instance.matchId : "";
+    private int CurrentPlayerSlot => ownerPlayer != null ? ownerPlayer.OwnerIndex : -1;
 
     public override void OnStartLocalPlayer()
     {
@@ -322,7 +332,9 @@ public class NetworkMetrics : NetworkBehaviour
             lossPercent  = lossPercent,
             windowSize   = window.Count,
             mode         = mode,
-            serverAddress = addr
+            serverAddress = addr,
+            matchId      = CurrentMatchId,
+            playerSlot   = CurrentPlayerSlot
         });
     }
 
@@ -338,26 +350,41 @@ public class NetworkMetrics : NetworkBehaviour
             return null;
         }
 
+        // Filename-safe short tag ("Host/Server" has a slash, which breaks paths on Windows).
+        // Whoever ends up with everyone's CSVs afterwards can now group them by the exact
+        // "_Match-<id>_" substring instead of guessing from overlapping timestamps.
+        string modeTag = NetworkServer.active ? "Host" : (NetworkClient.isConnected ? "Client" : "Offline");
+        string matchId = CurrentMatchId;
+        string slotTag = CurrentPlayerSlot >= 0 ? $"_P{CurrentPlayerSlot}" : "";
+
         string dir = Application.persistentDataPath;
-        string fileName = $"NetworkMetrics_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        string fileName = string.IsNullOrEmpty(matchId)
+            ? $"NetworkMetrics_{DateTime.Now:yyyyMMdd_HHmmss}_{modeTag}{slotTag}.csv"
+            : $"NetworkMetrics_Match-{matchId}_{modeTag}{slotTag}.csv";
         string path = Path.Combine(dir, fileName);
 
         try
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Timestamp,Mode,ServerAddress,RTT_Last_ms,RTT_Avg_ms,Jitter_ms,Loss_pct,WindowSize");
+            sb.AppendLine("Timestamp,Mode,ServerAddress,RTT_Last_ms,RTT_Avg_ms,Jitter_ms,Loss_pct,WindowSize,MatchId,PlayerSlot");
 
             foreach (var s in csvBuffer)
             {
+                // Always InvariantCulture - on a machine whose Windows region uses comma as
+                // the decimal separator (common in es-* locales), plain .ToString("F2") here
+                // would silently write "106,81" instead of "106.81", which splits into two
+                // extra CSV columns and corrupts every field after it for that row.
                 sb.AppendLine(string.Join(",",
-                    s.timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    s.timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     EscapeCsv(s.mode),
                     EscapeCsv(s.serverAddress),
-                    s.rttLastMs.ToString("F2"),
-                    s.rttAvgMs.ToString("F2"),
-                    s.jitterMs.ToString("F2"),
-                    s.lossPercent.ToString("F2"),
-                    s.windowSize.ToString()));
+                    s.rttLastMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.rttAvgMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.jitterMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.lossPercent.ToString("F2", CultureInfo.InvariantCulture),
+                    s.windowSize.ToString(CultureInfo.InvariantCulture),
+                    EscapeCsv(s.matchId),
+                    s.playerSlot.ToString(CultureInfo.InvariantCulture)));
             }
 
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);

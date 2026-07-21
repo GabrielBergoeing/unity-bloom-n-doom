@@ -20,9 +20,9 @@ Ver el protocolo comentado en `Program.cs`. Lo consume
 
 | Variable | Descripción |
 |---|---|
-| `GAMELIFT_FLEET_ID` | ID del fleet Anywhere (`fleet-...`). |
-| `GAMELIFT_LOCATION` | Ubicación custom donde está registrado el compute (`custom-...`). |
-| `GAMELIFT_REGION` | Región de AWS, ej. `us-east-1`. |
+| `GAMELIFT_FLEET_ID` | ID de la fleet administrada (`fleet-...`). |
+| `GAMELIFT_LOCATION` | Ubicación de la fleet - para una fleet administrada de una sola región, es esa misma región (ej. `us-east-1`). |
+| `GAMELIFT_REGION` | Región de AWS donde vive la fleet, ej. `us-east-1`. |
 | `GAMELIFT_MAX_PLAYERS` | Opcional, default `4`. |
 | `GAMELIFT_BROKER_PORT` | Opcional, default `8090`. |
 
@@ -50,7 +50,7 @@ arriba):
 
 ```powershell
 $env:GAMELIFT_FLEET_ID = "fleet-..."
-$env:GAMELIFT_LOCATION = "custom-..."
+$env:GAMELIFT_LOCATION = "us-east-1"
 $env:GAMELIFT_REGION = "us-east-1"
 cd Tools/GameLiftBroker
 dotnet run
@@ -70,7 +70,7 @@ Una vez corriendo y expuesto, poné `http://<tu-ip-pública>:8090` en el campo
 
 ## Probarlo aislado (antes de tocar Unity)
 
-Con el servidor dedicado ya corriendo en el compute registrado (buscá en su log
+Con el servidor dedicado ya corriendo en una instancia de la fleet (buscá en su log
 `"[GameLift] Proceso listo"`), con el broker corriendo:
 
 ```powershell

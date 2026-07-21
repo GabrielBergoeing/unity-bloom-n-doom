@@ -34,42 +34,26 @@ public class GameLiftServerManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        networkManager = FindObjectOfType<NetworkManager>();
+        networkManager = FindFirstObjectByType<NetworkManager>();
         if (networkManager == null)
         {
             Debug.LogError("[GameLift] No se encontr� NetworkManager en la escena.");
             return;
         }
 
-        // Config leída del entorno en vez de hardcodeada - el fleet ID/auth
-        // token/compute name son específicos de cada compute registrado (y el auth
-        // token en particular expira - hay que pedir uno nuevo con
-        // "aws gamelift get-compute-auth-token" antes de cada lanzamiento). Aborta con
-        // un error claro en vez de caer silenciosamente en valores viejos/ajenos.
-        string websocketUrl = Environment.GetEnvironmentVariable("GAMELIFT_WEBSOCKET_URL");
-        string hostId = Environment.GetEnvironmentVariable("GAMELIFT_HOST_ID");
-        string fleetId = Environment.GetEnvironmentVariable("GAMELIFT_FLEET_ID");
-        string authToken = Environment.GetEnvironmentVariable("GAMELIFT_AUTH_TOKEN");
-
-        if (string.IsNullOrEmpty(websocketUrl) || string.IsNullOrEmpty(hostId) ||
-            string.IsNullOrEmpty(fleetId) || string.IsNullOrEmpty(authToken))
-        {
-            Debug.LogError("[GameLift] Faltan variables de entorno GAMELIFT_WEBSOCKET_URL/GAMELIFT_HOST_ID/GAMELIFT_FLEET_ID/GAMELIFT_AUTH_TOKEN.");
-            return;
-        }
-
+        // Fleet administrada (no Anywhere): InitSDK() sin parámetros - GameLift's propio
+        // agente, corriendo en la instancia EC2 del fleet, ya inyectó todo lo que el SDK
+        // necesita (websocket URL, host id, auth token) antes de lanzar este proceso. No
+        // hay token manual que obtener ni renovar - eso solo aplica a fleets Anywhere.
         try
         {
-            ServerParameters serverParams = new ServerParameters(
-                websocketUrl,
-                Guid.NewGuid().ToString(), // Process ID - random por cada corrida
-                hostId,
-                fleetId,
-                authToken
-            );
-
-            GameLiftServerAPI.InitSDK(serverParams);
-            Debug.Log("[GameLift] SDK inicializado.");
+            var initOutcome = GameLiftServerAPI.InitSDK();
+            if (!initOutcome.Success)
+            {
+                Debug.LogError($"[GameLift] InitSDK fall�: {initOutcome.Error}");
+                return;
+            }
+            Debug.Log("[GameLift] SDK inicializado (fleet administrada).");
         }
         catch (Exception ex)
         {

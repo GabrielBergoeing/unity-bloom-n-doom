@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 2733686564342138484}
   - component: {fileID: 4465545400555557883}
   - component: {fileID: 5017050767482582897}
+  - component: {fileID: 7714829301847562913}
+  - component: {fileID: 3391847562910473829}
   m_Layer: 0
   m_Name: Network Manager
   m_TagString: Untagged
@@ -68,7 +70,7 @@ MonoBehaviour:
   maxConnections: 100
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
-  authenticator: {fileID: 0}
+  authenticator: {fileID: 7714829301847562913}
   playerPrefab: {fileID: 165571438480114262, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
@@ -200,3 +202,29 @@ MonoBehaviour:
   Timeout: 25
   AllowSteamRelay: 1
   UseNextGenSteamNetworking: 1
+--- !u!114 &7714829301847562913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863548995357367420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14abb5d9a22bd434eab85ede32de0be3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  clientPlayerSessionId:
+  bypassAuthentication: 0
+--- !u!114 &3391847562910473829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863548995357367420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 883dab565f0cbde41ac7c03bbb8cc83f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

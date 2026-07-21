@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 // Third way to connect online, alongside UI_OnlineDirectMenu's P2P join-code flow.
 // Self-contained: doesn't touch UI_OnlineDirectMenu or SteamLobby. Drop this on a
@@ -18,14 +19,23 @@ public class UI_GameLiftMenu : MonoBehaviour
 
     [Header("UI (opcional)")]
     [SerializeField] private TMP_Text statusText;
+    [Tooltip("Se deshabilita mientras hay un pedido en curso, para que no se pueda mandar más de uno a la vez.")]
+    [SerializeField] private Button connectButton;
+
+    private bool isConnecting;
 
     public void ConnectButtonPressed()
     {
+        if (isConnecting) return;
+
         if (string.IsNullOrWhiteSpace(brokerUrl))
         {
             SetStatus("Broker de GameLift no configurado.");
             return;
         }
+
+        isConnecting = true;
+        if (connectButton != null) connectButton.interactable = false;
 
         SetStatus("Solicitando sesión...");
         var provider = new GameLiftConnectionProvider(brokerUrl.Trim());
@@ -34,6 +44,9 @@ public class UI_GameLiftMenu : MonoBehaviour
 
     private void OnConnectionResolved(bool success, ConnectionInfo info, string error)
     {
+        isConnecting = false;
+        if (connectButton != null) connectButton.interactable = true;
+
         if (!success)
         {
             SetStatus($"Error: {error}");

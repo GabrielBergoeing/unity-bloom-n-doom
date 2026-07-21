@@ -99,7 +99,7 @@ UserProfiles: >+
 
     ComputeName: Cito-WindowsPC
 
-    IpAddress: 127.0.0.1
+    IpAddress: 186.104.13.183
 
     WebSocketUrl: wss://us-east-1.api.amazongamelift.com
 

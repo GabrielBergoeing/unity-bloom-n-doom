@@ -18,10 +18,17 @@ using UnityEngine.Networking;
 public class GameLiftConnectionProvider : IAsyncConnectionProvider
 {
     private readonly string brokerUrl;
+    private readonly int timeoutSeconds;
 
-    public GameLiftConnectionProvider(string brokerUrl)
+    // The broker itself waits up to 30s for a freshly-created GameSession to go ACTIVE
+    // (see Tools/GameLiftBroker's SessionActivationTimeout) before it can even reply, so
+    // this needs enough headroom over that instead of the ~4s used for the direct-IP
+    // path's own quick reachability checks - otherwise a legitimate "still starting up"
+    // wait gets misreported as a broken/unreachable broker.
+    public GameLiftConnectionProvider(string brokerUrl, int timeoutSeconds = 35)
     {
         this.brokerUrl = brokerUrl.TrimEnd('/');
+        this.timeoutSeconds = timeoutSeconds;
     }
 
     public IEnumerator TryRequestConnectionAsync(string userInput, Action<bool, ConnectionInfo, string> onComplete)
@@ -29,7 +36,8 @@ public class GameLiftConnectionProvider : IAsyncConnectionProvider
         using UnityWebRequest request = new UnityWebRequest($"{brokerUrl}/request-session", "POST")
         {
             uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes("{}")),
-            downloadHandler = new DownloadHandlerBuffer()
+            downloadHandler = new DownloadHandlerBuffer(),
+            timeout = timeoutSeconds
         };
         request.SetRequestHeader("Content-Type", "application/json");
 
@@ -37,7 +45,10 @@ public class GameLiftConnectionProvider : IAsyncConnectionProvider
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            onComplete(false, default, $"No se pudo contactar al broker de GameLift: {request.error}");
+            string reason = request.result == UnityWebRequest.Result.ConnectionError && request.responseCode == 0
+                ? "tiempo de espera agotado o servidor inalcanzable"
+                : request.error;
+            onComplete(false, default, $"No se pudo contactar al broker de GameLift: {reason}");
             yield break;
         }
 

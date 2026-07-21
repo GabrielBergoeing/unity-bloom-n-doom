@@ -25,6 +25,11 @@ public class OnlineMatchManager : NetworkBehaviour
     [SyncVar] private float syncedTimer;
     [SyncVar] private bool syncedIsRunning;
 
+    // Shared by every player (host + all clients) so NetworkMetrics can stamp its CSV
+    // filename/rows with it - lets whoever collects everyone's exported files afterwards
+    // group them by exact string match instead of guessing from overlapping timestamps.
+    [SyncVar] public string matchId;
+
     public float timer => syncedTimer;
     public bool isMatchRunning => syncedIsRunning && !hasPrintResults;
 
@@ -52,7 +57,11 @@ public class OnlineMatchManager : NetworkBehaviour
         syncedIsRunning = true;
         hasPrintResults = false;
 
-        Debug.Log($"[OnlineMatchManager] Match started. Duration: {syncedTimer}s");
+        // Human-readable and naturally unique enough for this purpose (two matches starting
+        // in the same server-clock second would need to be the same server instance anyway).
+        matchId = System.DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+
+        Debug.Log($"[OnlineMatchManager] Match started. Duration: {syncedTimer}s, matchId={matchId}");
     }
 
     [ServerCallback]
