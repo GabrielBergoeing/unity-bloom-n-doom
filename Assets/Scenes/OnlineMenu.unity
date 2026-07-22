@@ -1008,7 +1008,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   onlineLobbySceneName: CharacterSelectorOnline
-  brokerUrl: 
+  brokerUrl: http://186.104.13.183:8090
   statusText: {fileID: 1602810551}
   connectButton: {fileID: 439715247}
 --- !u!1 &1543850579 stripped

@@ -28,7 +28,11 @@ public class GameLiftServerManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            // Destroy only this duplicate component, not the whole GameObject - a second
+            // copy of this component ending up on the same object (e.g. via a stray scene
+            // override) must not take down the NetworkManager/first GameLiftServerManager
+            // that already succeeded InitSDK()/ProcessReady() on that same object.
+            Destroy(this);
             return;
         }
         Instance = this;
@@ -41,19 +45,45 @@ public class GameLiftServerManager : MonoBehaviour
             return;
         }
 
-        // Fleet administrada (no Anywhere): InitSDK() sin parámetros - GameLift's propio
-        // agente, corriendo en la instancia EC2 del fleet, ya inyectó todo lo que el SDK
-        // necesita (websocket URL, host id, auth token) antes de lanzar este proceso. No
-        // hay token manual que obtener ni renovar - eso solo aplica a fleets Anywhere.
+        // Fleet Anywhere: InitSDK() con parámetros explícitos. La alternativa - InitSDK() sin
+        // parámetros, pensada para fleets administradas en EC2 - se probó y descartó: el
+        // agente de GameLift en la instancia nunca inyecta las variables de entorno
+        // GAMELIFT_SDK_* que esa API necesita (confirmado corriendo el mismo build local con
+        // esas variables seteadas a mano: ahí sí conecta bien - bug del lado de AWS, ver
+        // https://github.com/amazon-gamelift/amazon-gamelift-plugin-unity/issues/283). Acá el
+        // compute es una máquina propia (ver Tools/GameLiftLauncher) y el auth token expira -
+        // hay que pedir uno nuevo con "aws gamelift get-compute-auth-token" antes de cada
+        // lanzamiento. El launcher en Tools/GameLiftLauncher hace esto automáticamente y pasa
+        // los valores por entorno.
+        string websocketUrl = Environment.GetEnvironmentVariable("GAMELIFT_WEBSOCKET_URL");
+        string hostId = Environment.GetEnvironmentVariable("GAMELIFT_HOST_ID");
+        string fleetId = Environment.GetEnvironmentVariable("GAMELIFT_FLEET_ID");
+        string authToken = Environment.GetEnvironmentVariable("GAMELIFT_AUTH_TOKEN");
+
+        if (string.IsNullOrEmpty(websocketUrl) || string.IsNullOrEmpty(hostId) ||
+            string.IsNullOrEmpty(fleetId) || string.IsNullOrEmpty(authToken))
+        {
+            Debug.LogError("[GameLift] Faltan variables de entorno GAMELIFT_WEBSOCKET_URL/GAMELIFT_HOST_ID/GAMELIFT_FLEET_ID/GAMELIFT_AUTH_TOKEN. ¿Se lanzó el proceso via Tools/GameLiftLauncher?");
+            return;
+        }
+
         try
         {
-            var initOutcome = GameLiftServerAPI.InitSDK();
+            ServerParameters serverParams = new ServerParameters(
+                websocketUrl,
+                Guid.NewGuid().ToString(), // Process ID - random por cada corrida
+                hostId,
+                fleetId,
+                authToken
+            );
+
+            var initOutcome = GameLiftServerAPI.InitSDK(serverParams);
             if (!initOutcome.Success)
             {
                 Debug.LogError($"[GameLift] InitSDK fall�: {initOutcome.Error}");
                 return;
             }
-            Debug.Log("[GameLift] SDK inicializado (fleet administrada).");
+            Debug.Log("[GameLift] SDK inicializado (fleet Anywhere).");
         }
         catch (Exception ex)
         {
@@ -86,7 +116,15 @@ public class GameLiftServerManager : MonoBehaviour
         {
             while (mainThreadActions.Count > 0)
             {
-                mainThreadActions.Dequeue()?.Invoke();
+                Action action = mainThreadActions.Dequeue();
+                try
+                {
+                    action?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[GameLift] Excepci�n al ejecutar acci�n encolada desde OnStartGameSession: {ex}");
+                }
             }
         }
     }
@@ -272,22 +310,13 @@ public class GameLiftServerManager : MonoBehaviour
         acceptedPlayerSessions[playerSessionId] = connectionId;
         Debug.Log($"[GameLift] PlayerSession aceptada y mapeada: {playerSessionId} -> connId {connectionId}");
 
-        if (NetworkServer.connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-        {
-            if (networkManager.playerPrefab == null)
-            {
-                Debug.LogError("[GameLift] playerPrefab no asignado en NetworkManager. No se puede crear player.");
-            }
-            else
-            {
-                NetworkServer.AddPlayerForConnection(conn, networkManager.playerPrefab);
-                Debug.Log($"[GameLift] Player creado para connectionId {connectionId}.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[GameLift] ConnectionId {connectionId} no encontrado en NetworkServer.connections.");
-        }
+        // No creamos el player nosotros acá: GameLiftPlayerAuthenticator llama ServerAccept(conn)
+        // justo después de que este método devuelve true, lo que marca la conexión como
+        // autenticada; con autoCreatePlayer activo en el NetworkManager, el propio cliente pide
+        // su player automáticamente (NetworkClient.AddPlayer()), lo que dispara
+        // OnlineNetworkManager.OnServerAddPlayer() - el que respeta el personaje elegido. Llamar
+        // NetworkServer.AddPlayerForConnection acá con el playerPrefab genérico duplicaba al
+        // jugador: uno "fantasma" con el prefab por defecto, más el real vía el flujo normal.
 
         return true;
     }

@@ -14,6 +14,18 @@ public static class GameLiftBuildScript
 {
     public static void BuildLinuxServer()
     {
+        Build(BuildTarget.StandaloneLinux64, "Builds/GameLiftServer/BloomAndDoomServer");
+    }
+
+    // Anywhere compute "Cito-WindowsPC" (see Tools/GameLiftLauncher) runs Windows, not
+    // Linux, so this is the one that actually matters for the Anywhere fleet path.
+    public static void BuildWindowsServer()
+    {
+        Build(BuildTarget.StandaloneWindows64, "Builds/GameLiftServerWindows/BloomAndDoomServer.exe");
+    }
+
+    private static void Build(BuildTarget target, string locationPathName)
+    {
         string[] scenes = EditorBuildSettings.scenes
             .Where(s => s.enabled)
             .Select(s => s.path)
@@ -29,8 +41,8 @@ public static class GameLiftBuildScript
         var options = new BuildPlayerOptions
         {
             scenes = scenes,
-            locationPathName = "Builds/GameLiftServer/BloomAndDoomServer",
-            target = BuildTarget.StandaloneLinux64,
+            locationPathName = locationPathName,
+            target = target,
             subtarget = (int)StandaloneBuildSubtarget.Server,
             options = BuildOptions.None
         };
@@ -44,7 +56,7 @@ public static class GameLiftBuildScript
             return;
         }
 
-        Debug.Log($"[GameLiftBuildScript] Build OK -> {options.locationPathName} ({report.summary.totalSize} bytes).");
+        Debug.Log($"[GameLiftBuildScript] Build OK -> {locationPathName} ({report.summary.totalSize} bytes).");
         EditorApplication.Exit(0);
     }
 }

@@ -1565,50 +1565,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       insertIndex: 4
       addedObject: {fileID: 1548599080}
-    - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1548599079}
-    - targetCorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1548599078}
   m_SourcePrefab: {fileID: 100100000, guid: 41bb445a16442264db8251f65d24a175, type: 3}
 --- !u!1 &1548599077 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1863548995357367420, guid: 41bb445a16442264db8251f65d24a175, type: 3}
   m_PrefabInstance: {fileID: 1548599075}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1548599078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1548599077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 883dab565f0cbde41ac7c03bbb8cc83f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1548599079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1548599077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14abb5d9a22bd434eab85ede32de0be3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  OnServerAuthenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClientAuthenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  clientPlayerSessionId: 
-  bypassAuthentication: 1
 --- !u!114 &1548599080
 MonoBehaviour:
   m_ObjectHideFlags: 0

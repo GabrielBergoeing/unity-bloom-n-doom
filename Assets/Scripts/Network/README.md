@@ -67,9 +67,12 @@ el mapa general.
 ## GameLift
 
 Tercera vía de conexión, alternativa al P2P de arriba: en vez de que un jugador hostee
-desde su propia PC, un servidor dedicado (build `UNITY_SERVER`) corre en una fleet
-**administrada** de AWS GameLift. GameLift devuelve un `{ip/dnsName, port}` de sesión más
-un `PlayerSessionId`, mismo "shape" que ya produce `ConnectionInfo` (`address`, `port`,
+desde su propia PC, un servidor dedicado (build `UNITY_SERVER`) corre como compute de una
+fleet **Anywhere** de AWS GameLift (se probó una fleet administrada primero, pero
+`InitSDK()` quedaba colgado indefinidamente en el handshake con el agente de GameLift en
+instancias EC2 - ver `GameLiftServerManager.cs`; Anywhere, con el compute corriendo en una
+máquina propia, funciona). GameLift devuelve un `{ip/dnsName, port}` de sesión más un
+`PlayerSessionId`, mismo "shape" que ya produce `ConnectionInfo` (`address`, `port`,
 `sessionToken`). El `sessionToken` se reenvía automáticamente a
 `GameLiftPlayerAuthenticator.clientPlayerSessionId` desde
 `SteamLobby.ApplyRuntimeLaunchRequest`, sin tocar la UI ni `SteamLobby`.
@@ -81,11 +84,13 @@ Piezas:
 | `UI_GameLiftMenu.cs` | UI: botón "Conectar", pide una sesión al broker y navega a `CharacterSelectorOnline`. `brokerUrl` vacío = no-op seguro hasta desplegar el broker. |
 | `GameLiftConnectionProvider.cs` | POST `{brokerUrl}/request-session`, devuelve `ConnectionInfo` (timeout configurable, 35s por defecto - el broker puede tardar hasta 30s creando una sesión nueva). |
 | `Tools/GameLiftBroker` | Proceso .NET separado, el único que tiene credenciales AWS; habla con `AmazonGameLiftClient` (crear/buscar `GameSession`, crear `PlayerSession`). Ver su propio README para el despliegue. |
-| `GameLiftServerManager.cs` (`#if UNITY_SERVER`) | Corre solo en el build de servidor dedicado. `InitSDK()` sin parámetros (fleet administrada - GameLift inyecta todo vía su propio agente en la instancia, no hace falta token manual). Arranca Mirror al recibir `OnStartGameSession`. |
+| `GameLiftServerManager.cs` (`#if UNITY_SERVER`) | Corre solo en el build de servidor dedicado. `InitSDK(ServerParameters)` con websocket URL/host id/fleet id/auth token leídos de variables de entorno - las pone `Tools/GameLiftLauncher`, que pide un token fresco antes de cada arranque (los tokens Anywhere expiran ~15min). Arranca Mirror al recibir `OnStartGameSession`. |
 | `GameLiftPlayerAuthenticator.cs` | `NetworkAuthenticator` en el `Network Manager` prefab: valida el `PlayerSessionId` contra GameLift en servidores `UNITY_SERVER`; en cualquier otro build (host P2P normal) acepta automáticamente, sin cambiar el comportamiento existente. |
+| `Tools/GameLiftLauncher` | Script que pide un auth token fresco (`aws gamelift get-compute-auth-token`) y lanza el build del servidor con las variables de entorno correctas - reemplaza tener que hacerlo a mano antes de cada sesión. |
 
 Requisitos de infraestructura AWS (fuera de este repo, hay que provisionarlos/mantenerlos
-aparte): una fleet administrada con un build subido, el broker corriendo en algún lugar
+aparte): una fleet Anywhere con un compute registrado (una máquina propia corriendo el
+build del servidor via `Tools/GameLiftLauncher`), el broker corriendo en algún lugar
 alcanzable 24/7 por los jugadores (puerto propio, no el de hole punching), y las
 credenciales AWS del broker con permisos mínimos de GameLift
 (`CreateGameSession`/`DescribeGameSessions`/`CreatePlayerSession`).

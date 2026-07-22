@@ -67,6 +67,15 @@ public class SteamLobby : MonoBehaviour
     // -------------------------------------------------------
     void Start()
     {
+#if UNITY_SERVER
+        // A dedicated GameLift server has no player-driven launch request and this
+        // component's networkMode defaults to Host - without this guard it would call
+        // HostDirect() and spin up its own local host player before any real player ever
+        // connects via GameLift, on top of the server GameLiftServerManager already starts
+        // once a GameSession activates. GameLiftServerManager.Awake() is the sole owner of
+        // starting the Mirror server for this build target.
+        return;
+#endif
         networkManager = GetComponent<NetworkManager>();
         if (networkManager == null)
         {
