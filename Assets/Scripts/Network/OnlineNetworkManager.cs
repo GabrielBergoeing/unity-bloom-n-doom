@@ -32,6 +32,12 @@ public class OnlineNetworkManager : NetworkManager
     // ── Connection → slot index map, filled by UI_MatchMenuOnline before scene change ──
     private readonly Dictionary<int, int> connectionSlots = new();
 
+    // Exposed so OnlineMatchManager can gate isMatchRunning on the full expected roster
+    // having registered, rather than firing the instant the first Player.OnStartServer()
+    // happens to land. Character-select scene sets this via StoreConnectionSlots before
+    // ServerChangeScene; the gameplay scene reads it back once OnlineMatchManager spawns.
+    public int ConnectionSlotCount => connectionSlots.Count;
+
     // ── Level synced to clients via message ──
     private struct LevelSelectedMessage : NetworkMessage { public int levelIndex; }
 

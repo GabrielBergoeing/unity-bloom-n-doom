@@ -31,9 +31,30 @@ public class OnlineMatchManager : NetworkBehaviour
     [SyncVar] public string matchId;
 
     public float timer => syncedTimer;
-    public bool isMatchRunning => syncedIsRunning && !hasPrintResults;
+
+    // Roster size UI_MatchMenuOnline locked in via OnlineNetworkManager.StoreConnectionSlots
+    // before the scene change. Without this gate, isMatchRunning flips true the instant
+    // syncedIsRunning does in OnStartServer(), which can land on a frame where only the
+    // first 1-2 of N Player.OnStartServer() -> RegisterPlayer() calls have run yet
+    // (those fire per-connection as each player object finishes spawning, not atomically
+    // together like offline MatchManager.InitializePlayers() does). A consumer like
+    // StressTestSetup that reacts on the very first isMatchRunning==true frame would
+    // otherwise see a partial roster. -1 means "unknown/not set", which disables the
+    // gate rather than blocking isMatchRunning forever.
+    private int expectedPlayerCount = -1;
+
+    public bool isMatchRunning =>
+        syncedIsRunning && !hasPrintResults &&
+        (expectedPlayerCount < 0 || players.Count >= expectedPlayerCount);
 
     private readonly List<Player> players = new();
+
+    // Player indices for the currently-registered roster, keyed the same way EndMatch()
+    // already scores players (Player.OwnerIndex). Online equivalent of
+    // MatchManager.Players, for consumers like StressTestSetup that need a player list
+    // without caring whether the match is offline or online.
+    public IReadOnlyList<int> PlayerIndices =>
+        players.Where(p => p != null).Select(p => p.OwnerIndex).ToList();
 
     private void Awake()
     {
@@ -57,11 +78,17 @@ public class OnlineMatchManager : NetworkBehaviour
         syncedIsRunning = true;
         hasPrintResults = false;
 
+        // Pulled from OnlineNetworkManager rather than passed in directly, since
+        // StoreConnectionSlots runs in the character-select scene - before this object
+        // even exists - so there's no direct call site available at that point.
+        expectedPlayerCount = (NetworkManager.singleton as OnlineNetworkManager)?.ConnectionSlotCount ?? -1;
+        if (expectedPlayerCount <= 0) expectedPlayerCount = -1;
+
         // Human-readable and naturally unique enough for this purpose (two matches starting
         // in the same server-clock second would need to be the same server instance anyway).
         matchId = System.DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
 
-        Debug.Log($"[OnlineMatchManager] Match started. Duration: {syncedTimer}s, matchId={matchId}");
+        Debug.Log($"[OnlineMatchManager] Match started. Duration: {syncedTimer}s, matchId={matchId}, expectedPlayerCount={expectedPlayerCount}");
     }
 
     // Runs on every client (host included) when this object spawns into their scene -
