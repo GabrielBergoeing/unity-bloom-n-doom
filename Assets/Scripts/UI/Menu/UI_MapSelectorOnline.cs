@@ -36,6 +36,7 @@ public class UI_MapSelectorOnline : MonoBehaviour
     public void Level3BTN() => SelectLevel(2);
     public void Level4BTN() => SelectLevel(3);
     public void Level5BTN() => SelectLevel(4);
+    public void LevelTestBTN() => SelectLevel(5);
 
     public void SelectLevel(int index)
     {
