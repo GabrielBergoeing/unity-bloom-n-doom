@@ -1455,10 +1455,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1158826171332021719, guid: a7549bc4155e1b64e975398747d951ac, type: 3}
     - target: {fileID: 9015434000140754582, guid: 41bb445a16442264db8251f65d24a175, type: 3}
-      propertyPath: authenticator
-      value: 
-      objectReference: {fileID: 1548599079}
-    - target: {fileID: 9015434000140754582, guid: 41bb445a16442264db8251f65d24a175, type: 3}
       propertyPath: spawnPrefabs.Array.size
       value: 23
       objectReference: {fileID: 0}
@@ -1583,7 +1579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8c0b9da832528419ceb68a8a7b8016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  signalingServerHost: 186.104.13.183
+  signalingServerHost: 186.104.12.165
   signalingServerPort: 9050
   requestTimeoutSeconds: 3
   hostKeepAliveInterval: 5

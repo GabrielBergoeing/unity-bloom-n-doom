@@ -223,10 +223,18 @@ public class Player : Entity
     }
     #endregion
 
+    // Some gamepads don't spring back to exactly (0,0) when the stick is released - they
+    // settle on a tiny residual value that can land in the opposite quadrant from whatever
+    // direction was actually held, which momentarily flips the facing to face backwards
+    // right as the player lets go. A plain "== Vector2.zero" check only catches a perfect
+    // zero, so it doesn't catch this; anything below this magnitude is treated as no input
+    // instead, same as an exact zero.
+    private const float facingDeadzone = 0.2f;
+
     private void DetermineFacingDir()
     {
-        if (moveInput == Vector2.zero)
-            return; // No change if no input
+        if (moveInput.sqrMagnitude < facingDeadzone * facingDeadzone)
+            return; // No change if input is at/near zero (covers noisy stick release)
 
         float absX = Mathf.Abs(moveInput.x);
         float absY = Mathf.Abs(moveInput.y);

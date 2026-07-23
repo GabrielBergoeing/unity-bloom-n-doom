@@ -64,6 +64,21 @@ public class OnlineMatchManager : NetworkBehaviour
         Debug.Log($"[OnlineMatchManager] Match started. Duration: {syncedTimer}s, matchId={matchId}");
     }
 
+    // Runs on every client (host included) when this object spawns into their scene -
+    // mirrors MatchManager.InitializePlayers()'s local telemetry capture (fps/cpu/gpu/
+    // memory), which only ever ran for offline matches. Each machine samples its own
+    // stats locally, same as NetworkMetrics does for RTT, so this has to be client-side
+    // rather than gated by isServer.
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        if (TelemetryLogger.instance == null)
+            new GameObject("TelemetryLogger").AddComponent<TelemetryLogger>();
+
+        TelemetryLogger.instance.StartCapture();
+    }
+
     [ServerCallback]
     private void Update()
     {
@@ -144,5 +159,8 @@ public class OnlineMatchManager : NetworkBehaviour
             metrics.StopRecording();
             metrics.ExportToCsv();
         }
+
+        if (TelemetryLogger.instance != null)
+            TelemetryLogger.instance.StopCapture();
     }
 }

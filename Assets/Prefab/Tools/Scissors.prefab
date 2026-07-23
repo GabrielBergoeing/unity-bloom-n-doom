@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cutDuration: 5
-  cooldown: 10
+  cooldown: 5
   pickup: {fileID: 644021637906711632}
 --- !u!58 &4097611347718253741
 CircleCollider2D:

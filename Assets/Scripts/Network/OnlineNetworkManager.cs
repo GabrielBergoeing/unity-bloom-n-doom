@@ -3,6 +3,18 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
+// Client -> server request to pick a level. Any connected client can send this (not just
+// a P2P host, which happened to have local server authority by accident of running
+// server+client in the same process) - a true dedicated server (GameLift) never has a
+// "host player" with that authority, so the request has to travel over the network like
+// any other client action instead of being called directly from the clicking client's own
+// process. Top-level (not nested in a class) so both OnlineNetworkManager and
+// UI_MapSelectorOnline reference the exact same Mirror message type - a nested struct
+// with the same name in each class would be two distinct types as far as Mirror's
+// message-type identification is concerned, and messages sent as one are silently never
+// delivered to a handler registered for the other.
+public struct LevelSelectRequestMessage : NetworkMessage { public int levelIndex; public string levelSceneName; }
+
 /// <summary>
 /// Drop-in replacement for NetworkManager that handles online-specific needs:
 ///   • Spawns the correct character prefab per connection in OnServerAddPlayer.
@@ -83,6 +95,23 @@ public class OnlineNetworkManager : NetworkManager
     {
         NetworkClient.UnregisterHandler<LevelSelectedMessage>();
         base.OnStopClient();
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        NetworkServer.RegisterHandler<LevelSelectRequestMessage>(OnLevelSelectRequested, false);
+    }
+
+    public override void OnStopServer()
+    {
+        NetworkServer.UnregisterHandler<LevelSelectRequestMessage>();
+        base.OnStopServer();
+    }
+
+    private void OnLevelSelectRequested(NetworkConnectionToClient conn, LevelSelectRequestMessage msg)
+    {
+        SelectLevel(msg.levelIndex, msg.levelSceneName);
     }
 
     // SteamLobby's connect-with-fallback retry (JoinWithFallback) needs a reliable
@@ -203,14 +232,12 @@ public class OnlineNetworkManager : NetworkManager
             Debug.Log($"[OnlineNetworkManager] Client received level: {chosen.name}");
         }
 
-        // This handler also fires on the host (it's registered in OnStartClient, and the
-        // host runs its own local client via loopback). The host already switches its BGM
-        // through UI_MapSelectorOnline.SelectLevel's host-only path, so re-triggering it
-        // here too would call StopBGM()/StartBGM() a second time back-to-back and could
-        // leave the host's music faded to silence (StopBGM kills the in-flight SwitchBGMCo
-        // started by the first call, and StartBGM's same-track dedup then skips restarting
-        // it). Only genuine non-host clients need this call.
-        if (chosen != null && AudioManager.instance != null && !NetworkServer.active)
+        // Every client (including a P2P host's own local loopback client) gets its BGM
+        // switch from this single broadcast now - UI_MapSelectorOnline no longer applies
+        // the selection or switches audio directly, since only a true dedicated server
+        // process can do that, and under GameLift no clicking player's process is ever
+        // the server.
+        if (chosen != null && AudioManager.instance != null)
         {
             AudioManager.instance.StopBGM();
             AudioManager.instance.StartBGM(chosen.bgmTrackName);

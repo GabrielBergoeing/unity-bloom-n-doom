@@ -38,7 +38,7 @@ public class NetworkMetrics : NetworkBehaviour
     public KeyCode toggleKey = KeyCode.F7;
 
     [Header("Métricas centralizadas (Tools/SignalingServer)")]
-    [Tooltip("Además de guardar el CSV local, lo sube al servidor de señalización (mismo host que HolePunchClient, puerto HTTP separado) para tenerlo todo junto en un solo lugar. No-op si no hay HolePunchClient configurado en la escena (p.ej. sesiones GameLift).")]
+    [Tooltip("Además de guardar el CSV local, lo sube al servidor de señalización (mismo host que HolePunchClient, puerto HTTP separado) para tenerlo todo junto en un solo lugar. Corre para cualquier sesión online (P2P y GameLift por igual, ya que comparten el mismo Network Manager) - no-op solo si no hay HolePunchClient configurado en la escena.")]
     [SerializeField] private ushort metricsUploadPort = 9051;
 
     // UI
@@ -409,17 +409,26 @@ public class NetworkMetrics : NetworkBehaviour
         return path;
     }
 
-    // Best-effort: only runs when a HolePunchClient is present and configured (i.e. a
-    // direct P2P session), since that's the only case where the signaling server is a
-    // known, reachable rendezvous point for both sides. Silently no-ops for GameLift
-    // sessions or plain LAN testing - the local CSV file is written either way.
+    // Best-effort: only runs when a HolePunchClient is present and configured, since
+    // that's how this script finds the signaling server's address - it doesn't actually
+    // check HOW the connection was made. HolePunchClient lives on the same shared Network
+    // Manager object every online path uses (P2P and GameLift alike, since GameLift
+    // clients also pass through CharacterSelectorOnline.unity), so this also runs for
+    // GameLift sessions in practice, not just direct P2P ones. Silently no-ops for plain
+    // LAN testing (no HolePunchClient configured there) - the local CSV file is written
+    // either way regardless of this upload's success.
     private IEnumerator UploadToSignalingServer(string csvContent)
     {
         var holePunch = FindFirstObjectByType<HolePunchClient>();
         if (holePunch == null || !holePunch.IsConfigured)
             yield break;
 
-        string room = string.IsNullOrEmpty(SteamLobby.ActiveRoomCode) ? "sin-sala" : SteamLobby.ActiveRoomCode;
+        // Join codes give us a room code; GameLift sessions don't (no join code involved),
+        // so fall back to the match's own GameLift-assigned matchId for those - without
+        // this every GameLift match's upload was indistinguishably labeled "sin-sala".
+        string room = !string.IsNullOrEmpty(SteamLobby.ActiveRoomCode)
+            ? SteamLobby.ActiveRoomCode
+            : (!string.IsNullOrEmpty(CurrentMatchId) ? CurrentMatchId : "sin-sala");
         string role = NetworkServer.active ? "Host" : "Client";
         string player = netId.ToString();
 

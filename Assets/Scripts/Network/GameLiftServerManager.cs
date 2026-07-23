@@ -5,6 +5,7 @@ using UnityEngine;
 using Mirror;
 
 #if UNITY_SERVER
+using Aws.GameLift;
 using Aws.GameLift.Server;
 using Aws.GameLift.Server.Model;
 #endif
@@ -45,51 +46,8 @@ public class GameLiftServerManager : MonoBehaviour
             return;
         }
 
-        // Fleet Anywhere: InitSDK() con parámetros explícitos. La alternativa - InitSDK() sin
-        // parámetros, pensada para fleets administradas en EC2 - se probó y descartó: el
-        // agente de GameLift en la instancia nunca inyecta las variables de entorno
-        // GAMELIFT_SDK_* que esa API necesita (confirmado corriendo el mismo build local con
-        // esas variables seteadas a mano: ahí sí conecta bien - bug del lado de AWS, ver
-        // https://github.com/amazon-gamelift/amazon-gamelift-plugin-unity/issues/283). Acá el
-        // compute es una máquina propia (ver Tools/GameLiftLauncher) y el auth token expira -
-        // hay que pedir uno nuevo con "aws gamelift get-compute-auth-token" antes de cada
-        // lanzamiento. El launcher en Tools/GameLiftLauncher hace esto automáticamente y pasa
-        // los valores por entorno.
-        string websocketUrl = Environment.GetEnvironmentVariable("GAMELIFT_WEBSOCKET_URL");
-        string hostId = Environment.GetEnvironmentVariable("GAMELIFT_HOST_ID");
-        string fleetId = Environment.GetEnvironmentVariable("GAMELIFT_FLEET_ID");
-        string authToken = Environment.GetEnvironmentVariable("GAMELIFT_AUTH_TOKEN");
-
-        if (string.IsNullOrEmpty(websocketUrl) || string.IsNullOrEmpty(hostId) ||
-            string.IsNullOrEmpty(fleetId) || string.IsNullOrEmpty(authToken))
-        {
-            Debug.LogError("[GameLift] Faltan variables de entorno GAMELIFT_WEBSOCKET_URL/GAMELIFT_HOST_ID/GAMELIFT_FLEET_ID/GAMELIFT_AUTH_TOKEN. ¿Se lanzó el proceso via Tools/GameLiftLauncher?");
+        if (!TryInitSdk())
             return;
-        }
-
-        try
-        {
-            ServerParameters serverParams = new ServerParameters(
-                websocketUrl,
-                Guid.NewGuid().ToString(), // Process ID - random por cada corrida
-                hostId,
-                fleetId,
-                authToken
-            );
-
-            var initOutcome = GameLiftServerAPI.InitSDK(serverParams);
-            if (!initOutcome.Success)
-            {
-                Debug.LogError($"[GameLift] InitSDK fall�: {initOutcome.Error}");
-                return;
-            }
-            Debug.Log("[GameLift] SDK inicializado (fleet Anywhere).");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[GameLift] InitSDK fall�: {ex}");
-            return;
-        }
 
         int serverPort = GetDefaultTransportPort();
 
@@ -108,6 +66,77 @@ public class GameLiftServerManager : MonoBehaviour
             Debug.Log("[GameLift] Proceso listo (ProcessReady enviado).");
         else
             Debug.LogError($"[GameLift] ProcessReady fall�: {outcome.Error}");
+    }
+
+    private void OnApplicationQuit()
+    {
+        // Cleans up the SDK's internal websocket connection on a normal quit - GameLift's
+        // own OnProcessTerminate->ProcessEnding() handles the case where GameLift itself
+        // asks the process to stop, but this covers every other way the process could end.
+        GameLiftServerAPI.Destroy();
+    }
+
+    // Two deployment models, two InitSDK() overloads - auto-detected rather than toggled by
+    // an env var, because a real managed EC2 fleet's RuntimeConfiguration only lets us
+    // choose the LaunchPath, not set our own environment variables for the launched
+    // process, so there'd be no way to actually set a "use managed mode" flag once deployed:
+    //  - Anywhere: a self-registered compute (see Tools/GameLiftLauncher, which fetches a
+    //    fresh auth token before every launch and passes everything via env vars under our
+    //    own names, since nothing auto-injects them there). Detected by those vars being
+    //    present.
+    //  - Managed: AWS-managed EC2 fleet. InitSDK() with no parameters - GameLift's own Agent
+    //    process on the instance is supposed to inject GAMELIFT_SDK_* env vars before
+    //    launching this process, which the SDK reads internally on its own. Falls back to
+    //    this whenever the Anywhere vars above aren't found. As of writing this hangs
+    //    forever on Linux/AL2023 (confirmed: the same build run locally with those vars set
+    //    by hand connects fine, so it's the Agent never setting them - AWS bug, see
+    //    https://github.com/amazon-gamelift/amazon-gamelift-plugin-unity/issues/283) -
+    //    untested on Windows fleets, where the bug may not reproduce.
+    private bool TryInitSdk()
+    {
+        string websocketUrl = Environment.GetEnvironmentVariable("GAMELIFT_WEBSOCKET_URL");
+        string hostId = Environment.GetEnvironmentVariable("GAMELIFT_HOST_ID");
+        string fleetId = Environment.GetEnvironmentVariable("GAMELIFT_FLEET_ID");
+        string authToken = Environment.GetEnvironmentVariable("GAMELIFT_AUTH_TOKEN");
+        bool anywhereConfigured = !string.IsNullOrEmpty(websocketUrl) && !string.IsNullOrEmpty(hostId)
+            && !string.IsNullOrEmpty(fleetId) && !string.IsNullOrEmpty(authToken);
+
+        try
+        {
+            GenericOutcome initOutcome;
+
+            if (anywhereConfigured)
+            {
+                ServerParameters serverParams = new ServerParameters(
+                    websocketUrl,
+                    Guid.NewGuid().ToString(), // Process ID - random por cada corrida
+                    hostId,
+                    fleetId,
+                    authToken
+                );
+
+                initOutcome = GameLiftServerAPI.InitSDK(serverParams);
+            }
+            else
+            {
+                Debug.Log("[GameLift] No se encontraron las variables de Anywhere (GAMELIFT_WEBSOCKET_URL/HOST_ID/FLEET_ID/AUTH_TOKEN) - probando InitSDK() sin parámetros (fleet administrada).");
+                initOutcome = GameLiftServerAPI.InitSDK();
+            }
+
+            if (!initOutcome.Success)
+            {
+                Debug.LogError($"[GameLift] InitSDK fall�: {initOutcome.Error}");
+                return false;
+            }
+
+            Debug.Log($"[GameLift] SDK inicializado (fleet {(anywhereConfigured ? "Anywhere" : "administrada")}).");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[GameLift] InitSDK fall�: {ex}");
+            return false;
+        }
     }
 
     void Update()

@@ -6,36 +6,24 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Online version of the map selector.
-/// Only the host (server) can pick a map; the selection uses
-/// OnlineNetworkManager.SelectLevel() which syncs level data to all
-/// clients and calls ServerChangeScene so everyone transitions together.
-///
-/// Non-host clients see the buttons as non-interactable ("Waiting for host").
+/// Any connected client can pick a map - the request travels to the server
+/// (OnlineNetworkManager.OnLevelSelectRequested), which applies it and calls
+/// ServerChangeScene so everyone transitions together. This has to go over the
+/// network rather than being applied directly by whoever clicks: under a P2P
+/// host that happens to work locally (the host's own process is the server), but
+/// under a true dedicated server (GameLift) no clicking player's process is ever
+/// the server, so a direct call would silently no-op for every real player.
 /// </summary>
 public class UI_MapSelectorOnline : MonoBehaviour
 {
     [Header("Scene to load after selection")]
     [SerializeField] private string onlineLevelScene = "LevelSceneOnline";
 
-    [Header("Optional: buttons to disable for non-host")]
+    [Header("Buttons")]
     [SerializeField] private List<Button> mapButtons = new();
 
     private void Start()
     {
-        // Clients cannot pick — disable their buttons
-        bool isHost = NetworkServer.active;
-        foreach (var btn in mapButtons)
-        {
-            if (btn != null)
-                btn.interactable = isHost;
-        }
-
-        if (!isHost)
-        {
-            Debug.Log("[MapSelectorOnline] Client: waiting for host to choose map.");
-            return;
-        }
-
         // Without this, a gamepad/keyboard user has nothing selected on entering this
         // screen and Navigate does nothing until they touch a mouse first.
         if (mapButtons.Count > 0 && mapButtons[0] != null && EventSystem.current != null)
@@ -51,28 +39,6 @@ public class UI_MapSelectorOnline : MonoBehaviour
 
     public void SelectLevel(int index)
     {
-        if (!NetworkServer.active)
-            return;
-
-        if (NetworkManager.singleton is OnlineNetworkManager mgr)
-        {
-            if (AudioManager.instance != null)
-            {
-                LevelData level = mgr.GetLevel(index);
-                if (level != null)
-                {
-                    AudioManager.instance.StopBGM();
-                    AudioManager.instance.StartBGM(level.bgmTrackName);
-                }
-            }
-
-            mgr.SelectLevel(index, onlineLevelScene);
-        }
-        else
-        {
-            // Fallback if OnlineNetworkManager isn't used — still syncs scene
-            Debug.LogWarning("[MapSelectorOnline] NetworkManager is not OnlineNetworkManager. Level data won't be synced to clients.");
-            NetworkManager.singleton?.ServerChangeScene(onlineLevelScene);
-        }
+        NetworkClient.Send(new LevelSelectRequestMessage { levelIndex = index, levelSceneName = onlineLevelScene });
     }
 }
