@@ -49,21 +49,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68a65aa43ca55c649874b5b81e1073c1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  levels:
-  - {fileID: 11400000, guid: 2cccde006fe8a03f78c4a964cc6f7a42, type: 2}
-  - {fileID: 11400000, guid: 380bc7b8f53a5742db066c76c92b552e, type: 2}
-  - {fileID: 11400000, guid: 1c484c76b3d993510a1cdf4d3324e4c7, type: 2}
-  - {fileID: 11400000, guid: e97e8a38af15cf9f7b1eb7dd36fc4bce, type: 2}
-  - {fileID: 11400000, guid: db62e36869ca35de2ad88959f0538bff, type: 2}
+  m_Name: 
+  m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
   headlessStartMode: 0
   editorAutoStart: 0
   sendRate: 60
-  offlineScene:
-  onlineScene:
+  offlineScene: 
+  onlineScene: 
   offlineSceneLoadDelay: 0
   transport: {fileID: 2733686564342138484}
   networkAddress: localhost
@@ -76,7 +70,6 @@ MonoBehaviour:
   playerSpawnMethod: 0
   spawnPrefabs:
   - {fileID: 165571438480114262, guid: 091358c6c976a3f4bb3149a18b507b75, type: 3}
-  - {fileID: 165571438480114262, guid: bd32abfc9b9b13d4db611bcf4de8b6f6, type: 3}
   - {fileID: 165571438480114262, guid: a2585420cfeadd04a80550f3b451a7de, type: 3}
   - {fileID: 165571438480114262, guid: c6255ba2fa7d7144a90e7e277536ea01, type: 3}
   - {fileID: 165571438480114262, guid: b291267d2d53d2740ae30b461b8044e1, type: 3}
@@ -114,6 +107,13 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
+  levels:
+  - {fileID: 11400000, guid: 2cccde006fe8a03f78c4a964cc6f7a42, type: 2}
+  - {fileID: 11400000, guid: 380bc7b8f53a5742db066c76c92b552e, type: 2}
+  - {fileID: 11400000, guid: 1c484c76b3d993510a1cdf4d3324e4c7, type: 2}
+  - {fileID: 11400000, guid: e97e8a38af15cf9f7b1eb7dd36fc4bce, type: 2}
+  - {fileID: 11400000, guid: db62e36869ca35de2ad88959f0538bff, type: 2}
+  - {fileID: 11400000, guid: 4cf2690e078e21b4d8f54daf194b3733, type: 2}
 --- !u!114 &8716989671445582707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,6 +130,9 @@ MonoBehaviour:
   overrideTransport: {fileID: 0}
   remoteHostAddress: 127.0.0.1
   joinDelay: 1.5
+  fallbackHostAddress: 
+  directConnectTimeout: 4
+  autoPortForward: 1
 --- !u!114 &8845827539202538087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,8 +158,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 7777
+  reliableResendInterval: 0.3
+  reliableMaxResends: 20
   handshakeRetryInterval: 0.5
   timeoutDuration: 5
+  logReliableChannel: 1
 --- !u!114 &4465545400555557883
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,9 +218,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14abb5d9a22bd434eab85ede32de0be3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  clientPlayerSessionId:
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnServerAuthenticated:
+    m_PersistentCalls:
+      m_Calls: []
+  OnClientAuthenticated:
+    m_PersistentCalls:
+      m_Calls: []
+  clientPlayerSessionId: 
   bypassAuthentication: 0
 --- !u!114 &3391847562910473829
 MonoBehaviour:
@@ -226,5 +238,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 883dab565f0cbde41ac7c03bbb8cc83f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 

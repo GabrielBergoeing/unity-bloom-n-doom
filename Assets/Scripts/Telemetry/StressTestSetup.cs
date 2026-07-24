@@ -8,63 +8,40 @@ public class StressTestSetup : MonoBehaviour
     [Header("Options")]
     [SerializeField] private bool staggerPlacement = false;
     [SerializeField] private float staggerRowDelay = 0.05f;
+    [SerializeField] private float dependencyRetryTimeout = 5f;
 
     private MatchManager offlineMatch;
     private OnlineMatchManager onlineMatch;
     private bool isOnline;
+    private bool isHostCheckDone = false;
 
     private FarmManager farm;
     private GameManager game;
 
+    private bool initialized = false;
     private bool hasRun = false;
+    private float initElapsed = 0f;
 
-    // NOTE: assumes LevelData exposes a seed prefab list under this name -
-    // rename to match whatever GameManager.currentLevel actually calls it.
     private List<GameObject> seedPrefabs;
-
     private Coroutine staggerRoutine;
 
     private void Start()
     {
-        onlineMatch = OnlineMatchManager.instance;
-        isOnline = onlineMatch != null;
-
-        // Online: only the host should ever run this. FarmManager.PlantSeed already
-        // no-ops for non-host clients (isServer gate), but it doesn't return a success/
-        // failure signal - so without this early-out, a connected client would still log
-        // "Done - N plants placed" even though every PlantSeed call silently did nothing.
-        if (isOnline && !NetworkServer.active)
-        {
-            Debug.Log("[StressTestSetup] Online client (non-host) - nothing to do here.");
-            enabled = false;
-            return;
-        }
-
-        offlineMatch = isOnline ? null : MatchManager.instance;
-        farm = FarmManager.instance;
-        game = GameManager.instance;
-
-        bool matchMissing = isOnline ? onlineMatch == null : offlineMatch == null;
-        if (matchMissing || farm == null || game == null)
-        {
-            ToggleDisableError("Instance Dependancy not found. Aborting.");
-            return;
-        }
-
-        enabled = game.currentLevel.setTestFormat;
-        seedPrefabs = game.currentLevel.seedPrefabs;
-
-        if (seedPrefabs == null || seedPrefabs.Count == 0)
-        {
-            ToggleDisableError("No seed prefabs on currentLevel. Assign at least one. Aborting.");
-            return;
-        }
-
-        Debug.Log("[StressTestSetup] Ready — waiting for match to start.");
+        // Deferred - see TryInitialize(). Don't resolve/abort on dependencies here;
+        // OnlineMatchManager.instance (and possibly FarmManager/GameManager, depending
+        // on scene spawn order) may not be set yet at this point even though they will
+        // be a few frames later. Mirror's OnStartServer()/OnStartClient() callbacks are
+        // not synchronized with any GameObject's own Start().
     }
 
     private void Update()
     {
+        if (!initialized)
+        {
+            TryInitialize();
+            return;
+        }
+
         if (hasRun) return;
         if (!IsMatchRunning()) return;
 
@@ -76,6 +53,80 @@ public class StressTestSetup : MonoBehaviour
             staggerRoutine = StartCoroutine(PopulateStaggered());
         else
             PopulateImmediate();
+    }
+
+    private void TryInitialize()
+    {
+        // Resolve isOnline once we can tell for sure. NetworkClient/NetworkServer aren't
+        // "active" instantly either, but they flip true synchronously with StartHost/
+        // StartClient - unlike OnlineMatchManager.instance, which waits on OnStartServer.
+        // Treat "no network session at all yet" as still-undetermined rather than assuming
+        // offline, so a slow-starting host doesn't get misclassified in the first frame.
+        bool networkActive = NetworkServer.active || NetworkClient.active;
+
+        if (networkActive)
+        {
+            isOnline = true;
+
+            if (!NetworkServer.active)
+            {
+                Debug.Log("[StressTestSetup] Online client (non-host) - nothing to do here.");
+                enabled = false;
+                initialized = true; // stop retrying, this is a real terminal state
+                return;
+            }
+
+            onlineMatch = OnlineMatchManager.instance;
+        }
+        else
+        {
+            offlineMatch = MatchManager.instance;
+            // Don't commit to isOnline=false yet on the very first frames - a host that's
+            // mid-StartHost() call could still flip NetworkServer.active shortly. Only
+            // commit once we've retried a bit and it's still not active (see timeout below).
+        }
+
+        farm = FarmManager.instance;
+        game = GameManager.instance;
+
+        bool matchReady = networkActive ? onlineMatch != null : offlineMatch != null;
+
+        if (matchReady && farm != null && game != null)
+        {
+            isOnline = networkActive;
+            FinishInit();
+            return;
+        }
+
+        initElapsed += Time.deltaTime;
+        if (initElapsed >= dependencyRetryTimeout)
+        {
+            // Report exactly what's still missing instead of a generic message.
+            var missing = new List<string>();
+            if (networkActive ? onlineMatch == null : offlineMatch == null)
+                missing.Add(networkActive ? "OnlineMatchManager.instance" : "MatchManager.instance");
+            if (farm == null) missing.Add("FarmManager.instance");
+            if (game == null) missing.Add("GameManager.instance");
+
+            ToggleDisableError($"Instance dependency not found after {dependencyRetryTimeout}s: {string.Join(", ", missing)}. Aborting.");
+            initialized = true;
+        }
+    }
+
+    private void FinishInit()
+    {
+        enabled = game.currentLevel.setTestFormat;
+        seedPrefabs = game.currentLevel.seedPrefabs;
+
+        if (seedPrefabs == null || seedPrefabs.Count == 0)
+        {
+            ToggleDisableError("No seed prefabs on currentLevel. Assign at least one. Aborting.");
+            initialized = true;
+            return;
+        }
+
+        initialized = true;
+        Debug.Log($"[StressTestSetup] Ready ({(isOnline ? "online/host" : "offline")}) — waiting for match to start.");
     }
 
     private void OnDestroy()
@@ -164,16 +215,11 @@ public class StressTestSetup : MonoBehaviour
         {
             yield return new WaitForSeconds(staggerRowDelay);
 
-            // Match may have ended, or this component been destroyed, during the wait.
             if (this == null || !IsMatchRunning())
                 yield break;
 
             foreach (var cell in rows[y])
             {
-                // NOTE: pre-existing bug, unrelated to online/offline - this passes the
-                // raw Seed wrapper prefab through instead of unwrapping .plantPrefab like
-                // PopulateImmediate does below. Left as-is here since fixing it wasn't
-                // part of this pass; flagging again so it doesn't get lost.
                 PlantAt(cell, players[playerIdx % players.Count], seedPrefabs[seedIdx % seedPrefabs.Count]);
 
                 seedIdx++;
@@ -207,7 +253,7 @@ public class StressTestSetup : MonoBehaviour
             return new List<int>(onlineMatch.PlayerIndices);
 
         var result = new List<int>();
-        var players = offlineMatch.Players; // requires the MatchManager.Players accessor noted above
+        var players = offlineMatch.Players;
 
         for (int i = 0; i < players.Count; i++)
             result.Add(i);
@@ -217,10 +263,6 @@ public class StressTestSetup : MonoBehaviour
 
     private void PlantAt(Vector3Int cell, int playerIndex, GameObject seedPrefab)
     {
-        // Local-only: calls FarmManager directly rather than going through a
-        // network service. FarmManager's own isServer/isClient checks already
-        // fall through cleanly when no Mirror session is active, and this method
-        // is now only ever reached on the host in the online case (see Start()).
         farm.PlantSeed(cell, playerIndex, seedPrefab);
     }
 

@@ -22,7 +22,7 @@ public class UI_MatchMenuOnline : MonoBehaviour
     [SerializeField] private UI_CharacterSelector[] slots = new UI_CharacterSelector[4];
 
     [Header("Match Settings")]
-    [Range(2, 4)] [SerializeField] private int minimumPlayers = 2;
+    [Range(1, 4)] [SerializeField] private int minimumPlayers = 2;
     [SerializeField] private string gameplaySceneName = "MapSelectorOnline";
 
     [Header("Local Input")]
