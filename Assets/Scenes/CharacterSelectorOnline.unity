@@ -2076,7 +2076,7 @@ MonoBehaviour:
   - {fileID: 1648383141}
   - {fileID: 1356109048}
   - {fileID: 1888804561}
-  minimumPlayers: 2
+  minimumPlayers: 1
   gameplaySceneName: MapSelectorOnline
   navCooldown: 0.25
   navThreshold: 0.5

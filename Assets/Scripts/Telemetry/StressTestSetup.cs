@@ -44,6 +44,7 @@ public class StressTestSetup : MonoBehaviour
 
         if (hasRun) return;
         if (!IsMatchRunning()) return;
+        if (!LevelManager.IsLevelLoaded) return;
 
         Debug.Log("Reached Update");
 

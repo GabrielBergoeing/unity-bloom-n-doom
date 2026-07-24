@@ -15,9 +15,11 @@ public class LevelManager : MonoBehaviour
     public static event Action OnLevelLoaded;
 
     private bool levelLoaded = false;
+    public static bool IsLevelLoaded { get; private set; }
 
     private void Awake()
     {
+        IsLevelLoaded = false;
         ActivateSceneNetworkObjectsIfOffline();
 
         // Intentar obtener nivel desde GameManager
@@ -120,6 +122,7 @@ public class LevelManager : MonoBehaviour
         }
 
         // Signal que el nivel est� cargado
+        IsLevelLoaded = true;
         OnLevelLoaded?.Invoke();
         Debug.Log("[LevelManager] Nivel cargado completamente.");
     }

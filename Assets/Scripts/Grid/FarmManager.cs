@@ -180,8 +180,9 @@ public class FarmManager : NetworkBehaviour
 
         if (farmTilemap == null) return;
         if (IsWaterTile(cell) || IsWallTile(cell) || IsConcreteTile(cell)) return;
+        if (!farmTilemap.HasTile(cell)) return;
 
-        if (!farmTilemap.HasTile(cell) || farmTilemap.GetTile(cell) != preparedTile)
+        if (farmTilemap.GetTile(cell) != preparedTile)
         {
             farmTilemap.SetTile(cell, preparedTile);
             farmTilemap.RefreshTile(cell);
