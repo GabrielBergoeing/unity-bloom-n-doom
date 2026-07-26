@@ -15,6 +15,23 @@ using UnityEngine;
 // delivered to a handler registered for the other.
 public struct LevelSelectRequestMessage : NetworkMessage { public int levelIndex; public string levelSceneName; }
 
+// Same reasoning as LevelSelectRequestMessage above: post-match "return to character
+// select" / "return to stage select" (UI_MatchResults) used to only work for whichever
+// client happened to also be NetworkServer.active - true for a P2P host, never true for
+// any client under GameLift (the dedicated server is its own separate process). Routed
+// through the server the same way so any player can trigger it.
+public struct ReturnToCharacterSelectRequestMessage : NetworkMessage { }
+public struct ReturnToStageSelectRequestMessage : NetworkMessage { }
+
+// Client -> server: "what level are we playing?" LevelSelectedMessage below is a
+// broadcast-once message sent only at the moment SelectLevel() runs - a connection that
+// joins AFTER that moment (reconnecting after a drop, or any other late join into an
+// already-running match) never receives it, so its GameManager.currentLevel stays null
+// forever and LevelManager falls back to an empty/default level instead of the real one.
+// LevelManager sends this on Awake if currentLevel isn't set yet; the server answers with
+// the same LevelSelectedMessage a fresh join would have gotten.
+public struct CurrentLevelQueryMessage : NetworkMessage { }
+
 /// <summary>
 /// Drop-in replacement for NetworkManager that handles online-specific needs:
 ///   • Spawns the correct character prefab per connection in OnServerAddPlayer.
@@ -40,6 +57,15 @@ public class OnlineNetworkManager : NetworkManager
 
     // ── Level synced to clients via message ──
     private struct LevelSelectedMessage : NetworkMessage { public int levelIndex; }
+
+    // Server-side record of the last level SelectLevel() picked, so a late join can be
+    // answered even though the original broadcast already happened. -1 = nothing picked yet.
+    private int lastSelectedLevelIndex = -1;
+
+    // Fired on the client once GameManager.currentLevel is actually known (fresh broadcast
+    // or a late-join query response alike) - LevelManager waits on this instead of assuming
+    // currentLevel is already set by the time its Awake() runs.
+    public event Action<LevelData> ClientLevelAssigned;
 
     // ── Public accessors ──
     public LevelData GetLevel(int index) =>
@@ -75,6 +101,7 @@ public class OnlineNetworkManager : NetworkManager
         }
 
         LevelData chosen = levels[index];
+        lastSelectedLevelIndex = index;
 
         // Apply on host immediately
         if (GameManager.instance != null)
@@ -107,17 +134,40 @@ public class OnlineNetworkManager : NetworkManager
     {
         base.OnStartServer();
         NetworkServer.RegisterHandler<LevelSelectRequestMessage>(OnLevelSelectRequested, false);
+        NetworkServer.RegisterHandler<ReturnToCharacterSelectRequestMessage>(OnReturnToCharacterSelectRequested, false);
+        NetworkServer.RegisterHandler<ReturnToStageSelectRequestMessage>(OnReturnToStageSelectRequested, false);
+        NetworkServer.RegisterHandler<CurrentLevelQueryMessage>(OnCurrentLevelQueried, false);
+        lastSelectedLevelIndex = -1;
     }
 
     public override void OnStopServer()
     {
         NetworkServer.UnregisterHandler<LevelSelectRequestMessage>();
+        NetworkServer.UnregisterHandler<ReturnToCharacterSelectRequestMessage>();
+        NetworkServer.UnregisterHandler<ReturnToStageSelectRequestMessage>();
+        NetworkServer.UnregisterHandler<CurrentLevelQueryMessage>();
         base.OnStopServer();
     }
 
     private void OnLevelSelectRequested(NetworkConnectionToClient conn, LevelSelectRequestMessage msg)
     {
         SelectLevel(msg.levelIndex, msg.levelSceneName);
+    }
+
+    private void OnReturnToCharacterSelectRequested(NetworkConnectionToClient conn, ReturnToCharacterSelectRequestMessage msg)
+    {
+        ServerChangeScene("CharacterSelectorOnline");
+    }
+
+    private void OnReturnToStageSelectRequested(NetworkConnectionToClient conn, ReturnToStageSelectRequestMessage msg)
+    {
+        ServerChangeScene("MapSelectorOnline");
+    }
+
+    private void OnCurrentLevelQueried(NetworkConnectionToClient conn, CurrentLevelQueryMessage msg)
+    {
+        if (lastSelectedLevelIndex >= 0)
+            conn.Send(new LevelSelectedMessage { levelIndex = lastSelectedLevelIndex });
     }
 
     // SteamLobby's connect-with-fallback retry (JoinWithFallback) needs a reliable
@@ -166,6 +216,17 @@ public class OnlineNetworkManager : NetworkManager
     /// Spawns the character prefab that was chosen by the player owning this connection.
     /// Falls back to playerPrefab if no mapping exists.
     /// </summary>
+    // Frees the GameLift PlayerSession slot for every disconnect (voluntary or not) - see
+    // GameLiftServerManager.OnConnectionDisconnected for why this is required for a second
+    // match to ever be able to fill the room again under GameLift.
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+#if UNITY_SERVER
+        GameLiftServerManager.Instance?.OnConnectionDisconnected(conn.connectionId);
+#endif
+        base.OnServerDisconnect(conn);
+    }
+
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         int slotIndex = connectionSlots.TryGetValue(conn.connectionId, out int idx) ? idx : -1;
@@ -206,18 +267,27 @@ public class OnlineNetworkManager : NetworkManager
     {
         LevelData level = GameManager.instance?.currentLevel;
 
-        if (level?.playerSpawnPositions != null &&
-            slotIndex >= 0 && slotIndex < level.playerSpawnPositions.Length)
+        if (level?.playerSpawnPositions != null && level.playerSpawnPositions.Length > 0)
         {
-            return level.playerSpawnPositions[slotIndex];
+            if (slotIndex >= 0 && slotIndex < level.playerSpawnPositions.Length)
+                return level.playerSpawnPositions[slotIndex];
+
+            // slotIndex is -1 for any connection not in connectionSlots - that dictionary is
+            // only ever filled once, from the character-select scene, right before the
+            // ORIGINAL match started (see StoreConnectionSlots). A player reconnecting mid-
+            // match (their new connectionId was never part of that snapshot) used to fall
+            // through to Mirror's generic startPositions/a raw connectionId*2 Vector3 below -
+            // both of which land far outside the actual map when unused/empty in this project,
+            // putting the reconnecting player (and their camera) in mostly-void space with
+            // just a corner of the real level visible at the edge. Use one of the level's own
+            // spawn points instead - always guaranteed to be inside the map - with a safe
+            // modulo over connectionId so unmapped players still spread across them.
+            int levelFallback = ((connectionId % level.playerSpawnPositions.Length) + level.playerSpawnPositions.Length) % level.playerSpawnPositions.Length;
+            return level.playerSpawnPositions[levelFallback];
         }
 
-        // slotIndex is -1 for any connection not in connectionSlots (joined/reconnected after
-        // StoreConnectionSlots already ran) - fall back to connectionId instead of the raw
-        // slotIndex so each unmapped player still gets spread across distinct start positions
-        // rather than everyone landing on the exact same spot. connectionId is always >= 0,
-        // slotIndex is not (C#'s % returns a negative result for a negative dividend, e.g.
-        // -1 % 4 == -1, which would throw indexing a List<Transform>), so use safe modulo too.
+        // No level spawn data at all (shouldn't happen in online play, but keep the old
+        // generic fallback for safety/offline default levels).
         int fallbackIndex = slotIndex >= 0 ? slotIndex : connectionId;
 
         if (startPositions.Count > 0)
@@ -236,6 +306,7 @@ public class OnlineNetworkManager : NetworkManager
         {
             GameManager.instance.currentLevel = chosen;
             Debug.Log($"[OnlineNetworkManager] Client received level: {chosen.name}");
+            ClientLevelAssigned?.Invoke(chosen);
         }
 
         // Every client (including a P2P host's own local loopback client) gets its BGM

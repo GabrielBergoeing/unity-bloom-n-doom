@@ -18,10 +18,14 @@ Ver el protocolo comentado en `Program.cs`. Lo consume
 
 ## Variables de entorno (obligatorias salvo que se indique lo contrario)
 
+Sirve igual para una fleet Anywhere o una administrada - solo cambia a qué fleet apuntan
+estas variables (ver `Assets/Scripts/Network/README.md` para cuándo usar cada una; en
+resumen, administrada solo funciona con **Windows Server 2022** como SO del build/fleet).
+
 | Variable | Descripción |
 |---|---|
-| `GAMELIFT_FLEET_ID` | ID de la fleet Anywhere (`fleet-...`). |
-| `GAMELIFT_LOCATION` | Ubicación custom donde está registrado el compute (`custom-...`). |
+| `GAMELIFT_FLEET_ID` | ID de la fleet (`fleet-...`), Anywhere o administrada. |
+| `GAMELIFT_LOCATION` | Anywhere: la ubicación custom del compute (`custom-...`). Administrada: la región (ej. `us-east-1`). |
 | `GAMELIFT_REGION` | Región de AWS, ej. `us-east-1`. |
 | `GAMELIFT_MAX_PLAYERS` | Opcional, default `4`. |
 | `GAMELIFT_BROKER_PORT` | Opcional, default `8090`. |
@@ -81,3 +85,12 @@ curl -X POST http://localhost:8090/request-session -Body "{}" -ContentType "appl
 Debería devolver algo como `{"success":true,"address":"...","port":7777,"playerSessionId":"psess-..."}`.
 Si da `success:false` con el mensaje de timeout, confirmá que el servidor dedicado esté
 realmente corriendo y haya llegado a `ActivateGameSession` antes de pedir la sesión.
+
+Si da `success:false` con "La sala de GameLift está llena", la `GameSession` activa ya
+tiene `GAMELIFT_MAX_PLAYERS` jugadores contados por GameLift - normal si de verdad hay una
+partida llena, pero si nadie está jugando en ese momento significa que algún jugador se
+desconectó sin que su `PlayerSession` se liberara (ver
+`Assets/Scripts/Network/README.md#bugs-encontrados-en-producción-fleet-administrada-ya-arreglados`
+- `RemovePlayerSession` solo se puede llamar desde el proceso del servidor mismo, así que
+si el build desplegado es uno viejo sin ese fix, la única forma de desatascar la sala es
+reiniciar la instancia de la fleet).

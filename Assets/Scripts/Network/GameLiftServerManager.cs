@@ -350,6 +350,33 @@ public class GameLiftServerManager : MonoBehaviour
         return true;
     }
 
+    // Called from OnlineNetworkManager.OnServerDisconnect for every disconnect (voluntary
+    // return-to-menu after a match, or a dropped connection alike) - without this, a
+    // player's PlayerSession stays ACTIVE in GameLift's own bookkeeping forever (nothing
+    // else ever calls RemovePlayerSession), so the GameSession's player count only ever
+    // goes up. Once it reaches MaximumPlayerSessionCount the broker's CreatePlayerSession
+    // starts throwing GameSessionFullException for every future match, even though
+    // everyone from the previous match already left.
+    public void OnConnectionDisconnected(int connectionId)
+    {
+        string playerSessionId = null;
+        foreach (var kvp in acceptedPlayerSessions)
+        {
+            if (kvp.Value == connectionId)
+            {
+                playerSessionId = kvp.Key;
+                break;
+            }
+        }
+
+        if (playerSessionId == null)
+            return;
+
+        InvokeGameLiftRemovePlayerSession(playerSessionId);
+        acceptedPlayerSessions.Remove(playerSessionId);
+        Debug.Log($"[GameLift] PlayerSession liberada por desconexi�n: {playerSessionId} (connId {connectionId})");
+    }
+
     public bool TryRemovePlayerSession(string playerSessionId)
     {
         if (string.IsNullOrEmpty(playerSessionId))

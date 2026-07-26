@@ -17,6 +17,11 @@ public class LevelManager : MonoBehaviour
     private bool levelLoaded = false;
     public static bool IsLevelLoaded { get; private set; }
 
+    // True while waiting on a late-join CurrentLevelQueryMessage response (see
+    // OnlineNetworkManager) - Start() must not run the normal load flow yet in that case,
+    // OnLevelReceivedFromServer() below drives it once the response arrives instead.
+    private bool awaitingServerLevel = false;
+
     private void Awake()
     {
         IsLevelLoaded = false;
@@ -27,31 +32,80 @@ public class LevelManager : MonoBehaviour
         {
             currentLevel = GameManager.instance.currentLevel;
             Debug.Log("[LevelManager] Nivel cargado desde GameManager.");
-        }
-        else
-        {
-            // Fallback a nivel por defecto
-            Debug.LogWarning("[LevelManager] GameManager.currentLevel no configurado. Intentando cargar nivel por defecto.");
-            currentLevel = Resources.Load<LevelData>("Levels/DefaultLevel");
-            
-            if (currentLevel == null)
-            {
-                Debug.LogWarning("[LevelManager] No se encontr� LevelData. Usando configuraci�n vac�a.");
-                currentLevel = ScriptableObject.CreateInstance<LevelData>();
-            }
+            InitializeDataHandler();
+            return;
         }
 
+        // A plain client with no currentLevel yet (and never the dedicated server/host,
+        // which always sets it themselves in OnlineNetworkManager.SelectLevel before the
+        // scene even changes) means a late join: the one-shot LevelSelectedMessage
+        // broadcast already fired before this connection existed, so it was never
+        // delivered here. Ask the server directly instead of falling back to an empty/
+        // wrong level - see OnlineNetworkManager.ClientLevelAssigned/CurrentLevelQueryMessage.
+        if (NetworkClient.active && !NetworkServer.active && NetworkManager.singleton is OnlineNetworkManager onlineMgr)
+        {
+            Debug.LogWarning("[LevelManager] GameManager.currentLevel no disponible aún (posible late-join). Pidiendo nivel al servidor...");
+            awaitingServerLevel = true;
+            onlineMgr.ClientLevelAssigned += OnLevelReceivedFromServer;
+            NetworkClient.Send(new CurrentLevelQueryMessage());
+            return;
+        }
+
+        // Fallback a nivel por defecto (offline, o sin nivel configurado)
+        Debug.LogWarning("[LevelManager] GameManager.currentLevel no configurado. Intentando cargar nivel por defecto.");
+        currentLevel = Resources.Load<LevelData>("Levels/DefaultLevel");
+
+        if (currentLevel == null)
+        {
+            Debug.LogWarning("[LevelManager] No se encontr� LevelData. Usando configuraci�n vac�a.");
+            currentLevel = ScriptableObject.CreateInstance<LevelData>();
+        }
+
+        InitializeDataHandler();
+    }
+
+    private void InitializeDataHandler()
+    {
         string levelFileToLoad = currentLevel.jsonFileName ?? fileName;
         string levelPath = Path.Combine(Application.streamingAssetsPath, "Levels");
         dataHandler = new FileDataHandler(levelPath, levelFileToLoad, encryptData: encryptData);
     }
 
+    private void OnLevelReceivedFromServer(LevelData level)
+    {
+        if (NetworkManager.singleton is OnlineNetworkManager onlineMgr)
+            onlineMgr.ClientLevelAssigned -= OnLevelReceivedFromServer;
+
+        currentLevel = level;
+        awaitingServerLevel = false;
+        InitializeDataHandler();
+        Debug.Log("[LevelManager] Nivel recibido del servidor (late-join).");
+
+        StartLoadFlow();
+    }
+
+    private void OnDestroy()
+    {
+        if (awaitingServerLevel && NetworkManager.singleton is OnlineNetworkManager onlineMgr)
+            onlineMgr.ClientLevelAssigned -= OnLevelReceivedFromServer;
+    }
+
     private void Start()
+    {
+        // Waiting on a late-join server response - OnLevelReceivedFromServer() will call
+        // StartLoadFlow() once it arrives, instead of falling through here.
+        if (awaitingServerLevel)
+            return;
+
+        StartLoadFlow();
+    }
+
+    private void StartLoadFlow()
     {
         // Validar que dataHandler fue inicializado
         if (dataHandler == null)
         {
-            Debug.LogError("[LevelManager] FileDataHandler no inicializado en Awake.");
+            Debug.LogError("[LevelManager] FileDataHandler no inicializado.");
             return;
         }
 

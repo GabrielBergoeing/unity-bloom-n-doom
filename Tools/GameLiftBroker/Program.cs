@@ -104,11 +104,23 @@ public static class Program
             SessionLock.Release();
         }
 
-        CreatePlayerSessionResponse playerSessionResponse = await GameLiftClient.CreatePlayerSessionAsync(new CreatePlayerSessionRequest
+        CreatePlayerSessionResponse playerSessionResponse;
+        try
         {
-            GameSessionId = session.GameSessionId,
-            PlayerId = "player-" + Guid.NewGuid()
-        });
+            playerSessionResponse = await GameLiftClient.CreatePlayerSessionAsync(new CreatePlayerSessionRequest
+            {
+                GameSessionId = session.GameSessionId,
+                PlayerId = "player-" + Guid.NewGuid()
+            });
+        }
+        catch (GameSessionFullException)
+        {
+            // Every seat the server process created is spoken for. This normally means the
+            // session is genuinely mid-match with a full room, but can also happen if a
+            // player's slot never got freed after they left - GameLiftServerManager.
+            // OnConnectionDisconnected (server-side) is what's supposed to prevent that.
+            return new { success = false, error = "La sala de GameLift está llena. Probá de nuevo en unos segundos." };
+        }
 
         PlayerSession playerSession = playerSessionResponse.PlayerSession;
         string address = !string.IsNullOrEmpty(playerSession.DnsName) ? playerSession.DnsName : playerSession.IpAddress;

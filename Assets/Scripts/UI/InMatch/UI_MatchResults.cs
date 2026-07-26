@@ -111,12 +111,10 @@ public class UI_MatchResults : MonoBehaviour
 
         if (IsOnline)
         {
-            // Online scene changes must go through Mirror so every client follows along;
-            // only the host drives it, same convention as UI_MapSelectorOnline level picks.
-            if (NetworkServer.active)
-                NetworkManager.singleton.ServerChangeScene("CharacterSelectorOnline");
-            else
-                Debug.Log("[UI_MatchResults] Only the host can return to character select.");
+            // Sent to the server (never assumed to be this client - a GameLift dedicated
+            // server never is) so any player can trigger it, same convention as
+            // UI_MapSelectorOnline level picks / OnlineNetworkManager.LevelSelectRequestMessage.
+            NetworkClient.Send(new ReturnToCharacterSelectRequestMessage());
             return;
         }
 
@@ -130,10 +128,7 @@ public class UI_MatchResults : MonoBehaviour
 
         if (IsOnline)
         {
-            if (NetworkServer.active)
-                NetworkManager.singleton.ServerChangeScene("MapSelectorOnline");
-            else
-                Debug.Log("[UI_MatchResults] Only the host can return to stage select.");
+            NetworkClient.Send(new ReturnToStageSelectRequestMessage());
             return;
         }
 
