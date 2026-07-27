@@ -631,6 +631,24 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Point"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""9da307c1-d1f1-4fc8-905e-cff08b1cd03b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Click"",
+                    ""type"": ""Button"",
+                    ""id"": ""55ef0b73-c07d-4006-ad2f-a15ce802faee"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -820,6 +838,28 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
                     ""action"": ""Next Tab"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f31b319c-464d-4924-9d21-3040efeecbcc"",
+                    ""path"": ""<Pointer>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Point"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2a377059-05db-46e7-9904-9e37736a4b83"",
+                    ""path"": ""<Pointer>/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -943,6 +983,8 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         m_UI_Join = m_UI.FindAction("Join", throwIfNotFound: true);
         m_UI_PreviousTab = m_UI.FindAction("Previous Tab", throwIfNotFound: true);
         m_UI_NextTab = m_UI.FindAction("Next Tab", throwIfNotFound: true);
+        m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
+        m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
         // Global
         m_Global = asset.FindActionMap("Global", throwIfNotFound: true);
         m_Global_ExitGame = m_Global.FindAction("ExitGame", throwIfNotFound: true);
@@ -1274,6 +1316,8 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Join;
     private readonly InputAction m_UI_PreviousTab;
     private readonly InputAction m_UI_NextTab;
+    private readonly InputAction m_UI_Point;
+    private readonly InputAction m_UI_Click;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1309,6 +1353,14 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/NextTab".
         /// </summary>
         public InputAction @NextTab => m_Wrapper.m_UI_NextTab;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Point".
+        /// </summary>
+        public InputAction @Point => m_Wrapper.m_UI_Point;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Click".
+        /// </summary>
+        public InputAction @Click => m_Wrapper.m_UI_Click;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1353,6 +1405,12 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @NextTab.started += instance.OnNextTab;
             @NextTab.performed += instance.OnNextTab;
             @NextTab.canceled += instance.OnNextTab;
+            @Point.started += instance.OnPoint;
+            @Point.performed += instance.OnPoint;
+            @Point.canceled += instance.OnPoint;
+            @Click.started += instance.OnClick;
+            @Click.performed += instance.OnClick;
+            @Click.canceled += instance.OnClick;
         }
 
         /// <summary>
@@ -1382,6 +1440,12 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
             @NextTab.started -= instance.OnNextTab;
             @NextTab.performed -= instance.OnNextTab;
             @NextTab.canceled -= instance.OnNextTab;
+            @Point.started -= instance.OnPoint;
+            @Point.performed -= instance.OnPoint;
+            @Point.canceled -= instance.OnPoint;
+            @Click.started -= instance.OnClick;
+            @Click.performed -= instance.OnClick;
+            @Click.canceled -= instance.OnClick;
         }
 
         /// <summary>
@@ -1703,6 +1767,20 @@ public partial class @PlayerInputSet: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnNextTab(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Point" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPoint(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Click" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnClick(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Global" which allows adding and removing callbacks.

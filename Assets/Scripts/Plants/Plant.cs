@@ -29,7 +29,7 @@ public class Plant : NetworkBehaviour
 
     [Header("Health and Withering time (in seconds)")]
     [Range(0, 20)][SerializeField] protected float maxHealth = 10;
-    [Range(0f, 60f)][SerializeField] protected float witheringTime = 30f;
+    [Range(0f, 90f)][SerializeField] protected float witheringTime = 45f;
     protected float health;
     protected float timer;
 

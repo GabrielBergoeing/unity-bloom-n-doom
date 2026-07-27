@@ -9,13 +9,16 @@ public class LevelData : ScriptableObject
 
     [Header("Match Settings")]
     [Tooltip("Match duration in seconds.")]
-    public float matchDuration = 900f;
+    public float matchDuration = 180f;
 
     [Header("Player Spawn Positions (Max 4 Players)")]
     public Vector2[] playerSpawnPositions = new Vector2[4];
 
     [Header("Level BGM")]
     public string bgmTrackName;
+
+    [Header("Test Level")]
+    public bool setTestFormat = false;
 
     [Header("Spawnable Prefabs")]
     public List<GameObject> seedPrefabs = new();

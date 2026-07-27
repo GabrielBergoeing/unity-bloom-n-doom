@@ -53,7 +53,7 @@ public class UI_Timer : MonoBehaviour
 
         textMeshPro.text = $"{minutes:00}:{seconds:00}";
 
-        float t = Mathf.InverseLerp(0f, 300f, remainingTime);
+        float t = Mathf.InverseLerp(0f, matchManager.CurrentLevelDuration, remainingTime);
         textMeshPro.color = Color.Lerp(endColor, startColor, t);
     }
 }

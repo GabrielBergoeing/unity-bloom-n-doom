@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using Unity.Netcode;
@@ -81,6 +82,7 @@ public class NetworkMetrics : NetworkBehaviour
         public double actionLatencyMs;
         public long bytesSent;
         public long bytesRecv;
+        public int playerCount;
     }
 
     private readonly List<MetricSample> csvBuffer = new();
@@ -90,6 +92,11 @@ public class NetworkMetrics : NetworkBehaviour
     // ---- cached stats ----
     private double lastRtt, avgRtt, jitterMs, lossPercent;
     private double lastDivergence = -1;
+
+    /// <summary>Last computed average RTT in ms, across all peers. Read by TelemetryLogger
+    /// instead of deriving its own RTT, since NGO has no simple built-in equivalent to
+    /// Mirror's NetworkTime.rtt.</summary>
+    public static double LastAvgRttMs { get; private set; }
 
     // ---- correction detection (remote players) ----
     private readonly Dictionary<NetworkPlayer, Vector3> lastRemotePositions = new();
@@ -247,6 +254,7 @@ public class NetworkMetrics : NetworkBehaviour
         if (total == 0)
         {
             lastRtt = avgRtt = jitterMs = lossPercent = 0;
+            LastAvgRttMs = 0;
             return;
         }
 
@@ -265,6 +273,7 @@ public class NetworkMetrics : NetworkBehaviour
 
         lastRtt = rtts.Count > 0 ? rtts[rtts.Count - 1] : 0;
         avgRtt = recv > 0 ? (sum / recv) : 0;
+        LastAvgRttMs = avgRtt;
 
         // jitter: sample standard deviation of rtts (same definition as Mirror version)
         if (rtts.Count > 1)
@@ -333,7 +342,8 @@ public class NetworkMetrics : NetworkBehaviour
             lastCorrectionUnits = lastCorrectionMag,
             actionLatencyMs = lastActionLatencyMs,
             bytesSent = NetTrafficCounter.Active ? NetTrafficCounter.Sent : -1,
-            bytesRecv = NetTrafficCounter.Active ? NetTrafficCounter.Received : -1
+            bytesRecv = NetTrafficCounter.Active ? NetTrafficCounter.Received : -1,
+            playerCount = NetworkManager != null ? NetworkManager.ConnectedClientsIds.Count : -1
         });
     }
 
@@ -349,8 +359,14 @@ public class NetworkMetrics : NetworkBehaviour
             ? ConnectionManager.Instance.transport.ToString()
             : "Unknown";
 
+        // Tag both the filename and each row with player count, so runs with different
+        // player counts (2/3/4-player stress tests, etc.) are easy to tell apart and
+        // group together when comparing multiple exported CSVs afterwards.
+        int playerCountForName = csvBuffer.Count > 0 ? csvBuffer[csvBuffer.Count - 1].playerCount : -1;
+        string playerTag = playerCountForName >= 0 ? $"_{playerCountForName}P" : "";
+
         string dir = Application.persistentDataPath;
-        string fileName = $"NetworkMetrics_NGO_{transport}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        string fileName = $"NetworkMetrics_NGO_{transport}{playerTag}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
         string path = Path.Combine(dir, fileName);
 
         try
@@ -359,32 +375,38 @@ public class NetworkMetrics : NetworkBehaviour
             // First 8 columns identical to the Mirror-branch module; extensions appended.
             sb.AppendLine("Timestamp,Mode,ServerAddress,RTT_Last_ms,RTT_Avg_ms,Jitter_ms,Loss_pct,WindowSize," +
                           "Framework,Transport,Divergence_units,Corrections_total,LastCorrection_units," +
-                          "ActionLatency_ms,BytesSent,BytesRecv");
+                          "ActionLatency_ms,BytesSent,BytesRecv,PlayerCount");
 
             foreach (var s in csvBuffer)
             {
                 sb.AppendLine(string.Join(",",
-                    s.timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    s.timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     EscapeCsv(s.mode),
                     EscapeCsv(s.serverAddress),
-                    s.rttLastMs.ToString("F2"),
-                    s.rttAvgMs.ToString("F2"),
-                    s.jitterMs.ToString("F2"),
-                    s.lossPercent.ToString("F2"),
-                    s.windowSize.ToString(),
+                    s.rttLastMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.rttAvgMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.jitterMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.lossPercent.ToString("F2", CultureInfo.InvariantCulture),
+                    s.windowSize.ToString(CultureInfo.InvariantCulture),
                     "NGO",
                     EscapeCsv(transport),
-                    s.divergenceUnits.ToString("F3"),
-                    s.correctionsTotal.ToString(),
-                    s.lastCorrectionUnits.ToString("F3"),
-                    s.actionLatencyMs.ToString("F2"),
-                    s.bytesSent.ToString(),
-                    s.bytesRecv.ToString()));
+                    s.divergenceUnits.ToString("F3", CultureInfo.InvariantCulture),
+                    s.correctionsTotal.ToString(CultureInfo.InvariantCulture),
+                    s.lastCorrectionUnits.ToString("F3", CultureInfo.InvariantCulture),
+                    s.actionLatencyMs.ToString("F2", CultureInfo.InvariantCulture),
+                    s.bytesSent.ToString(CultureInfo.InvariantCulture),
+                    s.bytesRecv.ToString(CultureInfo.InvariantCulture),
+                    s.playerCount.ToString(CultureInfo.InvariantCulture)));
             }
 
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
             lastExportPath = path;
             Debug.Log($"[NetworkMetrics] Exported {csvBuffer.Count} samples -> {path}");
+
+            // StopAndExport is called from both OnNetworkDespawn and OnDestroy when a
+            // session ends; without clearing, the second call would re-export the exact
+            // same samples under a new timestamp filename.
+            csvBuffer.Clear();
         }
         catch (Exception ex)
         {

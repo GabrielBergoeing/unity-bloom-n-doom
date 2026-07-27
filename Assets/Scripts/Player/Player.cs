@@ -11,6 +11,7 @@ public class Player : Entity
     public Player_SFX sfx { get; private set; }
     public HotbarSystem inventory { get; private set; }
     public NetworkPlayer net { get; private set; }
+    public Player_ActionCooldownVisual cooldownVisual { get; private set; }
     #endregion
 
     #region Network Helpers
@@ -42,6 +43,10 @@ public class Player : Entity
     #region Interface Variables
     [Header("Movement variables")]
     public float moveSpeed = 8;
+    // Player_MoveState ramps rb.linearVelocity toward/away from moveSpeed at these rates
+    // instead of snapping to it, so starting and stopping don't feel instant/robotic.
+    [Range(1f, 200f)] public float acceleration = 70f;
+    [Range(1f, 200f)] public float deceleration = 70f;
     public Vector2 moveInput { get; private set; }
 
     [Header("Irrigate variables")]
@@ -85,6 +90,11 @@ public class Player : Entity
         sfx = GetComponent<Player_SFX>();
         inventory = GetComponent<HotbarSystem>();
 
+        // Built at runtime so none of the 5 character prefabs need manual editing.
+        cooldownVisual = GetComponent<Player_ActionCooldownVisual>();
+        if (cooldownVisual == null)
+            cooldownVisual = gameObject.AddComponent<Player_ActionCooldownVisual>();
+
         idleState = new Player_IdleState(this, stateMachine, "idle");
         irrigateState = new Player_IrrigateState(this, stateMachine, "irrigate");
         moveState = new Player_MoveState(this, stateMachine, "move");
@@ -111,10 +121,18 @@ public class Player : Entity
     }
     #endregion
 
+    // Some gamepads don't spring back to exactly (0,0) when the stick is released - they
+    // settle on a tiny residual value that can land in the opposite quadrant from whatever
+    // direction was actually held, which momentarily flips the facing to face backwards
+    // right as the player lets go. A plain "== Vector2.zero" check only catches a perfect
+    // zero, so it doesn't catch this; anything below this magnitude is treated as no input
+    // instead, same as an exact zero.
+    private const float facingDeadzone = 0.2f;
+
     private void DetermineFacingDir()
     {
-        if (moveInput == Vector2.zero)
-            return; // No change if no input
+        if (moveInput.sqrMagnitude < facingDeadzone * facingDeadzone)
+            return; // No change if input is at/near zero (covers noisy stick release)
 
         if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
         {

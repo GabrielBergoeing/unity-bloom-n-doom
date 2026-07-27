@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData5
   m_EditorClassIdentifier: 
   jsonFileName: FifthLevel.json
-  matchDuration: 300
+  matchDuration: 180
   playerSpawnPositions:
   - {x: 15, y: 24}
   - {x: 24, y: 24}

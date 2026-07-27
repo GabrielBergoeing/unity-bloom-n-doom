@@ -60,6 +60,10 @@ public class GameSession : NetworkBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // Every peer (host and clients) tracks this, not just the server - TelemetryLogger
+        // captures per-machine FPS/CPU/GPU and needs to run on everyone during a match.
+        state.OnValueChanged += OnSessionStateChanged;
+
         if (IsServer)
         {
             foreach (var id in NetworkManager.ConnectedClientsIds)
@@ -72,6 +76,8 @@ public class GameSession : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        state.OnValueChanged -= OnSessionStateChanged;
+
         if (IsServer && NetworkManager != null)
         {
             NetworkManager.OnConnectionEvent -= OnConnectionEvent;
@@ -80,6 +86,20 @@ public class GameSession : NetworkBehaviour
         }
         if (Instance == this)
             Instance = null;
+    }
+
+    private void OnSessionStateChanged(int previous, int current)
+    {
+        if ((SessionState)current == SessionState.Playing)
+        {
+            if (TelemetryLogger.instance == null)
+                new GameObject("TelemetryLogger").AddComponent<TelemetryLogger>();
+            TelemetryLogger.instance.StartCapture();
+        }
+        else if ((SessionState)previous == SessionState.Playing)
+        {
+            TelemetryLogger.instance?.StopCapture();
+        }
     }
 
     private void Update()
@@ -260,6 +280,9 @@ public class GameSession : NetworkBehaviour
         matchTimer.Value = level != null ? level.matchDuration : 300f;
         resultsSent = false;
         state.Value = (int)SessionState.Playing;
+
+        if (level != null && level.setTestFormat && FindFirstObjectByType<StressTestSetup>() == null)
+            new GameObject("StressTestModule").AddComponent<StressTestSetup>();
     }
 
     // ======================================================
@@ -287,12 +310,18 @@ public class GameSession : NetworkBehaviour
     //  Owner client -> ServerRpc (validate) -> ClientRpc (mirror on all peers)
     // ======================================================
     [ServerRpc(RequireOwnership = false)]
-    public void RequestPrepareTileServerRpc(Vector3Int cell)
+    public void RequestPrepareTileServerRpc(Vector3Int cell) => ServerTryPrepareTile(cell);
+
+    /// <summary>Server-side prepare, shared by the owner-client relay above and by
+    /// StressTestSetup (which runs directly on the server, no RPC hop needed).</summary>
+    public bool ServerTryPrepareTile(Vector3Int cell)
     {
+        if (!IsServer) return false;
         var farm = FarmManager.instance;
-        if (farm == null || !farm.CanPrepareServer(cell)) return;
+        if (farm == null || !farm.CanPrepareServer(cell)) return false;
 
         ApplyPrepareTileClientRpc(cell);
+        return true;
     }
 
     [ClientRpc]
@@ -302,21 +331,30 @@ public class GameSession : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RequestPlantSeedServerRpc(Vector3Int cell, int itemId, int ownerIndex)
     {
-        var farm = FarmManager.instance;
-        if (farm == null || !farm.IsPrepared(cell) || farm.IsOccupied(cell)) return;
-
         var itemPrefab = NetworkAssets.Instance.GetItemPrefab(itemId);
         var seed = itemPrefab != null ? itemPrefab.GetComponent<Seed>() : null;
         if (seed == null || seed.PlantPrefab == null) return;
 
+        ServerTryPlantSeed(cell, seed.PlantPrefab, ownerIndex);
+    }
+
+    /// <summary>Server-side plant, shared by the owner-client relay above and by
+    /// StressTestSetup (which runs directly on the server, no RPC hop needed).</summary>
+    public bool ServerTryPlantSeed(Vector3Int cell, GameObject plantPrefab, int ownerIndex)
+    {
+        if (!IsServer || plantPrefab == null) return false;
+        var farm = FarmManager.instance;
+        if (farm == null || !farm.IsPrepared(cell) || farm.IsOccupied(cell)) return false;
+
         ApplySeedTileClientRpc(cell);
 
         Vector3 worldPos = farm.farmTilemap.GetCellCenterWorld(cell);
-        var plantGo = Instantiate(seed.PlantPrefab, worldPos, Quaternion.identity);
+        var plantGo = Instantiate(plantPrefab, worldPos, Quaternion.identity);
         var plant = plantGo.GetComponent<Plant>();
         plant.ServerPrepareInit(ownerIndex, cell);
         plantGo.GetComponent<NetworkObject>().Spawn(true);
         plant.InitClientRpc(ownerIndex, cell);
+        return true;
     }
 
     [ClientRpc]

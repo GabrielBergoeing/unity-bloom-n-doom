@@ -66,6 +66,7 @@ public class UI_PauseMenu : MonoBehaviour
 
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
+        EventSystem.current?.SetSelectedGameObject(null);
     }
 
     // ------- Buttons -------

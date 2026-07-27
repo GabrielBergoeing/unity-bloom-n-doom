@@ -26,6 +26,7 @@ public class MenuManager : MonoBehaviour
         AudioManager.instance.StartBGM("bgm_menu");
         mainMenuPanel.SetActive(true);
         settingsPanel.SetActive(false);
+        selectFirstGameObject(mainCanvas);
     }
 
     public void ShowSettingsOverlay()

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData4
   m_EditorClassIdentifier: 
   jsonFileName: FourthLevel.json
-  matchDuration: 300
+  matchDuration: 180
   playerSpawnPositions:
   - {x: 14, y: 13}
   - {x: -10, y: 38}

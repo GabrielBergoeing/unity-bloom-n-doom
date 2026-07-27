@@ -13,6 +13,8 @@ public class UI_FadeScreen : MonoBehaviour
         fadeImage.color = new Color(0, 0, 0, 1);
     }
 
+    private void Start() => FadeIn();
+
     private void FadeEffect(float targetAlpha, float duration)
     {
         if (fadeEffectCo != null)

@@ -13,32 +13,27 @@ public class Player_PickState : Player_ActionState
         if (player.tile.CanRefillWater())
         {
             sfx.PlayOnRefill();
-            player.StartCoroutine(ExecuteAction(player.pickFrame, player.pickCooldown, _ => { player.waterSupply += 10; }));
+            player.waterSupply += 10;
         }
-
         else
         {
             Pickup pickup = player.GetPickupNearby();
             if (pickup != null)
             {
-                player.StartCoroutine(
-                    ExecuteAction(player.pickFrame, player.pickCooldown, _ =>
-                    {
-                        if (GameSession.OnlineActive)
-                        {
-                            // Server despawns the world item and grants it back to us.
-                            player.net?.RequestPickup(pickup);
-                        }
-                        else if (player.inventory.AddItem(pickup.itemId))
-                        {
-                            sfx.PlayOnPick();
-                            pickup.Pick(player);
-                            Object.Destroy(pickup.gameObject);
-                        }
-                    }));
+                if (GameSession.OnlineActive)
+                {
+                    // Server despawns the world item and grants it back to us.
+                    player.net?.RequestPickup(pickup);
+                }
+                else if (player.inventory.AddItem(pickup.itemId))
+                {
+                    sfx.PlayOnPick();
+                    pickup.Pick(player);
+                    Object.Destroy(pickup.gameObject);
+                }
             }
-            else
-                stateMachine.ChangeState(player.idleState);
         }
+
+        stateMachine.ChangeState(player.idleState);
     }
 }

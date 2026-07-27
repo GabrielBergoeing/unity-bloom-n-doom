@@ -20,6 +20,8 @@ public class MatchManager : MonoBehaviour
         ? GameSession.Instance != null && GameSession.Instance.State == GameSession.SessionState.Playing
         : isPlayingMatch && !hasPrintResults;
 
+    public float CurrentLevelDuration => currentLevel != null ? currentLevel.matchDuration : 300f;
+
     [Header("Match Time (in seconds)")]
     [SerializeField] private float matchTime;
     private bool isPlayingMatch = false;
@@ -134,15 +136,9 @@ public class MatchManager : MonoBehaviour
             if (pi == null) return;
 
             if (pause)
-            {
-                pi.DeactivateInput();
                 pi.SwitchCurrentActionMap("UI");
-            }
             else
-            {
-                pi.ActivateInput();
                 pi.SwitchCurrentActionMap("Player");
-            }
             return;
         }
 

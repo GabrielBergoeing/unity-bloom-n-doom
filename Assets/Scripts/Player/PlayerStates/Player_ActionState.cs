@@ -35,21 +35,43 @@ public class Player_ActionState : PlayerState
         float cooldown,
         System.Action<Vector3Int> applyAction //Stores function with parameters
     ){
-        player.FlipPlayerControlFlag();
+        player.SetControl(false);
 
         // The actual action performed (cut/plant/prepare/etc)
-        applyAction(tile.CurrentCell);
+        try
+        {
+            applyAction(tile.CurrentCell);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogException(e);
+        }
+
+        float total = duration + Mathf.Max(0f, cooldown);
+        float elapsed = 0f;
+
+        player.cooldownVisual?.SetVisible(true);
+        player.cooldownVisual?.SetProgress(0f);
 
         // Animation time
-        yield return new WaitForSeconds(duration);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            player.cooldownVisual?.SetProgress(total > 0 ? elapsed / total : 1f);
+            yield return null;
+        }
 
-        player.FlipPlayerControlFlag();
+        player.SetControl(true);
         isPerformingAction = false;
 
         // Cooldown (sabotage tools, etc)
-        if (cooldown > 0)
+        while (elapsed < total)
         {
-            yield return new WaitForSeconds(cooldown);
+            elapsed += Time.deltaTime;
+            player.cooldownVisual?.SetProgress(elapsed / total);
+            yield return null;
         }
+
+        player.cooldownVisual?.SetVisible(false);
     }
 }

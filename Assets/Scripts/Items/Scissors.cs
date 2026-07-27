@@ -13,13 +13,15 @@ public class Scissors : MonoBehaviour
     public bool IsOnCooldown => isOnCooldown;
 
     public Items_SFX sfx { get; private set; }
+    private Pickup pickup;
 
     private void Awake()
     {
         sfx = GetComponent<Items_SFX>();
+        pickup = GetComponent<Pickup>();
     }
 
-    public void Use(Vector3Int targetCell)
+    public void Use(Vector3Int targetCell, Player player)
     {
         if (isOnCooldown)
         {
@@ -39,6 +41,10 @@ public class Scissors : MonoBehaviour
         }
 
         isOnCooldown = true;
+
+        // Single-use tool - consumed from the inventory on every swing (hit or miss),
+        // same as the cooldown above always applying regardless of outcome.
+        pickup.Consume(player);
     }
 
     public void ResetCooldown() => isOnCooldown = false;
