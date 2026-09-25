@@ -1579,7 +1579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8c0b9da832528419ceb68a8a7b8016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  signalingServerHost: 186.104.12.165
+  signalingServerHost: 186.106.41.140
   signalingServerPort: 9050
   requestTimeoutSeconds: 3
   hostKeepAliveInterval: 5
